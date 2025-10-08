@@ -1,12 +1,10 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 
 /**
  * Fynstra — One-page marketing site
  * Stack: React + TailwindCSS (no extra deps)
  *
- * Notes:
- * - Put your transparent logo at /public/fynstra-logo.png (PNG w/ alpha).
- * - Replace CALENDLY_URL with your real link when ready.
+ * Mobile nav is now a fixed overlay (backdrop + slide-down panel).
  */
 
 // --- Brand system from your style guide ---
@@ -75,17 +73,11 @@ export default function FynstraSite({
   bannerRight?: string;
 }) {
   const containerRef = useScrollReveal();
+  const [mobileOpen, setMobileOpen] = useState(false);
 
+  // Global effects
   useEffect(() => {
     document.documentElement.classList.add("scroll-smooth");
-
-    // Tiny runtime checks
-    const ids = ["top", "about", "services", "testimonials", "contact"];
-    const missing = ids.filter((id) => !document.getElementById(id));
-    if (missing.length) console.warn("[Fynstra] Missing section ids:", missing.join(", "));
-    if (document.querySelectorAll("section").length < 5) {
-      console.warn("[Fynstra] Expected >= 5 <section> elements.");
-    }
 
     // Darken hero on scroll
     const hero = document.getElementById("hero-bg");
@@ -95,8 +87,36 @@ export default function FynstraSite({
       (hero as HTMLElement).style.opacity = y > 80 ? "0.7" : "1";
     };
     window.addEventListener("scroll", handleScroll, { passive: true });
-    return () => window.removeEventListener("scroll", handleScroll);
+
+    // Close mobile nav on hash change
+    const onHash = () => setMobileOpen(false);
+    window.addEventListener("hashchange", onHash);
+
+    // Close on ESC
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setMobileOpen(false);
+    };
+    window.addEventListener("keydown", onKey);
+
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+      window.removeEventListener("hashchange", onHash);
+      window.removeEventListener("keydown", onKey);
+    };
   }, []);
+
+  // Lock body scroll when mobile menu is open
+  useEffect(() => {
+    const { style } = document.body;
+    if (mobileOpen) {
+      style.overflow = "hidden";
+    } else {
+      style.overflow = "";
+    }
+    return () => {
+      style.overflow = "";
+    };
+  }, [mobileOpen]);
 
   return (
     <div ref={containerRef} className="text-slate-100 bg-white selection:bg-indigo-200/60">
@@ -147,10 +167,12 @@ export default function FynstraSite({
               alt="Fynstra"
               className="h-12 w-12 object-contain relative top-1"
             />
-            <span className="text-2xl font-semibold text-slate-900 group-hover:text-slate-700 transition">
+            <span className="text-xl sm:text-2xl font-semibold text-slate-900 group-hover:text-slate-700 transition">
               Fynstra
             </span>
           </a>
+
+          {/* Desktop nav */}
           <nav className="hidden md:flex items-center gap-6 text-slate-700">
             <a href="#about" className="hover:text-slate-900">About</a>
             <a href="#services" className="hover:text-slate-900">Services</a>
@@ -158,8 +180,80 @@ export default function FynstraSite({
             <a href="#contact" className="hover:text-slate-900">Contact</a>
             <a href="#contact" className="btn btn-pri ml-2">Book a chat</a>
           </nav>
+
+          {/* Mobile hamburger */}
+          <button
+            className="md:hidden inline-flex items-center justify-center p-2 rounded-xl border border-black/10 text-slate-700 hover:bg-black/5"
+            aria-label="Open menu"
+            aria-expanded={mobileOpen}
+            onClick={() => setMobileOpen((v) => !v)}
+          >
+            <span className="sr-only">Menu</span>
+            <div className="space-y-1.5">
+              <span className="block h-0.5 w-5 bg-slate-700 rounded" />
+              <span className="block h-0.5 w-5 bg-slate-700 rounded" />
+              <span className="block h-0.5 w-5 bg-slate-700 rounded" />
+            </div>
+          </button>
         </div>
       </header>
+
+      {/* MOBILE OVERLAY MENU */}
+      {mobileOpen && (
+        <div
+          className="fixed inset-0 z-50 md:hidden"
+          role="dialog"
+          aria-modal="true"
+        >
+          {/* Backdrop */}
+          <div
+            className="absolute inset-0 bg-black/40 backdrop-blur-sm"
+            onClick={() => setMobileOpen(false)}
+          />
+          {/* Panel */}
+          <div
+            className="absolute left-0 right-0 top-0 origin-top translate-y-0 animate-[menuDown_180ms_ease-out] rounded-b-2xl bg-white shadow-xl border-b border-black/10"
+          >
+            <div className="px-4 sm:px-6 lg:px-8 py-3 flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <img
+                  src={logoSrc}
+                  onError={(e) => ((e.currentTarget.src = fallbackLogo))}
+                  alt="Fynstra"
+                  className="h-10 w-10 object-contain"
+                />
+                <span className="text-lg font-semibold text-slate-900">Menu</span>
+              </div>
+              <button
+                className="inline-flex items-center justify-center p-2 rounded-xl border border-black/10 text-slate-700 hover:bg-black/5"
+                aria-label="Close menu"
+                onClick={() => setMobileOpen(false)}
+              >
+                <span className="sr-only">Close</span>
+                {/* X icon */}
+                <svg width="20" height="20" viewBox="0 0 24 24" className="text-slate-700">
+                  <path d="M6 6l12 12M6 18L18 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+                </svg>
+              </button>
+            </div>
+            <nav className="px-4 sm:px-6 lg:px-8 pb-6 pt-2">
+              <a href="#about" onClick={() => setMobileOpen(false)} className="block py-3 text-slate-800 rounded-lg hover:bg-black/5">About</a>
+              <a href="#services" onClick={() => setMobileOpen(false)} className="block py-3 text-slate-800 rounded-lg hover:bg:black/5 hover:bg-black/5">Services</a>
+              <a href="#testimonials" onClick={() => setMobileOpen(false)} className="block py-3 text-slate-800 rounded-lg hover:bg-black/5">Testimonials</a>
+              <a href="#contact" onClick={() => setMobileOpen(false)} className="block py-3 text-slate-800 rounded-lg hover:bg-black/5">Contact</a>
+              <a href="#contact" onClick={() => setMobileOpen(false)} className="mt-3 btn btn-pri w-full">Book a chat</a>
+            </nav>
+          </div>
+
+          {/* Keyframes (scoped) */}
+          <style>{`
+            @keyframes menuDown {
+              from { transform: translateY(-12px); opacity: 0; }
+              to { transform: translateY(0); opacity: 1; }
+            }
+          `}</style>
+        </div>
+      )}
 
       {/* HERO */}
       <section id="top" className="relative overflow-hidden">
@@ -174,77 +268,69 @@ export default function FynstraSite({
             }}
           />
           <img
-            src={bannerLeft}
+            src={defaultBannerLeft}
             alt="Brand motif"
-            className="absolute left-0 top-0 opacity-40 w-72 sm:w-96 -translate-x-[15%] -translate-y-[15%] blur-[1px]"
+            className="absolute left-0 top-0 opacity-40 w-56 sm:w-72 md:w-96 -translate-x-[15%] -translate-y-[15%] blur-[1px]"
           />
           <img
-            src={bannerRight}
+            src={defaultBannerRight}
             alt="Brand motif"
-            className="absolute right-[-10%] bottom-[-20%] opacity-50 w-[38rem] sm:w-[48rem] rotate-6 blur-[0.5px]"
+            className="absolute right-[-20%] md:right-[-10%] bottom-[-28%] md:bottom-[-20%] opacity-50 w-[28rem] sm:w-[36rem] md:w-[48rem] rotate-6 blur-[0.5px]"
           />
-          <div className="absolute inset-0 bg-gradient-to-tr from-white/50 via-white/30 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-tr from-white/60 via-white/30 to-transparent" />
         </div>
 
         {/* Content */}
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-24 sm:py-28 lg:py-32">
-          <div className="grid lg:grid-cols-2 gap-10 items-center">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-16 sm:py-20 lg:py-32">
+          <div className="grid lg:grid-cols-2 gap-8 sm:gap-10 items-center">
             {/* Left column */}
             <div className="reveal" data-reveal>
-              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-semibold text-slate-900 leading-tight">
+              <h1 className="text-[2rem] sm:text-5xl lg:text-6xl font-semibold text-slate-900 leading-tight">
                 Build momentum with <span className="heading-gradient">crisp, credible</span> communication.
               </h1>
-              <p className="mt-5 text-lg text-slate-700 max-w-xl">
+              <p className="mt-4 sm:mt-5 text-base sm:text-lg text-slate-700 max-w-xl">
                 Fynstra helps growing teams turn complex ideas into clean, persuasive content. Copywriting, communication frameworks, and practical consulting that move the work forward.
               </p>
-              <div className="mt-8 flex flex-wrap gap-3">
+              <div className="mt-6 sm:mt-8 flex flex-wrap gap-3">
                 <a href="#services" className="btn btn-pri">Explore services</a>
                 <a href="#contact" className="btn btn-ghost">Get in touch</a>
               </div>
 
-              {/* Logo only row (per request) */}
-              <div className="mt-10 flex items-center gap-4">
+              {/* Logo only row */}
+              <div className="mt-8 sm:mt-10 flex items-center gap-4">
                 <img
                   src={logoSrc}
                   onError={(e) => ((e.currentTarget.src = fallbackLogo))}
                   alt="Fynstra"
-                  className="h-10 w-10 rounded-xl object-contain"
+                  className="h-9 w-9 sm:h-10 sm:w-10 rounded-xl object-contain"
                 />
               </div>
             </div>
 
-            {/* Right column — larger branded card */}
+            {/* Right column — branded card */}
             <div className="reveal" data-reveal>
-              <div className="relative rounded-3xl ring-1 ring-black/10 bg-white/60 backdrop-blur p-6 shadow-xl">
-                {/* Branded gradient panel */}
+              <div className="relative rounded-3xl ring-1 ring-black/10 bg-white/60 backdrop-blur p-4 sm:p-6 shadow-xl">
                 <div className="relative aspect-[4/3] rounded-2xl overflow-hidden">
-                  {/* Gradient base */}
                   <div
                     className="absolute inset-0"
                     style={{ background: "linear-gradient(135deg, var(--fynstra-blue), var(--fynstra-purple))" }}
                   />
-
-                  {/* Soft decorative glows */}
-                  <div className="absolute -top-16 -right-16 h-64 w-64 rounded-full bg-white/30 blur-3xl opacity-40" />
-                  <div className="absolute -bottom-20 -left-20 h-72 w-72 rounded-full bg-[rgba(79,180,198,0.35)] blur-3xl opacity-50" />
-
-                  {/* Enlarged brand lockup */}
-                  <div className="relative z-10 h-full w-full flex flex-col items-center justify-center text-white scale-[1.35] sm:scale-[1.5]">
+                  <div className="absolute -top-16 -right-16 h-56 w-56 sm:h-64 sm:w-64 rounded-full bg-white/30 blur-3xl opacity-40" />
+                  <div className="absolute -bottom-20 -left-20 h-64 w-64 sm:h-72 sm:w-72 rounded-full bg-[rgba(79,180,198,0.35)] blur-3xl opacity-50" />
+                  <div className="relative z-10 h-full w-full flex flex-col items-center justify-center text-white scale-[1.2] sm:scale-[1.5]">
                     <img
                       src={logoSrc}
                       onError={(e) => ((e.currentTarget.src = fallbackLogo))}
                       alt="Fynstra"
-                      className="h-20 w-20 rounded-2xl object-contain shadow-md ring-1 ring-white/40"
+                      className="h-16 w-16 sm:h-20 sm:w-20 rounded-2xl object-contain shadow-md ring-1 ring-white/40"
                     />
-                    <div className="mt-3 text-2xl sm:text-3xl font-semibold tracking-tight">
+                    <div className="mt-3 text-xl sm:text-3xl font-semibold tracking-tight text-center px-4">
                       Clarity through content
                     </div>
-                    <div className="mt-3 text-base text-white/85 font-light">
+                    <div className="mt-2 sm:mt-3 text-sm sm:text-base text-white/85 font-light">
                       Copy • Strategy • Comms
                     </div>
                   </div>
-
-                  {/* Subtle noise overlay for texture */}
                   <div
                     className="pointer-events-none absolute inset-0 opacity-[0.06] mix-blend-overlay"
                     style={{
@@ -254,9 +340,7 @@ export default function FynstraSite({
                     }}
                   />
                 </div>
-
-                {/* Caption under card */}
-                <div className="mt-4 text-slate-700 text-sm sm:text-base">
+                <div className="mt-3 sm:mt-4 text-slate-700 text-sm sm:text-base">
                   Lean, modern, and fast to ship. This prototype mirrors the final structure we’ll deploy on Vercel.
                 </div>
               </div>
@@ -266,27 +350,27 @@ export default function FynstraSite({
       </section>
 
       {/* ABOUT */}
-      <section id="about" className="py-20 sm:py-24 bg-white">
+      <section id="about" className="py-16 sm:py-20 lg:py-24 bg-white">
         <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
-          <div className="grid lg:grid-cols-12 gap-10 items-start">
+          <div className="grid lg:grid-cols-12 gap-6 sm:gap-10 items-start">
             <div className="lg:col-span-5 reveal" data-reveal>
-              <h2 className="text-3xl sm:text-4xl font-semibold text-slate-900">About Fynstra</h2>
-              <p className="mt-4 text-slate-700">
+              <h2 className="text-2xl sm:text-4xl font-semibold text-slate-900">About Fynstra</h2>
+              <p className="mt-3 sm:mt-4 text-slate-700">
                 We pair sharp language with sensible structure. From copywriting to process-minded consulting, our work turns ambiguity into action. Clear artifacts, faster decisions, better outcomes.
               </p>
-              <ul className="mt-6 space-y-3 text-slate-700">
+              <ul className="mt-5 sm:mt-6 space-y-3 text-slate-700">
                 <li className="flex items-start gap-3"><span className="mt-1 h-2.5 w-2.5 rounded-full" style={{ background: brand.purple }}></span> Crisp copy and messaging frameworks</li>
-                <li className="flex items-start gap-3"><span className="mt-1 h-2.5 w-2.5 rounded-full" style={{ background: brand.purple }}></span> Practical consulting: strategy into operations</li>
+                <li className="flex items-start gap-3"><span className="mt-1 h-2.5 w-2.5 rounded-full" style={{ background: brand.purple }}></span> Practical consulting: strategy to operations</li>
                 <li className="flex items-start gap-3"><span className="mt-1 h-2.5 w-2.5 rounded-full" style={{ background: brand.purple }}></span> KYC/compliance support with plain-English communication</li>
               </ul>
             </div>
             <div className="lg:col-span-7 reveal" data-reveal>
-              <div className="grid sm:grid-cols-3 gap-4">
+              <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
                 {["Clear", "Consistent", "Credible"].map((k, i) => (
-                  <div key={k} className="rounded-2xl border border-black/10 bg-white p-6 shadow-sm">
-                    <div className="text-sm text-slate-500">Principle {i + 1}</div>
-                    <div className="mt-1 text-xl font-semibold text-slate-900">{k}</div>
-                    <p className="mt-3 text-sm text-slate-600">We keep language simple, structure tidy, and promises realistic.</p>
+                  <div key={k} className="rounded-2xl border border-black/10 bg-white p-5 sm:p-6 shadow-sm">
+                    <div className="text-xs sm:text-sm text-slate-500">Principle {i + 1}</div>
+                    <div className="mt-1 text-lg sm:text-xl font-semibold text-slate-900">{k}</div>
+                    <p className="mt-2 sm:mt-3 text-sm text-slate-600">We keep language simple, structure tidy, and promises realistic.</p>
                   </div>
                 ))}
               </div>
@@ -296,16 +380,16 @@ export default function FynstraSite({
       </section>
 
       {/* SERVICES */}
-      <section id="services" className="py-20 sm:py-24 bg-slate-50">
+      <section id="services" className="py-16 sm:py-20 lg:py-24 bg-slate-50">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="reveal" data-reveal>
-            <h2 className="text-3xl sm:text-4xl font-semibold text-slate-900">Services</h2>
+            <h2 className="text-2xl sm:text-4xl font-semibold text-slate-900">Services</h2>
             <p className="mt-3 max-w-2xl text-slate-700">
               Choose a focused engagement or mix-and-match. Packages align with UK market rates and deliverables are clearly scoped.
             </p>
           </div>
 
-          <div className="mt-10 grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="mt-8 sm:mt-10 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
             {[
               {
                 title: "Copywriting",
@@ -324,63 +408,38 @@ export default function FynstraSite({
               },
             ].map((card) => (
               <div key={card.title} className="reveal" data-reveal>
-                <div className="h-full rounded-2xl border border-black/10 bg-white p-6 shadow-sm hover:shadow-md transition">
+                <div className="h-full rounded-2xl border border-black/10 bg-white p-5 sm:p-6 shadow-sm hover:shadow-md transition">
                   <div className="text-sm text-slate-500">Offering</div>
-                  <h3 className="mt-1 text-xl font-semibold text-slate-900">{card.title}</h3>
-                  <ul className="mt-4 space-y-2 text-slate-700">
+                  <h3 className="mt-1 text-lg sm:text-xl font-semibold text-slate-900">{card.title}</h3>
+                  <ul className="mt-3 sm:mt-4 space-y-2 text-slate-700">
                     {card.points.map((p) => (
                       <li key={p} className="flex gap-2 items-start">
                         <span className="mt-1 h-2 w-2 rounded-full" style={{ background: brand.purple }}></span>{p}
                       </li>
                     ))}
                   </ul>
-                  <div className="mt-6 text-sm text-slate-600">{card.price}</div>
+                  <div className="mt-5 text-sm text-slate-600">{card.price}</div>
                 </div>
               </div>
             ))}
           </div>
 
-          {/* Packages row — UPDATED RANGES */}
-          <div className="mt-12 grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {/* Packages — updated ranges */}
+          <div className="mt-10 sm:mt-12 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
             {[
-              {
-                badge: "Entry",
-                title: "Budget",
-                desc: "Short-form social copy (3–5 captions).",
-                price: "£80 – £120",
-              },
-              {
-                badge: "Starter",
-                title: "Starter",
-                desc: "Web or blog copy up to 500 words.",
-                price: "£200 – £300",
-              },
-              {
-                badge: "Popular",
-                title: "Growth",
-                desc: "In-depth article or full page (~1 000 words).",
-                price: "£400 – £600",
-              },
-              {
-                badge: "For launches",
-                title: "Launch",
-                desc: "Multi-page site or campaign set (~2 000 words).",
-                price: "£700 – £1 000",
-              },
-              {
-                badge: "Ongoing",
-                title: "Retainer",
-                desc: "Regular content support (~4 000 words/month).",
-                price: "£1 200 – £1 400 / month",
-              },
+              { badge: "Entry", title: "Budget", desc: "Short-form social copy (3–5 captions).", price: "£80 – £120" },
+              { badge: "Starter", title: "Starter", desc: "Web or blog copy up to 500 words.", price: "£200 – £300" },
+              { badge: "Popular", title: "Growth", desc: "In-depth article or full page (~1 000 words).", price: "£400 – £600" },
+              { badge: "For launches", title: "Launch", desc: "Multi-page site or campaign set (~2 000 words).", price: "£700 – £1 000" },
+              { badge: "Ongoing", title: "Retainer", desc: "Regular content support (~4 000 words/month).", price: "£1 200 – £1 400 / month" },
             ].map((pkg) => (
               <div key={pkg.title} className="reveal" data-reveal>
-                <div className="rounded-2xl border border-indigo-200 bg-white p-6 shadow-sm">
-                  <div className="text-sm text-indigo-700">{pkg.badge}</div>
-                  <h3 className="mt-1 text-xl font-semibold text-slate-900">{pkg.title}</h3>
+                <div className="rounded-2xl border border-indigo-200 bg-white p-5 sm:p-6 shadow-sm">
+                  <div className="text-xs sm:text-sm text-indigo-700">{pkg.badge}</div>
+                  <h3 className="mt-1 text-lg sm:text-xl font-semibold text-slate-900">{pkg.title}</h3>
                   <p className="mt-2 text-slate-700">{pkg.desc}</p>
                   <div className="mt-4 text-slate-900 font-medium">{pkg.price}</div>
-                  <a href="#contact" className="mt-5 inline-flex btn btn-pri">Enquire</a>
+                  <a href="#contact" className="mt-4 sm:mt-5 inline-flex btn btn-pri">Enquire</a>
                 </div>
               </div>
             ))}
@@ -389,18 +448,18 @@ export default function FynstraSite({
       </section>
 
       {/* TESTIMONIALS */}
-      <section id="testimonials" className="py-20 sm:py-24 bg-white">
+      <section id="testimonials" className="py-16 sm:py-20 lg:py-24 bg-white">
         <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
           <div className="reveal" data-reveal>
-            <h2 className="text-3xl sm:text-4xl font-semibold text-slate-900">Kind words</h2>
+            <h2 className="text-2xl sm:text-4xl font-semibold text-slate-900">Kind words</h2>
             <p className="mt-3 text-slate-700 max-w-2xl">
               Placeholders until we add real quotes. Keep it concise and outcome-focused.
             </p>
           </div>
-          <div className="mt-10 grid md:grid-cols-3 gap-6">
+          <div className="mt-8 sm:mt-10 grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
             {[1, 2, 3].map((i) => (
               <figure key={i} className="reveal" data-reveal>
-                <div className="rounded-2xl border border-black/10 bg-slate-50 p-6 h-full">
+                <div className="rounded-2xl border border-black/10 bg-slate-50 p-5 sm:p-6 h-full">
                   <blockquote className="text-slate-700">
                     “Fynstra made our message clearer and our rollout smoother. The copy just worked.”
                   </blockquote>
@@ -413,11 +472,11 @@ export default function FynstraSite({
       </section>
 
       {/* CONTACT */}
-      <section id="contact" className="py-20 sm:py-24 bg-slate-50">
+      <section id="contact" className="py-16 sm:py-20 lg:py-24 bg-slate-50">
         <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
-          <div className="grid lg:grid-cols-2 gap-10 items-start">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-10 items-start">
             <div className="reveal" data-reveal>
-              <h2 className="text-3xl sm:text-4xl font-semibold text-slate-900">Let’s talk</h2>
+              <h2 className="text-2xl sm:text-4xl font-semibold text-slate-900">Let’s talk</h2>
               <p className="mt-3 text-slate-700 max-w-xl">
                 Two ways to connect: drop a note or book a quick intro call. We’ll keep it focused on goals, scope, and timelines.
               </p>
@@ -425,14 +484,14 @@ export default function FynstraSite({
                 <a href="#calendly" className="btn btn-pri">Book a call</a>
                 <a href="mailto:info@fynstra.co.uk" className="btn btn-ghost">Email us</a>
               </div>
-              <div className="mt-10 text-sm text-slate-600">
+              <div className="mt-8 sm:mt-10 text-sm text-slate-600">
                 Prefer a simple brief? Add bullet points about your goals, audience, deliverables, and deadline — we’ll reply with a scoped plan.
               </div>
             </div>
 
             <div className="reveal" data-reveal>
               {/* Placeholder form (wire only). Swap for your favourite form tool or backend later. */}
-              <form className="rounded-2xl border border-black/10 bg-white p-6 shadow-sm">
+              <form className="rounded-2xl border border-black/10 bg-white p-5 sm:p-6 shadow-sm">
                 <div className="grid grid-cols-1 gap-4">
                   <label className="block">
                     <span className="text-sm text-slate-600">Name</span>
@@ -467,12 +526,12 @@ export default function FynstraSite({
           </div>
 
           {/* Calendly placeholder */}
-          <div id="calendly" className="mt-14 reveal" data-reveal>
+          <div id="calendly" className="mt-10 sm:mt-14 reveal" data-reveal>
             <div className="rounded-2xl overflow-hidden border border-black/10 bg-white shadow-sm">
-              <div className="px-6 py-4 border-b border-black/10 flex items-center justify-between">
+              <div className="px-5 sm:px-6 py-4 border-b border-black/10 flex items-center justify-between">
                 <div>
                   <div className="text-sm text-slate-500">Scheduling</div>
-                  <div className="text-lg font-semibold text-slate-900">Book a 20-minute intro</div>
+                  <div className="text-base sm:text-lg font-semibold text-slate-900">Book a 20-minute intro</div>
                 </div>
                 <a href={CALENDLY_URL} className="btn btn-pri">Open Calendly</a>
               </div>
@@ -489,18 +548,18 @@ export default function FynstraSite({
       </section>
 
       {/* FOOTER */}
-      <footer className="py-10 bg-white border-t border-black/5">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4">
+      <footer className="py-8 sm:py-10 bg-white border-t border-black/5">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-3 sm:gap-4">
           <div className="flex items-center gap-3">
             <img
               src={logoSrc}
               onError={(e) => ((e.currentTarget.src = fallbackLogo))}
               alt="Fynstra"
-              className="h-7 w-7 rounded-xl object-contain"
+              className="h-6 w-6 sm:h-7 sm:w-7 rounded-xl object-contain"
             />
-            <span className="text-slate-700">© {new Date().getFullYear()} Fynstra Ltd</span>
+            <span className="text-slate-700 text-sm sm:text-base">© {new Date().getFullYear()} Fynstra Ltd</span>
           </div>
-          <div className="text-slate-500 text-sm">Built with React + Tailwind. Deployed on Vercel.</div>
+          <div className="text-slate-500 text-xs sm:text-sm">Built with React + Tailwind. Deployed on Vercel.</div>
         </div>
       </footer>
     </div>
