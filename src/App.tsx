@@ -2,8 +2,9 @@ import React, { useEffect, useRef, useState } from "react";
 
 /**
  * Fynstra — One-page marketing site
- * - Mobile overlay nav (backdrop + slide-down)
+ * - Mobile overlay nav
  * - Services: single-open accordions with subtitles; prices inside panels
+ * - Packages: purple, large badge-as-title headers
  */
 
 const brand = {
@@ -60,13 +61,13 @@ function useScrollReveal() {
   return containerRef;
 }
 
-/* ---------- Small, accessible single-open Accordion ---------- */
+/* ---------- Accessible single-open Accordion ---------- */
 type AccItem = {
-  title: string;
+  title?: string;
   subtitle?: string;
   badge?: string;
-  headerRight?: React.ReactNode; // optional small meta in header (e.g., "Project-based")
-  panel: React.ReactNode; // panel content
+  headerRight?: React.ReactNode;
+  panel: React.ReactNode;
 };
 
 function Accordion({
@@ -74,11 +75,13 @@ function Accordion({
   openIndex,
   setOpenIndex,
   className = "",
+  badgeAsTitle = false,
 }: {
   items: AccItem[];
   openIndex: number | null;
   setOpenIndex: (i: number | null) => void;
   className?: string;
+  badgeAsTitle?: boolean;
 }) {
   return (
     <div className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 ${className}`}>
@@ -86,7 +89,7 @@ function Accordion({
         const open = openIndex === i;
         return (
           <div
-            key={it.title + i}
+            key={(it.title || it.badge || "item") + i}
             className="rounded-2xl border border-indigo-200 bg-white shadow-sm overflow-hidden"
           >
             <button
@@ -94,38 +97,50 @@ function Accordion({
               aria-expanded={open}
               aria-controls={`acc-panel-${i}`}
               onClick={() => setOpenIndex(open ? null : i)}
-              className="w-full text-left px-4 sm:px-5 py-3 sm:py-4 flex items-start gap-3"
+              className={`w-full text-left px-4 sm:px-5 py-3 sm:py-4 flex items-start gap-3`}
             >
-              <div className="flex-1">
-                {it.badge && (
-                  <div className="text-[11px] sm:text-xs text-indigo-700">{it.badge}</div>
+              <div className={`flex-1 ${badgeAsTitle ? "text-center" : ""}`}>
+                {/* Badge-as-title variant for Packages */}
+                {badgeAsTitle && it.badge && (
+                  <div
+                    className="font-semibold text-[1.35rem] sm:text-2xl"
+                    style={{ color: brand.purple }}
+                  >
+                    {it.badge}
+                  </div>
                 )}
-                <div className="text-lg sm:text-xl font-semibold text-slate-900">
-                  {it.title}
-                </div>
+                {/* Standard header (for Services row) */}
+                {!badgeAsTitle && (
+                  <>
+                    {it.badge && (
+                      <div className="text-[11px] sm:text-xs text-indigo-700">{it.badge}</div>
+                    )}
+                    {it.title && (
+                      <div className="text-lg sm:text-xl font-semibold text-slate-900">
+                        {it.title}
+                      </div>
+                    )}
+                  </>
+                )}
                 {it.subtitle && (
-                  <div className="mt-0.5 text-sm text-slate-600">{it.subtitle}</div>
+                  <div
+                    className={`mt-0.5 text-sm text-slate-600 ${
+                      badgeAsTitle ? "mx-auto max-w-[32ch]" : ""
+                    }`}
+                  >
+                    {it.subtitle}
+                  </div>
                 )}
               </div>
               <div className="ml-2 shrink-0 flex flex-col items-end">
-                {it.headerRight && (
-                  <div className="text-[11px] sm:text-xs text-slate-500 mb-1">
-                    {it.headerRight}
-                  </div>
+                {it.headerRight && !badgeAsTitle && (
+                  <div className="text-[11px] sm:text-xs text-slate-500 mb-1">{it.headerRight}</div>
                 )}
                 <svg
-                  className={`h-5 w-5 text-slate-500 transition-transform ${
-                    open ? "rotate-180" : ""
-                  }`}
+                  className={`h-5 w-5 text-slate-500 transition-transform ${open ? "rotate-180" : ""}`}
                   viewBox="0 0 24 24"
                 >
-                  <path
-                    d="M6 9l6 6 6-6"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    fill="none"
-                    strokeLinecap="round"
-                  />
+                  <path d="M6 9l6 6 6-6" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" />
                 </svg>
               </div>
             </button>
@@ -135,8 +150,8 @@ function Accordion({
                 open ? "grid-rows-[1fr]" : "grid-rows-[0fr]"
               }`}
             >
-              <div className="overflow-hidden border-t border-black/10">
-                <div className="px-4 sm:px-5 py-4">{it.panel}</div>
+              <div className="overflow-hidden border-top border-black/10">
+                <div className="px-4 sm:px-5 py-4 border-t border-black/10">{it.panel}</div>
               </div>
             </div>
           </div>
@@ -467,15 +482,15 @@ export default function FynstraSite({
             />
           </div>
 
-          {/* Packages */}
+          {/* Packages — purple heading = badgeAsTitle */}
           <div className="mt-10 sm:mt-12">
             <Accordion
               openIndex={openPkg}
               setOpenIndex={setOpenPkg}
+              badgeAsTitle={true}
               items={[
                 {
-                  badge: "Entry",
-                  title: "Budget",
+                  badge: "Budget",
                   subtitle: "Short-form social copy (3–5 captions).",
                   panel: (
                     <div className="text-slate-700 space-y-3">
@@ -491,7 +506,6 @@ export default function FynstraSite({
                 },
                 {
                   badge: "Starter",
-                  title: "Starter",
                   subtitle: "Web or blog copy up to 500 words.",
                   panel: (
                     <div className="text-slate-700 space-y-3">
@@ -506,8 +520,7 @@ export default function FynstraSite({
                   ),
                 },
                 {
-                  badge: "Popular",
-                  title: "Growth",
+                  badge: "Growth",
                   subtitle: "In-depth article or full page (~1 000 words).",
                   panel: (
                     <div className="text-slate-700 space-y-3">
@@ -522,8 +535,7 @@ export default function FynstraSite({
                   ),
                 },
                 {
-                  badge: "For launches",
-                  title: "Launch",
+                  badge: "Launch",
                   subtitle: "Multi-page site or campaign set (~2 000 words).",
                   panel: (
                     <div className="text-slate-700 space-y-3">
@@ -538,8 +550,7 @@ export default function FynstraSite({
                   ),
                 },
                 {
-                  badge: "Ongoing",
-                  title: "Retainer",
+                  badge: "Retainer",
                   subtitle: "Regular content (~4 000 words/month).",
                   panel: (
                     <div className="text-slate-700 space-y-3">
