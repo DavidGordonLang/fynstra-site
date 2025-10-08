@@ -2,9 +2,9 @@ import React, { useEffect, useRef, useState } from "react";
 
 /**
  * Fynstra — One-page marketing site
- * - Mobile overlay nav
- * - Services: single-open accordions with subtitles; prices inside panels
- * - Packages: purple, large badge-as-title headers
+ * - Left-aligned package headers (purple, large)
+ * - Packages pop out in a modal (darken page ~70%) with details + price
+ * - Services (Copywriting/Consulting/Compliance) remain single-open accordions
  */
 
 const brand = {
@@ -38,6 +38,7 @@ const defaultBannerRight = svgTile(brand.lavender, brand.purple);
 
 const CALENDLY_URL = "https://calendly.com/";
 
+/* ---------- Utilities ---------- */
 function useScrollReveal() {
   const containerRef = useRef<HTMLDivElement | null>(null);
   useEffect(() => {
@@ -61,11 +62,10 @@ function useScrollReveal() {
   return containerRef;
 }
 
-/* ---------- Accessible single-open Accordion ---------- */
+/* ---------- Single-open Accordion (for Services row) ---------- */
 type AccItem = {
-  title?: string;
+  title: string;
   subtitle?: string;
-  badge?: string;
   headerRight?: React.ReactNode;
   panel: React.ReactNode;
 };
@@ -75,67 +75,31 @@ function Accordion({
   openIndex,
   setOpenIndex,
   className = "",
-  badgeAsTitle = false,
 }: {
   items: AccItem[];
   openIndex: number | null;
   setOpenIndex: (i: number | null) => void;
   className?: string;
-  badgeAsTitle?: boolean;
 }) {
   return (
     <div className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 ${className}`}>
       {items.map((it, i) => {
         const open = openIndex === i;
         return (
-          <div
-            key={(it.title || it.badge || "item") + i}
-            className="rounded-2xl border border-indigo-200 bg-white shadow-sm overflow-hidden"
-          >
+          <div key={it.title + i} className="rounded-2xl border border-indigo-200 bg-white shadow-sm overflow-hidden">
             <button
               type="button"
               aria-expanded={open}
               aria-controls={`acc-panel-${i}`}
               onClick={() => setOpenIndex(open ? null : i)}
-              className={`w-full text-left px-4 sm:px-5 py-3 sm:py-4 flex items-start gap-3`}
+              className="w-full text-left px-4 sm:px-5 py-3 sm:py-4 flex items-start gap-3"
             >
-              <div className={`flex-1 ${badgeAsTitle ? "text-center" : ""}`}>
-                {/* Badge-as-title variant for Packages */}
-                {badgeAsTitle && it.badge && (
-                  <div
-                    className="font-semibold text-[1.35rem] sm:text-2xl"
-                    style={{ color: brand.purple }}
-                  >
-                    {it.badge}
-                  </div>
-                )}
-                {/* Standard header (for Services row) */}
-                {!badgeAsTitle && (
-                  <>
-                    {it.badge && (
-                      <div className="text-[11px] sm:text-xs text-indigo-700">{it.badge}</div>
-                    )}
-                    {it.title && (
-                      <div className="text-lg sm:text-xl font-semibold text-slate-900">
-                        {it.title}
-                      </div>
-                    )}
-                  </>
-                )}
-                {it.subtitle && (
-                  <div
-                    className={`mt-0.5 text-sm text-slate-600 ${
-                      badgeAsTitle ? "mx-auto max-w-[32ch]" : ""
-                    }`}
-                  >
-                    {it.subtitle}
-                  </div>
-                )}
+              <div className="flex-1">
+                <div className="text-lg sm:text-xl font-semibold text-slate-900">{it.title}</div>
+                {it.subtitle && <div className="mt-0.5 text-sm text-slate-600">{it.subtitle}</div>}
               </div>
               <div className="ml-2 shrink-0 flex flex-col items-end">
-                {it.headerRight && !badgeAsTitle && (
-                  <div className="text-[11px] sm:text-xs text-slate-500 mb-1">{it.headerRight}</div>
-                )}
+                {it.headerRight && <div className="text-[11px] sm:text-xs text-slate-500 mb-1">{it.headerRight}</div>}
                 <svg
                   className={`h-5 w-5 text-slate-500 transition-transform ${open ? "rotate-180" : ""}`}
                   viewBox="0 0 24 24"
@@ -150,13 +114,76 @@ function Accordion({
                 open ? "grid-rows-[1fr]" : "grid-rows-[0fr]"
               }`}
             >
-              <div className="overflow-hidden border-top border-black/10">
-                <div className="px-4 sm:px-5 py-4 border-t border-black/10">{it.panel}</div>
+              <div className="overflow-hidden border-t border-black/10">
+                <div className="px-4 sm:px-5 py-4">{it.panel}</div>
               </div>
             </div>
           </div>
         );
       })}
+    </div>
+  );
+}
+
+/* ---------- Package Modal ---------- */
+type PackageItem = {
+  title: "Budget" | "Starter" | "Growth" | "Launch" | "Retainer";
+  subtitle: string;
+  price: string;
+  bullets: string[];
+};
+
+function PackageModal({
+  item,
+  onClose,
+}: {
+  item: PackageItem | null;
+  onClose: () => void;
+}) {
+  useEffect(() => {
+    if (!item) return;
+    const onKey = (e: KeyboardEvent) => e.key === "Escape" && onClose();
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [item, onClose]);
+
+  if (!item) return null;
+  return (
+    <div className="fixed inset-0 z-50" role="dialog" aria-modal="true">
+      <div className="absolute inset-0 bg-black/70" onClick={onClose} />
+      <div className="absolute inset-0 flex items-center justify-center p-4">
+        <div className="w-full max-w-lg rounded-2xl bg-white shadow-2xl ring-1 ring-black/10">
+          <div className="px-5 sm:px-6 py-4 border-b border-black/10 flex items-start justify-between">
+            <div>
+              <div className="text-2xl font-semibold" style={{ color: brand.purple }}>
+                {item.title}
+              </div>
+              <div className="text-sm text-slate-600 mt-1">{item.subtitle}</div>
+            </div>
+            <button
+              aria-label="Close"
+              onClick={onClose}
+              className="p-2 rounded-lg text-slate-500 hover:bg-black/5"
+            >
+              <svg width="20" height="20" viewBox="0 0 24 24">
+                <path d="M6 6l12 12M6 18L18 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+              </svg>
+            </button>
+          </div>
+          <div className="px-5 sm:px-6 py-5">
+            <div className="text-slate-900 font-medium">{item.price}</div>
+            <ul className="mt-3 space-y-2 text-slate-700">
+              {item.bullets.map((b) => (
+                <li key={b} className="flex items-start gap-2">
+                  <span className="mt-1 h-2 w-2 rounded-full" style={{ background: brand.purple }} />
+                  {b}
+                </li>
+              ))}
+            </ul>
+            <a href="#contact" className="btn btn-pri mt-5">Enquire</a>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
@@ -174,9 +201,8 @@ export default function FynstraSite({
   const containerRef = useScrollReveal();
   const [mobileOpen, setMobileOpen] = useState(false);
 
-  // Services accordions (single-open per row)
-  const [openOffer, setOpenOffer] = useState<number | null>(0); // first open by default
-  const [openPkg, setOpenPkg] = useState<number | null>(null);
+  const [openOffer, setOpenOffer] = useState<number | null>(0); // first services card open
+  const [pkgModal, setPkgModal] = useState<PackageItem | null>(null);
 
   useEffect(() => {
     document.documentElement.classList.add("scroll-smooth");
@@ -201,12 +227,65 @@ export default function FynstraSite({
   }, []);
 
   useEffect(() => {
-    const { style } = document.body;
-    style.overflow = mobileOpen ? "hidden" : "";
+    document.body.style.overflow = mobileOpen || !!pkgModal ? "hidden" : "";
     return () => {
-      style.overflow = "";
+      document.body.style.overflow = "";
     };
-  }, [mobileOpen]);
+  }, [mobileOpen, pkgModal]);
+
+  /* Package data (collapsed cards + modal details) */
+  const packages: PackageItem[] = [
+    {
+      title: "Budget",
+      subtitle: "Short-form social copy (3–5 captions).",
+      price: "£80 – £120",
+      bullets: [
+        "Quick kickoff prompt + tone guide",
+        "One revision round",
+        "Delivery in editable doc + ready-to-paste set",
+      ],
+    },
+    {
+      title: "Starter",
+      subtitle: "Web or blog copy up to 500 words.",
+      price: "£200 – £300",
+      bullets: [
+        "Light research + outline",
+        "Two revision rounds",
+        "SEO basics (title, meta, H-structure)",
+      ],
+    },
+    {
+      title: "Growth",
+      subtitle: "In-depth article or full page (~1 000 words).",
+      price: "£400 – £600",
+      bullets: [
+        "Interview(s) or source pack review",
+        "Messaging alignment + voice calibration",
+        "Two revision rounds + visuals guidance",
+      ],
+    },
+    {
+      title: "Launch",
+      subtitle: "Multi-page site or campaign set (~2 000 words).",
+      price: "£700 – £1 000",
+      bullets: [
+        "Homepage + 2–3 key pages or equivalent set",
+        "Messaging framework + editorial notes",
+        "Two rounds across the set",
+      ],
+    },
+    {
+      title: "Retainer",
+      subtitle: "Regular content (~4 000 words/month).",
+      price: "£1 200 – £1 400 / month",
+      bullets: [
+        "Monthly planning call + backlog",
+        "Priority turnaround windows",
+        "Carry-over up to 20% one month",
+      ],
+    },
+  ];
 
   return (
     <div ref={containerRef} className="text-slate-100 bg-white selection:bg-indigo-200/60">
@@ -344,9 +423,9 @@ export default function FynstraSite({
                   <div className="absolute inset-0" style={{ background: "linear-gradient(135deg, var(--fynstra-blue), var(--fynstra-purple))" }} />
                   <div className="absolute -top-16 -right-16 h-56 w-56 sm:h-64 sm:w-64 rounded-full bg-white/30 blur-3xl opacity-40" />
                   <div className="absolute -bottom-20 -left-20 h-64 w-64 sm:h-72 sm:w-72 rounded-full bg-[rgba(79,180,198,0.35)] blur-3xl opacity-50" />
-                  <div className="relative z-10 h-full w-full flex flex-col items-center justify-center text-white scale-[1.2] sm:scale-[1.5]">
+                  <div className="relative z-10 h-full w-full flex flex-col items-start justify-center text-white px-6 sm:px-10">
                     <img src={logoSrc} onError={(e) => ((e.currentTarget.src = fallbackLogo))} alt="Fynstra" className="h-16 w-16 sm:h-20 sm:w-20 rounded-2xl object-contain shadow-md ring-1 ring-white/40" />
-                    <div className="mt-3 text-xl sm:text-3xl font-semibold tracking-tight text-center px-4">Clarity through content</div>
+                    <div className="mt-3 text-xl sm:text-3xl font-semibold tracking-tight">Clarity through content</div>
                     <div className="mt-2 sm:mt-3 text-sm sm:text-base text-white/85 font-light">Copy • Strategy • Comms</div>
                   </div>
                   <div className="pointer-events-none absolute inset-0 opacity-[0.06] mix-blend-overlay" style={{ backgroundImage: "radial-gradient(circle at 1px 1px, rgba(255,255,255,.8) 1px, transparent 1px)", backgroundSize: "6px 6px" }} />
@@ -390,7 +469,7 @@ export default function FynstraSite({
         </div>
       </section>
 
-      {/* SERVICES (single-open accordions; prices inside panels) */}
+      {/* SERVICES */}
       <section id="services" className="py-16 sm:py-20 lg:py-24 bg-slate-50">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="reveal" data-reveal>
@@ -400,7 +479,7 @@ export default function FynstraSite({
             </p>
           </div>
 
-          {/* Offerings */}
+          {/* Offerings (accordion) */}
           <div className="mt-8 sm:mt-10">
             <Accordion
               openIndex={openOffer}
@@ -482,90 +561,22 @@ export default function FynstraSite({
             />
           </div>
 
-          {/* Packages — purple heading = badgeAsTitle */}
-          <div className="mt-10 sm:mt-12">
-            <Accordion
-              openIndex={openPkg}
-              setOpenIndex={setOpenPkg}
-              badgeAsTitle={true}
-              items={[
-                {
-                  badge: "Budget",
-                  subtitle: "Short-form social copy (3–5 captions).",
-                  panel: (
-                    <div className="text-slate-700 space-y-3">
-                      <div className="text-slate-900 font-medium">£80 – £120</div>
-                      <ul className="space-y-2">
-                        <li>Quick kickoff prompt + tone guide</li>
-                        <li>One revision round</li>
-                        <li>Delivery in editable doc + ready-to-paste set</li>
-                      </ul>
-                      <a href="#contact" className="btn btn-pri">Enquire</a>
-                    </div>
-                  ),
-                },
-                {
-                  badge: "Starter",
-                  subtitle: "Web or blog copy up to 500 words.",
-                  panel: (
-                    <div className="text-slate-700 space-y-3">
-                      <div className="text-slate-900 font-medium">£200 – £300</div>
-                      <ul className="space-y-2">
-                        <li>Light research + outline</li>
-                        <li>Two revision rounds</li>
-                        <li>SEO basics (title, meta, H-structure)</li>
-                      </ul>
-                      <a href="#contact" className="btn btn-pri">Enquire</a>
-                    </div>
-                  ),
-                },
-                {
-                  badge: "Growth",
-                  subtitle: "In-depth article or full page (~1 000 words).",
-                  panel: (
-                    <div className="text-slate-700 space-y-3">
-                      <div className="text-slate-900 font-medium">£400 – £600</div>
-                      <ul className="space-y-2">
-                        <li>Interview(s) or source pack review</li>
-                        <li>Messaging alignment + voice calibration</li>
-                        <li>Two revision rounds + visuals guidance</li>
-                      </ul>
-                      <a href="#contact" className="btn btn-pri">Enquire</a>
-                    </div>
-                  ),
-                },
-                {
-                  badge: "Launch",
-                  subtitle: "Multi-page site or campaign set (~2 000 words).",
-                  panel: (
-                    <div className="text-slate-700 space-y-3">
-                      <div className="text-slate-900 font-medium">£700 – £1 000</div>
-                      <ul className="space-y-2">
-                        <li>Homepage + 2–3 key pages or equivalent set</li>
-                        <li>Messaging framework + editorial notes</li>
-                        <li>Two rounds across the set</li>
-                      </ul>
-                      <a href="#contact" className="btn btn-pri">Enquire</a>
-                    </div>
-                  ),
-                },
-                {
-                  badge: "Retainer",
-                  subtitle: "Regular content (~4 000 words/month).",
-                  panel: (
-                    <div className="text-slate-700 space-y-3">
-                      <div className="text-slate-900 font-medium">£1 200 – £1 400 / month</div>
-                      <ul className="space-y-2">
-                        <li>Monthly planning call + backlog</li>
-                        <li>Priority turnaround windows</li>
-                        <li>Carry-over up to 20% one month</li>
-                      </ul>
-                      <a href="#contact" className="btn btn-pri">Enquire</a>
-                    </div>
-                  ),
-                },
-              ]}
-            />
+          {/* Packages — left-aligned headings, popout modal for details */}
+          <div className="mt-10 sm:mt-12 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+            {packages.map((pkg) => (
+              <button
+                key={pkg.title}
+                className="text-left rounded-2xl border border-indigo-200 bg-white p-5 sm:p-6 shadow-sm hover:shadow-md transition focus:outline-none focus:ring-2 focus:ring-indigo-300"
+                onClick={() => setPkgModal(pkg)}
+                aria-label={`Open ${pkg.title} details`}
+              >
+                <div className="text-2xl font-semibold" style={{ color: brand.purple }}>
+                  {pkg.title}
+                </div>
+                <div className="mt-1 text-sm text-slate-600">{pkg.subtitle}</div>
+                <div className="mt-3 text-sm text-slate-500">Tap for details</div>
+              </button>
+            ))}
           </div>
 
           <p className="mt-6 text-sm text-slate-500">
@@ -664,6 +675,9 @@ export default function FynstraSite({
           <div className="text-slate-500 text-xs sm:text-sm">Built with React + Tailwind. Deployed on Vercel.</div>
         </div>
       </footer>
+
+      {/* Package modal (pops out over page, darkening background) */}
+      <PackageModal item={pkgModal} onClose={() => setPkgModal(null)} />
     </div>
   );
 }
