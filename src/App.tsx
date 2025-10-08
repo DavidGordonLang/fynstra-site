@@ -1,13 +1,13 @@
 import React, { useEffect, useRef, useState } from "react";
 
 /**
- * Fynstra — One-page marketing site
- * - Open card floats above a global dimmer; others dim
- * - Slide-open floating panel (grid row does not grow)
- * - Strong contrast for Services headings
+ * Fynstra — One-page marketing site (smooth card transitions)
+ * - Floating card panel slides+fades in place
+ * - Backdrop fades at the same speed
+ * - No added deps (pure React + Tailwind)
  */
 
-// --- Brand system ---
+// ---------- Brand ----------
 const brand = {
   blue: "#CFE4FF",
   lavender: "#C8BBFF",
@@ -17,6 +17,9 @@ const brand = {
   subtext: "#555555",
   bg: "#FAFAFA",
 };
+
+// Animation timing (used everywhere for sync)
+const ANIM_MS = 320;
 
 // Small SVG fallback if /public/fynstra-logo.png is missing
 const svgTile = (a: string, b: string) =>
@@ -91,14 +94,18 @@ function CardGrid({
     <div className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 ${className}`}>
       {items.map((it, i) => {
         const open = openIndex === i;
-        const dimOthers = anyOpen && !open; // extra visual hint in addition to global backdrop
+        const dimOthers = anyOpen && !open;
 
         return (
           <div
             key={it.title + i}
-            className={`relative rounded-2xl border bg-white shadow-sm transition-all
-              ${open ? "border-indigo-200 ring-2 ring-indigo-200 shadow-xl z-[60]" : "border-indigo-200 z-0"}
-              ${dimOthers ? "opacity-40" : "opacity-100"}`}
+            className={[
+              "relative rounded-2xl border bg-white shadow-sm transition-all",
+              "border-indigo-200",
+              open ? "ring-2 ring-indigo-200 shadow-xl z-[60]" : "z-0",
+              dimOthers ? "opacity-40" : "opacity-100",
+              `duration-[${ANIM_MS}ms] ease-[cubic-bezier(0.2,0.8,0.2,1)]`,
+            ].join(" ")}
           >
             {/* Header (always visible) */}
             <button
@@ -122,7 +129,11 @@ function CardGrid({
               <div className="ml-2 shrink-0 flex flex-col items-end">
                 {it.rightMeta && <div className="text-[11px] sm:text-xs text-slate-500 mb-1">{it.rightMeta}</div>}
                 <svg
-                  className={`h-5 w-5 text-slate-500 transition-transform ${open ? "rotate-180" : ""}`}
+                  className={[
+                    "h-5 w-5 text-slate-500 transition-transform",
+                    open ? "rotate-180" : "",
+                    `duration-[${ANIM_MS}ms]`,
+                  ].join(" ")}
                   viewBox="0 0 24 24"
                 >
                   <path d="M6 9l6 6 6-6" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" />
@@ -130,20 +141,22 @@ function CardGrid({
               </div>
             </button>
 
-            {/* Floating panel — absolutely positioned so the grid row doesn't grow */}
+            {/* Floating panel (grid row does not grow) */}
             <div
               id={`panel-${it.title}-${i}`}
-              className={`
-                ${open ? "pointer-events-auto" : "pointer-events-none"}
-                absolute left-0 right-0 z-[65]
-                ${open ? "top-[calc(100%+0.5rem)]" : "top-[calc(100%)]"}
-              `}
+              className={[
+                "absolute left-0 right-0 z-[65] will-change-[transform,opacity]",
+                open ? "pointer-events-auto top-[calc(100%+0.5rem)]" : "pointer-events-none top-[calc(100%)]",
+              ].join(" ")}
               aria-hidden={!open}
             >
               <div
-                className={`rounded-2xl border border-black/10 bg-white shadow-xl px-4 sm:px-5 py-4
-                  transition-all duration-250 ease-out
-                  ${open ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-2"}`}
+                className={[
+                  "rounded-2xl border border-black/10 bg-white shadow-xl px-4 sm:px-5 py-4",
+                  "transition-all",
+                  `duration-[${ANIM_MS}ms] ease-[cubic-bezier(0.2,0.8,0.2,1)]`,
+                  open ? "opacity-100 translate-y-0 scale-[1]" : "opacity-0 -translate-y-1 scale-[0.98]",
+                ].join(" ")}
               >
                 {it.panel}
               </div>
@@ -172,6 +185,25 @@ export default function FynstraSite({
 
   const anyOpen = openService !== null || openPackage !== null;
 
+  // Backdrop mount control for fade-out (keeps it in DOM during animation)
+  const [backdropVisible, setBackdropVisible] = useState(false);
+  useEffect(() => {
+    if (anyOpen) {
+      setBackdropVisible(true);
+    } else {
+      const t = setTimeout(() => setBackdropVisible(false), ANIM_MS);
+      return () => clearTimeout(t);
+    }
+  }, [anyOpen]);
+
+  // Lock body scroll when a card is open
+  useEffect(() => {
+    document.body.style.overflow = anyOpen ? "hidden" : "";
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [anyOpen]);
+
   useEffect(() => {
     document.documentElement.classList.add("scroll-smooth");
     const hero = document.getElementById("hero-bg");
@@ -182,15 +214,7 @@ export default function FynstraSite({
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  // Lock body scroll when backdrop is shown
-  useEffect(() => {
-    document.body.style.overflow = anyOpen ? "hidden" : "";
-    return () => {
-      document.body.style.overflow = "";
-    };
-  }, [anyOpen]);
-
-  // Services content
+  // Services
   const services: CardItem[] = [
     {
       title: "Copywriting",
@@ -230,9 +254,7 @@ export default function FynstraSite({
               </li>
             ))}
           </ul>
-          <p className="text-sm text-slate-600">
-            Billed by day or fixed-scope sprint. We’ll share a lightweight plan and outcomes before we start.
-          </p>
+          <p className="text-sm text-slate-600">Billed by day or fixed-scope sprint. Lightweight plan before we start.</p>
         </div>
       ),
     },
@@ -260,7 +282,7 @@ export default function FynstraSite({
     },
   ];
 
-  // Packages content
+  // Packages
   const packages: CardItem[] = [
     {
       title: "Budget",
@@ -270,18 +292,16 @@ export default function FynstraSite({
         <div className="text-slate-700 space-y-3">
           <div className="text-slate-900 font-medium">£80 – £120</div>
           <ul className="space-y-2">
-            <li className="flex items-start gap-2">
-              <span className="mt-1 h-2 w-2 rounded-full" style={{ background: brand.purple }} />
-              Quick kickoff prompt + tone guide
-            </li>
-            <li className="flex items-start gap-2">
-              <span className="mt-1 h-2 w-2 rounded-full" style={{ background: brand.purple }} />
-              One revision round
-            </li>
-            <li className="flex items-start gap-2">
-              <span className="mt-1 h-2 w-2 rounded-full" style={{ background: brand.purple }} />
-              Delivery in editable doc + ready-to-paste set
-            </li>
+            {[
+              "Quick kickoff prompt + tone guide",
+              "One revision round",
+              "Delivery in editable doc + ready-to-paste set",
+            ].map((p) => (
+              <li key={p} className="flex items-start gap-2">
+                <span className="mt-1 h-2 w-2 rounded-full" style={{ background: brand.purple }} />
+                {p}
+              </li>
+            ))}
           </ul>
           <a href="#contact" className="btn btn-pri">Enquire</a>
         </div>
@@ -295,18 +315,16 @@ export default function FynstraSite({
         <div className="text-slate-700 space-y-3">
           <div className="text-slate-900 font-medium">£200 – £300</div>
           <ul className="space-y-2">
-            <li className="flex items-start gap-2">
-              <span className="mt-1 h-2 w-2 rounded-full" style={{ background: brand.purple }} />
-              Light research + outline
-            </li>
-            <li className="flex items-start gap-2">
-              <span className="mt-1 h-2 w-2 rounded-full" style={{ background: brand.purple }} />
-              Two revision rounds
-            </li>
-            <li className="flex items-start gap-2">
-              <span className="mt-1 h-2 w-2 rounded-full" style={{ background: brand.purple }} />
-              SEO basics (title, meta, H-structure)
-            </li>
+            {[
+              "Light research + outline",
+              "Two revision rounds",
+              "SEO basics (title, meta, H-structure)",
+            ].map((p) => (
+              <li key={p} className="flex items-start gap-2">
+                <span className="mt-1 h-2 w-2 rounded-full" style={{ background: brand.purple }} />
+                {p}
+              </li>
+            ))}
           </ul>
           <a href="#contact" className="btn btn-pri">Enquire</a>
         </div>
@@ -320,18 +338,16 @@ export default function FynstraSite({
         <div className="text-slate-700 space-y-3">
           <div className="text-slate-900 font-medium">£400 – £600</div>
           <ul className="space-y-2">
-            <li className="flex items-start gap-2">
-              <span className="mt-1 h-2 w-2 rounded-full" style={{ background: brand.purple }} />
-              Interview(s) or source pack review
-            </li>
-            <li className="flex items-start gap-2">
-              <span className="mt-1 h-2 w-2 rounded-full" style={{ background: brand.purple }} />
-              Messaging alignment + voice calibration
-            </li>
-            <li className="flex items-start gap-2">
-              <span className="mt-1 h-2 w-2 rounded-full" style={{ background: brand.purple }} />
-              Two revision rounds + visuals guidance
-            </li>
+            {[
+              "Interview(s) or source pack review",
+              "Messaging alignment + voice calibration",
+              "Two revision rounds + visuals guidance",
+            ].map((p) => (
+              <li key={p} className="flex items-start gap-2">
+                <span className="mt-1 h-2 w-2 rounded-full" style={{ background: brand.purple }} />
+                {p}
+              </li>
+            ))}
           </ul>
           <a href="#contact" className="btn btn-pri">Enquire</a>
         </div>
@@ -345,18 +361,16 @@ export default function FynstraSite({
         <div className="text-slate-700 space-y-3">
           <div className="text-slate-900 font-medium">£700 – £1 000</div>
           <ul className="space-y-2">
-            <li className="flex items-start gap-2">
-              <span className="mt-1 h-2 w-2 rounded-full" style={{ background: brand.purple }} />
-              Homepage + 2–3 key pages or equivalent set
-            </li>
-            <li className="flex items-start gap-2">
-              <span className="mt-1 h-2 w-2 rounded-full" style={{ background: brand.purple }} />
-              Messaging framework + editorial notes
-            </li>
-            <li className="flex items-start gap-2">
-              <span className="mt-1 h-2 w-2 rounded-full" style={{ background: brand.purple }} />
-              Two rounds across the set
-            </li>
+            {[
+              "Homepage + 2–3 key pages or equivalent set",
+              "Messaging framework + editorial notes",
+              "Two rounds across the set",
+            ].map((p) => (
+              <li key={p} className="flex items-start gap-2">
+                <span className="mt-1 h-2 w-2 rounded-full" style={{ background: brand.purple }} />
+                {p}
+              </li>
+            ))}
           </ul>
           <a href="#contact" className="btn btn-pri">Enquire</a>
         </div>
@@ -370,18 +384,16 @@ export default function FynstraSite({
         <div className="text-slate-700 space-y-3">
           <div className="text-slate-900 font-medium">£1 200 – £1 400 / month</div>
           <ul className="space-y-2">
-            <li className="flex items-start gap-2">
-              <span className="mt-1 h-2 w-2 rounded-full" style={{ background: brand.purple }} />
-              Monthly planning call + backlog
-            </li>
-            <li className="flex items-start gap-2">
-              <span className="mt-1 h-2 w-2 rounded-full" style={{ background: brand.purple }} />
-              Priority turnaround windows
-            </li>
-            <li className="flex items-start gap-2">
-              <span className="mt-1 h-2 w-2 rounded-full" style={{ background: brand.purple }} />
-              Carry-over up to 20% one month
-            </li>
+            {[
+              "Monthly planning call + backlog",
+              "Priority turnaround windows",
+              "Carry-over up to 20% one month",
+            ].map((p) => (
+              <li key={p} className="flex items-start gap-2">
+                <span className="mt-1 h-2 w-2 rounded-full" style={{ background: brand.purple }} />
+                {p}
+              </li>
+            ))}
           </ul>
           <a href="#contact" className="btn btn-pri">Enquire</a>
         </div>
@@ -422,7 +434,7 @@ export default function FynstraSite({
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
           <a href="#top" className="flex items-center gap-3 group">
             <img
-              src={logoSrc}
+              src={PUBLIC_LOGO}
               onError={(e) => ((e.currentTarget.src = fallbackLogo))}
               alt="Fynstra"
               className="h-12 w-12 object-contain relative top-1"
@@ -468,7 +480,7 @@ export default function FynstraSite({
                 <a href="#contact" className="btn btn-ghost">Get in touch</a>
               </div>
               <div className="mt-8 sm:mt-10 flex items-center gap-4">
-                <img src={logoSrc} onError={(e) => ((e.currentTarget.src = fallbackLogo))} alt="Fynstra" className="h-9 w-9 sm:h-10 sm:w-10 rounded-xl object-contain" />
+                <img src={PUBLIC_LOGO} onError={(e) => ((e.currentTarget.src = fallbackLogo))} alt="Fynstra" className="h-9 w-9 sm:h-10 sm:w-10 rounded-xl object-contain" />
               </div>
             </div>
 
@@ -479,7 +491,7 @@ export default function FynstraSite({
                   <div className="absolute -top-16 -right-16 h-56 w-56 sm:h-64 sm:w-64 rounded-full bg-white/30 blur-3xl opacity-40" />
                   <div className="absolute -bottom-20 -left-20 h-64 w-64 sm:h-72 sm:w-72 rounded-full bg-[rgba(79,180,198,0.35)] blur-3xl opacity-50" />
                   <div className="relative z-10 h-full w-full flex flex-col items-start justify-center text-white px-6 sm:px-10">
-                    <img src={logoSrc} onError={(e) => ((e.currentTarget.src = fallbackLogo))} alt="Fynstra" className="h-16 w-16 sm:h-20 sm:w-20 rounded-2xl object-contain shadow-md ring-1 ring-white/40" />
+                    <img src={PUBLIC_LOGO} onError={(e) => ((e.currentTarget.src = fallbackLogo))} alt="Fynstra" className="h-16 w-16 sm:h-20 sm:w-20 rounded-2xl object-contain shadow-md ring-1 ring-white/40" />
                     <div className="mt-3 text-xl sm:text-3xl font-semibold tracking-tight">Clarity through content</div>
                     <div className="mt-2 sm:mt-3 text-sm sm:text-base text-white/85 font-light">Copy • Strategy • Comms</div>
                   </div>
@@ -533,19 +545,23 @@ export default function FynstraSite({
 
       {/* SERVICES */}
       <section id="services" className="py-16 sm:py-20 lg:py-24 bg-slate-50 relative">
-        {/* Global dimmer — above page, below open card */}
-        {anyOpen && (
+        {/* Backdrop fades with the same duration as the card */}
+        {backdropVisible && (
           <button
             aria-label="Close expanded card"
             onClick={() => {
               setOpenService(null);
               setOpenPackage(null);
             }}
-            className="fixed inset-0 bg-black/70 z-[50]"
+            className={[
+              "fixed inset-0 bg-black/70 z-[50] transition-opacity",
+              anyOpen ? "opacity-100" : "opacity-0",
+              `duration-[${ANIM_MS}ms] ease-[cubic-bezier(0.2,0.8,0.2,1)]`,
+            ].join(" ")}
           />
         )}
 
-        {/* IMPORTANT: remove z-40 here to avoid trapping children below the dimmer */}
+        {/* Services content wrapper (no z-40 so cards can rise above backdrop) */}
         <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="reveal" data-reveal>
             <h2 className="text-2xl sm:text-4xl font-semibold text-slate-900">Services</h2>
@@ -554,7 +570,7 @@ export default function FynstraSite({
             </p>
           </div>
 
-          {/* Services (opening one closes packages) */}
+          {/* Services */}
           <div className="mt-8 sm:mt-10">
             <CardGrid
               items={services}
@@ -568,7 +584,7 @@ export default function FynstraSite({
             />
           </div>
 
-          {/* Packages (opening one closes services) */}
+          {/* Packages */}
           <div className="mt-10 sm:mt-12">
             <CardGrid
               items={packages}
@@ -627,7 +643,6 @@ export default function FynstraSite({
             </div>
 
             <div className="reveal" data-reveal>
-              {/* Placeholder form */}
               <form className="rounded-2xl border border-black/10 bg-white p-5 sm:p-6 shadow-sm">
                 <div className="grid grid-cols-1 gap-4">
                   <label className="block">
@@ -662,7 +677,6 @@ export default function FynstraSite({
                 <a href={CALENDLY_URL} className="btn btn-pri">Open Calendly</a>
               </div>
               <div className="aspect-[16/9] bg-slate-50 flex items-center justify-center text-slate-500">
-                {/* Replace iframe src and show it when ready */}
                 <iframe title="Calendly" src={CALENDLY_URL} className="w-full h-full hidden" />
                 <div className="p-6 text-center">Calendly embed goes here. Replace URL above and show the iframe when ready.</div>
               </div>
@@ -675,7 +689,7 @@ export default function FynstraSite({
       <footer className="py-8 sm:py-10 bg-white border-t border-black/5">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-3 sm:gap-4">
           <div className="flex items-center gap-3">
-            <img src={logoSrc} onError={(e) => ((e.currentTarget.src = fallbackLogo))} alt="Fynstra" className="h-6 w-6 sm:h-7 sm:w-7 rounded-xl object-contain" />
+            <img src={PUBLIC_LOGO} onError={(e) => ((e.currentTarget.src = fallbackLogo))} alt="Fynstra" className="h-6 w-6 sm:h-7 sm:w-7 rounded-xl object-contain" />
             <span className="text-slate-700 text-sm sm:text-base">© {new Date().getFullYear()} Fynstra Ltd</span>
           </div>
           <div className="text-slate-500 text-xs sm:text-sm">Built with React + Tailwind. Deployed on Vercel.</div>
