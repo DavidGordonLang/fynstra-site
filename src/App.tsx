@@ -2,11 +2,8 @@ import React, { useEffect, useRef, useState } from "react";
 
 /**
  * Fynstra — One-page marketing site
- * Stack: React + TailwindCSS (no extra deps)
- *
- * Includes:
- * - Mobile overlay nav (backdrop + slide-down panel)
- * - Collapsible Services & Packages using <details>/<summary>
+ * - Mobile overlay nav (backdrop + slide-down)
+ * - Services: single-open accordions with subtitles; prices inside panels
  */
 
 const brand = {
@@ -63,6 +60,93 @@ function useScrollReveal() {
   return containerRef;
 }
 
+/* ---------- Small, accessible single-open Accordion ---------- */
+type AccItem = {
+  title: string;
+  subtitle?: string;
+  badge?: string;
+  headerRight?: React.ReactNode; // optional small meta in header (e.g., "Project-based")
+  panel: React.ReactNode; // panel content
+};
+
+function Accordion({
+  items,
+  openIndex,
+  setOpenIndex,
+  className = "",
+}: {
+  items: AccItem[];
+  openIndex: number | null;
+  setOpenIndex: (i: number | null) => void;
+  className?: string;
+}) {
+  return (
+    <div className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 ${className}`}>
+      {items.map((it, i) => {
+        const open = openIndex === i;
+        return (
+          <div
+            key={it.title + i}
+            className="rounded-2xl border border-indigo-200 bg-white shadow-sm overflow-hidden"
+          >
+            <button
+              type="button"
+              aria-expanded={open}
+              aria-controls={`acc-panel-${i}`}
+              onClick={() => setOpenIndex(open ? null : i)}
+              className="w-full text-left px-4 sm:px-5 py-3 sm:py-4 flex items-start gap-3"
+            >
+              <div className="flex-1">
+                {it.badge && (
+                  <div className="text-[11px] sm:text-xs text-indigo-700">{it.badge}</div>
+                )}
+                <div className="text-lg sm:text-xl font-semibold text-slate-900">
+                  {it.title}
+                </div>
+                {it.subtitle && (
+                  <div className="mt-0.5 text-sm text-slate-600">{it.subtitle}</div>
+                )}
+              </div>
+              <div className="ml-2 shrink-0 flex flex-col items-end">
+                {it.headerRight && (
+                  <div className="text-[11px] sm:text-xs text-slate-500 mb-1">
+                    {it.headerRight}
+                  </div>
+                )}
+                <svg
+                  className={`h-5 w-5 text-slate-500 transition-transform ${
+                    open ? "rotate-180" : ""
+                  }`}
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    d="M6 9l6 6 6-6"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    fill="none"
+                    strokeLinecap="round"
+                  />
+                </svg>
+              </div>
+            </button>
+            <div
+              id={`acc-panel-${i}`}
+              className={`grid transition-[grid-template-rows] duration-300 ease-out ${
+                open ? "grid-rows-[1fr]" : "grid-rows-[0fr]"
+              }`}
+            >
+              <div className="overflow-hidden border-t border-black/10">
+                <div className="px-4 sm:px-5 py-4">{it.panel}</div>
+              </div>
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+/* ------------------------------- Page ------------------------------- */
 export default function FynstraSite({
   logoSrc = PUBLIC_LOGO,
   bannerLeft = defaultBannerLeft,
@@ -75,15 +159,18 @@ export default function FynstraSite({
   const containerRef = useScrollReveal();
   const [mobileOpen, setMobileOpen] = useState(false);
 
+  // Services accordions (single-open per row)
+  const [openOffer, setOpenOffer] = useState<number | null>(0); // first open by default
+  const [openPkg, setOpenPkg] = useState<number | null>(null);
+
   useEffect(() => {
     document.documentElement.classList.add("scroll-smooth");
 
     const hero = document.getElementById("hero-bg");
-    const handleScroll = () => {
-      if (!hero) return;
-      (hero as HTMLElement).style.opacity = window.scrollY > 80 ? "0.7" : "1";
+    const onScroll = () => {
+      if (hero) (hero as HTMLElement).style.opacity = window.scrollY > 80 ? "0.7" : "1";
     };
-    window.addEventListener("scroll", handleScroll, { passive: true });
+    window.addEventListener("scroll", onScroll, { passive: true });
 
     const onHash = () => setMobileOpen(false);
     window.addEventListener("hashchange", onHash);
@@ -92,7 +179,7 @@ export default function FynstraSite({
     window.addEventListener("keydown", onKey);
 
     return () => {
-      window.removeEventListener("scroll", handleScroll);
+      window.removeEventListener("scroll", onScroll);
       window.removeEventListener("hashchange", onHash);
       window.removeEventListener("keydown", onKey);
     };
@@ -131,16 +218,6 @@ export default function FynstraSite({
         .btn-pri:hover { filter: brightness(.95); }
         .btn-ghost { border: 1px solid rgba(0,0,0,.1); color: #0f172a; background: transparent; }
         .btn-ghost:hover { background: rgba(0,0,0,.04); }
-
-        /* Collapsible cards */
-        .acc details { border-radius: 1rem; border: 1px solid rgba(99,102,241,.25); background: #fff; box-shadow: 0 1px 2px rgba(0,0,0,.04); overflow: hidden; }
-        .acc summary { list-style: none; cursor: pointer; padding: .9rem 1rem; display: flex; align-items: center; justify-content: space-between; }
-        .acc summary::-webkit-details-marker { display: none; }
-        .acc .caret { transition: transform .2s ease; }
-        .acc details[open] .caret { transform: rotate(180deg); }
-        .acc .panel { padding: .75rem 1rem 1rem 1rem; border-top: 1px solid rgba(0,0,0,.06); }
-
-        /* Mobile menu animation */
         @keyframes menuDown { from { transform: translateY(-12px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
       `}</style>
 
@@ -223,8 +300,8 @@ export default function FynstraSite({
             className="absolute inset-0 transition-opacity duration-500"
             style={{ background: "linear-gradient(90deg, var(--fynstra-blue) 0%, var(--fynstra-lavender) 50%, var(--fynstra-purple) 100%)" }}
           />
-          <img src={bannerLeft} alt="Brand motif" className="absolute left-0 top-0 opacity-40 w-56 sm:w-72 md:w-96 -translate-x-[15%] -translate-y-[15%] blur-[1px]" />
-          <img src={bannerRight} alt="Brand motif" className="absolute right-[-20%] md:right-[-10%] bottom-[-28%] md:bottom-[-20%] opacity-50 w-[28rem] sm:w-[36rem] md:w-[48rem] rotate-6 blur-[0.5px]" />
+          <img src={defaultBannerLeft} alt="Brand motif" className="absolute left-0 top-0 opacity-40 w-56 sm:w-72 md:w-96 -translate-x-[15%] -translate-y-[15%] blur-[1px]" />
+          <img src={defaultBannerRight} alt="Brand motif" className="absolute right-[-20%] md:right-[-10%] bottom-[-28%] md:bottom-[-20%] opacity-50 w-[28rem] sm:w-[36rem] md:w-[48rem] rotate-6 blur-[0.5px]" />
           <div className="absolute inset-0 bg-gradient-to-tr from-white/60 via-white/30 to-transparent" />
         </div>
 
@@ -298,74 +375,186 @@ export default function FynstraSite({
         </div>
       </section>
 
-      {/* SERVICES (collapsible) */}
+      {/* SERVICES (single-open accordions; prices inside panels) */}
       <section id="services" className="py-16 sm:py-20 lg:py-24 bg-slate-50">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="reveal" data-reveal>
             <h2 className="text-2xl sm:text-4xl font-semibold text-slate-900">Services</h2>
             <p className="mt-3 max-w-2xl text-slate-700">
-              Choose a focused engagement or mix-and-match. Open a card for details when you need them.
+              Choose a focused engagement or mix-and-match. Open a card for scope and pricing details.
             </p>
           </div>
 
-          {/* Offerings compact */}
-          <div className="mt-8 sm:mt-10 grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6 acc">
-            {[
-              { title: "Copywriting", points: ["Web + landing pages", "About/Service pages", "Blogs, emails, proposals"], price: "See packages below" },
-              { title: "Consulting", points: ["Process clarity", "Strategy to ops", "Client comms"], price: "Day rate (on request)" },
-              { title: "Compliance Comms", points: ["KYC narratives", "Plain-English docs", "Training decks"], price: "Project-based" },
-            ].map((card) => (
-              <details key={card.title} className="reveal" data-reveal>
-                <summary className="text-left">
-                  <div className="flex items-center gap-3">
-                    <div className="text-lg font-semibold text-slate-900">{card.title}</div>
-                    <span className="text-xs text-slate-500">{card.price}</span>
-                  </div>
-                  <svg className="caret h-5 w-5 text-slate-500 ml-auto" viewBox="0 0 24 24">
-                    <path d="M6 9l6 6 6-6" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round"/>
-                  </svg>
-                </summary>
-                <div className="panel">
-                  <ul className="space-y-2 text-slate-700">
-                    {card.points.map((p) => (
-                      <li key={p} className="flex gap-2 items-start">
-                        <span className="mt-1 h-2 w-2 rounded-full" style={{ background: brand.purple }}></span>{p}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              </details>
-            ))}
+          {/* Offerings */}
+          <div className="mt-8 sm:mt-10">
+            <Accordion
+              openIndex={openOffer}
+              setOpenIndex={setOpenOffer}
+              items={[
+                {
+                  title: "Copywriting",
+                  subtitle: "Clear, consistent language for web, product and campaigns.",
+                  headerRight: <span>See packages below</span>,
+                  panel: (
+                    <div className="text-slate-700 space-y-3">
+                      <ul className="space-y-2">
+                        {[
+                          "Web + landing pages",
+                          "About / Service pages",
+                          "Blogs, emails, proposals",
+                        ].map((p) => (
+                          <li key={p} className="flex gap-2 items-start">
+                            <span className="mt-1 h-2 w-2 rounded-full" style={{ background: brand.purple }} />
+                            {p}
+                          </li>
+                        ))}
+                      </ul>
+                      <p className="text-sm text-slate-600">
+                        Pricing depends on research depth, voice development and revision cycles. See packages for typical ranges.
+                      </p>
+                    </div>
+                  ),
+                },
+                {
+                  title: "Consulting",
+                  subtitle: "Turn strategy into operations with practical communication.",
+                  headerRight: <span>Day rate (on request)</span>,
+                  panel: (
+                    <div className="text-slate-700 space-y-3">
+                      <ul className="space-y-2">
+                        {[
+                          "Process clarity: map owners, decisions, artefacts",
+                          "Messaging frameworks and enablement",
+                          "Client comms: proposals, onboarding, FAQs",
+                        ].map((p) => (
+                          <li key={p} className="flex gap-2 items-start">
+                            <span className="mt-1 h-2 w-2 rounded-full" style={{ background: brand.purple }} />
+                            {p}
+                          </li>
+                        ))}
+                      </ul>
+                      <p className="text-sm text-slate-600">
+                        Billed by day or fixed-scope sprint. We’ll share a lightweight plan and outcomes before we start.
+                      </p>
+                    </div>
+                  ),
+                },
+                {
+                  title: "Compliance Comms",
+                  subtitle: "Plain-English narratives for KYC, onboarding and training.",
+                  headerRight: <span>Project-based</span>,
+                  panel: (
+                    <div className="text-slate-700 space-y-3">
+                      <ul className="space-y-2">
+                        {[
+                          "KYC narratives and support docs",
+                          "Policy summaries and internal playbooks",
+                          "Short training decks + facilitator notes",
+                        ].map((p) => (
+                          <li key={p} className="flex gap-2 items-start">
+                            <span className="mt-1 h-2 w-2 rounded-full" style={{ background: brand.purple }} />
+                            {p}
+                          </li>
+                        ))}
+                      </ul>
+                      <p className="text-sm text-slate-600">
+                        Fixed price after a quick scoping call and sample document review.
+                      </p>
+                    </div>
+                  ),
+                },
+              ]}
+            />
           </div>
 
-          {/* Packages collapsible with price ranges */}
-          <div className="mt-10 sm:mt-12 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 acc">
-            {[
-              { badge: "Entry", title: "Budget", desc: "Short-form social copy (3–5 captions).", price: "£80 – £120" },
-              { badge: "Starter", title: "Starter", desc: "Web or blog copy up to 500 words.", price: "£200 – £300" },
-              { badge: "Popular", title: "Growth", desc: "In-depth article or full page (~1 000 words).", price: "£400 – £600" },
-              { badge: "For launches", title: "Launch", desc: "Multi-page site or campaign set (~2 000 words).", price: "£700 – £1 000" },
-              { badge: "Ongoing", title: "Retainer", desc: "Regular content support (~4 000 words/month).", price: "£1 200 – £1 400 / month" },
-            ].map((pkg) => (
-              <details key={pkg.title} className="reveal" data-reveal>
-                <summary className="text-left">
-                  <div className="flex items-center justify-between gap-3">
-                    <div>
-                      <div className="text-xs text-indigo-700">{pkg.badge}</div>
-                      <div className="text-lg font-semibold text-slate-900">{pkg.title}</div>
+          {/* Packages */}
+          <div className="mt-10 sm:mt-12">
+            <Accordion
+              openIndex={openPkg}
+              setOpenIndex={setOpenPkg}
+              items={[
+                {
+                  badge: "Entry",
+                  title: "Budget",
+                  subtitle: "Short-form social copy (3–5 captions).",
+                  panel: (
+                    <div className="text-slate-700 space-y-3">
+                      <div className="text-slate-900 font-medium">£80 – £120</div>
+                      <ul className="space-y-2">
+                        <li>Quick kickoff prompt + tone guide</li>
+                        <li>One revision round</li>
+                        <li>Delivery in editable doc + ready-to-paste set</li>
+                      </ul>
+                      <a href="#contact" className="btn btn-pri">Enquire</a>
                     </div>
-                    <div className="text-slate-900 font-medium whitespace-nowrap">{pkg.price}</div>
-                    <svg className="caret h-5 w-5 text-slate-500" viewBox="0 0 24 24">
-                      <path d="M6 9l6 6 6-6" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round"/>
-                    </svg>
-                  </div>
-                </summary>
-                <div className="panel">
-                  <p className="text-slate-700">{pkg.desc}</p>
-                  <a href="#contact" className="mt-4 inline-flex btn btn-pri">Enquire</a>
-                </div>
-              </details>
-            ))}
+                  ),
+                },
+                {
+                  badge: "Starter",
+                  title: "Starter",
+                  subtitle: "Web or blog copy up to 500 words.",
+                  panel: (
+                    <div className="text-slate-700 space-y-3">
+                      <div className="text-slate-900 font-medium">£200 – £300</div>
+                      <ul className="space-y-2">
+                        <li>Light research + outline</li>
+                        <li>Two revision rounds</li>
+                        <li>SEO basics (title, meta, H-structure)</li>
+                      </ul>
+                      <a href="#contact" className="btn btn-pri">Enquire</a>
+                    </div>
+                  ),
+                },
+                {
+                  badge: "Popular",
+                  title: "Growth",
+                  subtitle: "In-depth article or full page (~1 000 words).",
+                  panel: (
+                    <div className="text-slate-700 space-y-3">
+                      <div className="text-slate-900 font-medium">£400 – £600</div>
+                      <ul className="space-y-2">
+                        <li>Interview(s) or source pack review</li>
+                        <li>Messaging alignment + voice calibration</li>
+                        <li>Two revision rounds + visuals guidance</li>
+                      </ul>
+                      <a href="#contact" className="btn btn-pri">Enquire</a>
+                    </div>
+                  ),
+                },
+                {
+                  badge: "For launches",
+                  title: "Launch",
+                  subtitle: "Multi-page site or campaign set (~2 000 words).",
+                  panel: (
+                    <div className="text-slate-700 space-y-3">
+                      <div className="text-slate-900 font-medium">£700 – £1 000</div>
+                      <ul className="space-y-2">
+                        <li>Homepage + 2–3 key pages or equivalent set</li>
+                        <li>Messaging framework + editorial notes</li>
+                        <li>Two rounds across the set</li>
+                      </ul>
+                      <a href="#contact" className="btn btn-pri">Enquire</a>
+                    </div>
+                  ),
+                },
+                {
+                  badge: "Ongoing",
+                  title: "Retainer",
+                  subtitle: "Regular content (~4 000 words/month).",
+                  panel: (
+                    <div className="text-slate-700 space-y-3">
+                      <div className="text-slate-900 font-medium">£1 200 – £1 400 / month</div>
+                      <ul className="space-y-2">
+                        <li>Monthly planning call + backlog</li>
+                        <li>Priority turnaround windows</li>
+                        <li>Carry-over up to 20% one month</li>
+                      </ul>
+                      <a href="#contact" className="btn btn-pri">Enquire</a>
+                    </div>
+                  ),
+                },
+              ]}
+            />
           </div>
 
           <p className="mt-6 text-sm text-slate-500">
