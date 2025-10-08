@@ -2,8 +2,8 @@ import React, { useEffect, useRef, useState } from "react";
 
 /**
  * Fynstra — One-page marketing site
- * - In-place expanding cards (Services + Packages) with max-height animation
- * - Global dim backdrop (~70%) behind the open card (open card stays bright)
+ * - Cards expand "in place" as floating panels (no row growth)
+ * - Global dim backdrop behind the open card (open card stays bright)
  * - Single-open per group; opening one group closes the other
  * - Strong contrast for Services headings
  */
@@ -63,7 +63,7 @@ function useScrollReveal() {
   return containerRef;
 }
 
-/* ---------- Reusable in-place Card Grid ---------- */
+/* ---------- Floating-panel Card Grid ---------- */
 type CardItem = {
   title: string;
   subtitle?: string;
@@ -77,7 +77,7 @@ function CardGrid({
   openIndex,
   onToggle,
   className = "",
-  headingStrong = true, // services use strong dark headings
+  headingStrong = true,
 }: {
   items: CardItem[];
   openIndex: number | null;
@@ -92,10 +92,10 @@ function CardGrid({
         return (
           <div
             key={it.title + i}
-            className={`rounded-2xl border bg-white shadow-sm overflow-hidden transition-shadow relative
-              ${open ? "border-indigo-200 ring-2 ring-indigo-200 shadow-xl z-60" : "border-indigo-200 z-10"}`}
+            className={`relative rounded-2xl border bg-white shadow-sm transition-shadow
+              ${open ? "border-indigo-200 ring-2 ring-indigo-200 shadow-xl" : "border-indigo-200"}`}
           >
-            {/* Header */}
+            {/* Header (always visible) */}
             <button
               type="button"
               aria-expanded={open}
@@ -107,13 +107,7 @@ function CardGrid({
                 <div
                   className={`font-semibold ${
                     it.titleIsPurple ? "text-2xl" : "text-lg sm:text-xl"
-                  } ${
-                    it.titleIsPurple
-                      ? ""
-                      : headingStrong
-                      ? "text-slate-900"
-                      : "text-slate-800"
-                  }`}
+                  } ${it.titleIsPurple ? "" : headingStrong ? "text-slate-900" : "text-slate-800"}`}
                   style={it.titleIsPurple ? { color: brand.purple } : undefined}
                 >
                   {it.title}
@@ -131,14 +125,24 @@ function CardGrid({
               </div>
             </button>
 
-            {/* Panel (max-height animation) */}
+            {/* Floating panel — absolutely positioned so the grid row doesn't grow */}
             <div
               id={`panel-${it.title}-${i}`}
-              className={`transition-[max-height] duration-300 ease-out overflow-hidden border-t border-black/10 ${
-                open ? "max-h-[1200px] py-4" : "max-h-0"
-              }`}
+              className={`
+                ${open ? "pointer-events-auto" : "pointer-events-none"}
+                absolute left-0 right-0
+                ${open ? "top-[calc(100%+0.5rem)]" : "top-[calc(100%)]"}
+                z-60
+              `}
+              aria-hidden={!open}
             >
-              <div className="px-4 sm:px-5">{it.panel}</div>
+              <div
+                className={`rounded-2xl border border-black/10 bg-white shadow-xl px-4 sm:px-5 py-4
+                  transition-all duration-250 ease-out
+                  ${open ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-2"}`}
+              >
+                {it.panel}
+              </div>
             </div>
           </div>
         );
@@ -434,7 +438,7 @@ export default function FynstraSite({
         </div>
       </header>
 
-      {/* HERO (trimmed for brevity) */}
+      {/* HERO (kept same as previous good state) */}
       <section id="top" className="relative overflow-hidden">
         <div className="absolute inset-0 -z-10">
           <div
@@ -519,7 +523,7 @@ export default function FynstraSite({
 
       {/* SERVICES */}
       <section id="services" className="py-16 sm:py-20 lg:py-24 bg-slate-50 relative">
-        {/* Backdrop behind content but above page (open card elevated above this) */}
+        {/* Dim backdrop (z-30). Open card floats above at z-60. */}
         {anyOpen && (
           <button
             aria-label="Close expanded card"
@@ -527,11 +531,11 @@ export default function FynstraSite({
               setOpenService(null);
               setOpenPackage(null);
             }}
-            className="fixed inset-0 bg-black/70 z-50"
+            className="fixed inset-0 bg-black/70 z-30"
           />
         )}
 
-        <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div className="relative z-40 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="reveal" data-reveal>
             <h2 className="text-2xl sm:text-4xl font-semibold text-slate-900">Services</h2>
             <p className="mt-3 max-w-2xl text-slate-700">
@@ -539,7 +543,7 @@ export default function FynstraSite({
             </p>
           </div>
 
-          {/* Services — in place; opening one closes packages */}
+          {/* Services — opening one closes packages */}
           <div className="mt-8 sm:mt-10">
             <CardGrid
               items={services}
@@ -552,7 +556,7 @@ export default function FynstraSite({
             />
           </div>
 
-          {/* Packages — in place; opening one closes services */}
+          {/* Packages — opening one closes services */}
           <div className="mt-10 sm:mt-12">
             <CardGrid
               items={packages}
@@ -565,7 +569,7 @@ export default function FynstraSite({
             />
           </div>
 
-          <p className="mt-6 text-sm text-slate-500 relative z-10">
+          <p className="mt-6 text-sm text-slate-500">
             Ranges are indicative; we’ll confirm scope and a fixed quote after a short brief.
           </p>
         </div>
