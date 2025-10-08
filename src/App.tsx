@@ -6,7 +6,7 @@ import React, { useEffect, useRef } from "react";
  *
  * Notes:
  * - Replace CALENDLY_URL with your real link when ready.
- * - Drop real logo/banner files into /public and update props if needed.
+ * - Ensure /public/fynstra-logo.png exists for the real logo.
  */
 
 // --- Brand system from your style guide ---
@@ -20,7 +20,7 @@ const brand = {
   bg: "#FAFAFA",
 };
 
-// Inline SVG fallbacks (so it looks decent before assets are added)
+// Inline SVG fallbacks (render cleanly before assets are added)
 const svgTile = (a: string, b: string) =>
   "data:image/svg+xml;utf8," +
   encodeURIComponent(
@@ -35,6 +35,8 @@ const svgTile = (a: string, b: string) =>
     </svg>`
   );
 
+// If you have /public/fynstra-logo.png, we’ll prefer that; otherwise fallback to SVG tile
+const PUBLIC_LOGO = "/fynstra-logo.png";
 const defaultLogo = svgTile(brand.lavender, brand.purple);
 const defaultBannerLeft = svgTile(brand.blue, brand.lavender);
 const defaultBannerRight = svgTile(brand.lavender, brand.purple);
@@ -65,7 +67,7 @@ function useScrollReveal() {
 }
 
 export default function FynstraSite({
-  logoSrc = defaultLogo,
+  logoSrc = PUBLIC_LOGO || defaultLogo,
   bannerLeft = defaultBannerLeft,
   bannerRight = defaultBannerRight,
 }: {
@@ -140,14 +142,14 @@ export default function FynstraSite({
       <header className="sticky top-0 z-40 backdrop-blur-sm bg-white/70 border-b border-black/5">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
           <a href="#top" className="flex items-center gap-3 group">
-           <img
-  src="/fynstra-logo.png"
-  alt="Fynstra logo"
-  className="h-12 w-12 object-contain relative top-1"
-/>
-<span className="text-2xl font-semibold text-slate-900 group-hover:text-slate-700 transition">
-  Fynstra
-</span>
+            <img
+              src={logoSrc}
+              alt="Fynstra"
+              className="h-12 w-12 object-contain relative top-1"
+            />
+            <span className="text-2xl font-semibold text-slate-900 group-hover:text-slate-700 transition">
+              Fynstra
+            </span>
           </a>
           <nav className="hidden md:flex items-center gap-6 text-slate-700">
             <a href="#about" className="hover:text-slate-900">About</a>
@@ -188,10 +190,7 @@ export default function FynstraSite({
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-24 sm:py-28 lg:py-32">
           <div className="grid lg:grid-cols-2 gap-10 items-center">
             <div className="reveal" data-reveal>
-              <div className="inline-flex items-center gap-2 rounded-full bg-white/60 backdrop-blur px-3 py-1 text-sm text-slate-700 ring-1 ring-black/5 mb-5">
-                <span className="h-2 w-2 rounded-full" style={{ background: brand.purple }} />
-                Clarity through content
-              </div>
+              {/* Removed the small badge chip above the headline */}
               <h1 className="text-4xl sm:text-5xl lg:text-6xl font-semibold text-slate-900 leading-tight">
                 Build momentum with <span className="heading-gradient">crisp, credible</span> communication.
               </h1>
@@ -202,15 +201,24 @@ export default function FynstraSite({
                 <a href="#services" className="btn btn-pri">Explore services</a>
                 <a href="#contact" className="btn btn-ghost">Get in touch</a>
               </div>
-              <div className="mt-10 flex items-center gap-4 text-sm text-slate-600">
-                <img src={logoSrc} alt="Fynstra icon" className="h-8 w-8 rounded-xl" />
-                <span>Fynstra • Clarity through content</span>
+
+              {/* Replaced text line with the actual logo only */}
+              <div className="mt-10 flex items-center gap-4">
+                <img
+                  src={logoSrc}
+                  alt="Fynstra"
+                  className="h-10 w-10 rounded-xl object-contain"
+                />
               </div>
             </div>
+
             <div className="reveal" data-reveal>
               <div className="relative rounded-3xl ring-1 ring-black/10 bg-white/60 backdrop-blur p-6 shadow-xl">
                 <div className="aspect-[4/3] rounded-2xl overflow-hidden">
-                  <div className="w-full h-full" style={{ background: "linear-gradient(135deg, var(--fynstra-blue), var(--fynstra-purple))" }} />
+                  <div
+                    className="w-full h-full"
+                    style={{ background: "linear-gradient(135deg, var(--fynstra-blue), var(--fynstra-purple))" }}
+                  />
                 </div>
                 <div className="mt-4 text-slate-700">
                   Lean, modern, and fast to ship. This prototype mirrors the final structure we’ll deploy on Vercel.
@@ -399,7 +407,7 @@ export default function FynstraSite({
       <footer className="py-10 bg-white border-t border-black/5">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-3">
-            <img src={logoSrc} alt="Fynstra" className="h-7 w-7 rounded-xl" />
+            <img src={logoSrc} alt="Fynstra" className="h-7 w-7 rounded-xl object-contain" />
             <span className="text-slate-700">© {new Date().getFullYear()} Fynstra Ltd</span>
           </div>
           <div className="text-slate-500 text-sm">Built with React + Tailwind. Deployed on Vercel.</div>
