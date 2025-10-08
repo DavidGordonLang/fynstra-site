@@ -52,7 +52,7 @@ function useScrollReveal() {
       (entries) => {
         entries.forEach((e) => {
           if (e.isIntersecting) {
-            e.target.classList.add("reveal-in");
+            (e.target as HTMLElement).classList.add("reveal-in");
             io.unobserve(e.target);
           }
         });
@@ -310,17 +310,17 @@ export default function FynstraSite({
               {
                 title: "Copywriting",
                 points: ["Web + landing pages", "About/Service pages", "Blogs, emails, proposals"],
-                price: "From £250",
+                price: "See packages below",
               },
               {
                 title: "Consulting",
                 points: ["Process clarity", "Strategy to ops", "Client comms"],
-                price: "Day rate on request",
+                price: "Day rate (on request)",
               },
               {
                 title: "Compliance Comms",
                 points: ["KYC narratives", "Plain-English docs", "Training decks"],
-                price: "Project based",
+                price: "Project-based",
               },
             ].map((card) => (
               <div key={card.title} className="reveal" data-reveal>
@@ -340,30 +340,50 @@ export default function FynstraSite({
             ))}
           </div>
 
-          {/* Packages row */}
-          <div className="mt-12 grid md:grid-cols-2 gap-6">
-            <div className="reveal" data-reveal>
-              <div className="rounded-2xl border border-indigo-200 bg-white p-6 shadow-sm">
-                <div className="text-sm text-indigo-700">Popular</div>
-                <h3 className="mt-1 text-xl font-semibold text-slate-900">Growth Package</h3>
-                <p className="mt-2 text-slate-700">
-                  ~1,000 words: a page set or long-form article with light research and brand-tuned voice. Two rounds of edits.
-                </p>
-                <div className="mt-4 text-slate-900 font-medium">£500 – £700</div>
-                <a href="#contact" className="mt-5 btn btn-pri">Start a brief</a>
+          {/* Packages row — UPDATED RANGES */}
+          <div className="mt-12 grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {[
+              {
+                badge: "Entry",
+                title: "Budget",
+                desc: "Short-form social copy (3–5 captions).",
+                price: "£80 – £120",
+              },
+              {
+                badge: "Starter",
+                title: "Starter",
+                desc: "Web or blog copy up to 500 words.",
+                price: "£200 – £300",
+              },
+              {
+                badge: "Popular",
+                title: "Growth",
+                desc: "In-depth article or full page (~1 000 words).",
+                price: "£400 – £600",
+              },
+              {
+                badge: "For launches",
+                title: "Launch",
+                desc: "Multi-page site or campaign set (~2 000 words).",
+                price: "£700 – £1 000",
+              },
+              {
+                badge: "Ongoing",
+                title: "Retainer",
+                desc: "Regular content support (~4 000 words/month).",
+                price: "£1 200 – £1 400 / month",
+              },
+            ].map((pkg) => (
+              <div key={pkg.title} className="reveal" data-reveal>
+                <div className="rounded-2xl border border-indigo-200 bg-white p-6 shadow-sm">
+                  <div className="text-sm text-indigo-700">{pkg.badge}</div>
+                  <h3 className="mt-1 text-xl font-semibold text-slate-900">{pkg.title}</h3>
+                  <p className="mt-2 text-slate-700">{pkg.desc}</p>
+                  <div className="mt-4 text-slate-900 font-medium">{pkg.price}</div>
+                  <a href="#contact" className="mt-5 inline-flex btn btn-pri">Enquire</a>
+                </div>
               </div>
-            </div>
-            <div className="reveal" data-reveal>
-              <div className="rounded-2xl border border-indigo-200 bg-white p-6 shadow-sm">
-                <div className="text-sm text-indigo-700">For launches</div>
-                <h3 className="mt-1 text-xl font-semibold text-slate-900">Launch Set</h3>
-                <p className="mt-2 text-slate-700">
-                  ~2,000 words: homepage + About + Services or equivalent. Messaging framework + editorial guidelines.
-                </p>
-                <div className="mt-4 text-slate-900 font-medium">£900 – £1,200</div>
-                <a href="#contact" className="mt-5 btn btn-pri">Talk scope</a>
-              </div>
-            </div>
+            ))}
           </div>
         </div>
       </section>
