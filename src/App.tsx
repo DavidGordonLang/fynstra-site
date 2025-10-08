@@ -212,21 +212,51 @@ export default function FynstraSite({
               </div>
             </div>
 
-            <div className="reveal" data-reveal>
-              <div className="relative rounded-3xl ring-1 ring-black/10 bg-white/60 backdrop-blur p-6 shadow-xl">
-                <div className="aspect-[4/3] rounded-2xl overflow-hidden">
-                  <div
-                    className="w-full h-full"
-                    style={{ background: "linear-gradient(135deg, var(--fynstra-blue), var(--fynstra-purple))" }}
-                  />
-                </div>
-                <div className="mt-4 text-slate-700">
-                  Lean, modern, and fast to ship. This prototype mirrors the final structure we’ll deploy on Vercel.
-                </div>
-              </div>
-            </div>
-          </div>
+           <div className="reveal" data-reveal>
+  <div className="relative rounded-3xl ring-1 ring-black/10 bg-white/60 backdrop-blur p-6 shadow-xl">
+    {/* Branded gradient panel */}
+    <div className="relative aspect-[4/3] rounded-2xl overflow-hidden">
+      {/* Gradient base */}
+      <div
+        className="absolute inset-0"
+        style={{ background: "linear-gradient(135deg, var(--fynstra-blue), var(--fynstra-purple))" }}
+      />
+      {/* Soft decorative glow */}
+      <div className="absolute -top-10 -right-10 h-40 w-40 rounded-full bg-white/30 blur-3xl opacity-40" />
+      <div className="absolute -bottom-12 -left-12 h-52 w-52 rounded-full bg-[rgba(79,180,198,0.35)] blur-3xl opacity-50" />
+
+      {/* Centered brand lockup */}
+      <div className="relative z-10 h-full w-full flex flex-col items-center justify-center text-white">
+        <img
+          src={logoSrc}
+          alt="Fynstra"
+          className="h-16 w-16 rounded-2xl object-contain shadow-md ring-1 ring-white/40"
+        />
+        <div className="mt-3 text-xl sm:text-2xl font-semibold tracking-tight">
+          Clarity through content
         </div>
+        <div className="mt-2 text-sm text-white/85">
+          Copy • Strategy • Comms
+        </div>
+      </div>
+
+      {/* Subtle noise overlay for texture (pure CSS) */}
+      <div
+        className="pointer-events-none absolute inset-0 opacity-[0.06] mix-blend-overlay"
+        style={{
+          backgroundImage:
+            "radial-gradient(circle at 1px 1px, rgba(255,255,255,.8) 1px, transparent 1px)",
+          backgroundSize: "6px 6px",
+        }}
+      />
+    </div>
+
+    {/* Caption under card */}
+    <div className="mt-4 text-slate-700">
+      Lean, modern, and fast to ship. This prototype mirrors the final structure we’ll deploy on Vercel.
+    </div>
+  </div>
+</div>
       </section>
 
       {/* ABOUT */}
