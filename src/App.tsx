@@ -2,10 +2,10 @@ import React, { useEffect, useRef, useState } from "react";
 
 /**
  * Fynstra — One-page marketing site
- * - In-place expanding cards (Services + Packages)
- * - Global dim backdrop (~70%) whenever a card is open
- * - Click backdrop to close
- * - Left-aligned headings (including purple package titles)
+ * - In-place expanding cards (Services + Packages) with max-height animation
+ * - Global dim backdrop (~70%) behind the open card (open card stays bright)
+ * - Single-open per group; opening one group closes the other
+ * - Strong contrast for Services headings
  */
 
 const brand = {
@@ -63,25 +63,27 @@ function useScrollReveal() {
   return containerRef;
 }
 
-/* ---------- Reusable in-place Accordion Card ---------- */
+/* ---------- Reusable in-place Card Grid ---------- */
 type CardItem = {
-  title: string;            // main title (for Services) OR purple heading (for Packages)
-  subtitle?: string;        // short line under title
-  rightMeta?: React.ReactNode; // small right-aligned hint
-  panel: React.ReactNode;   // expanded content
-  titleIsPurple?: boolean;  // for Packages headings
+  title: string;
+  subtitle?: string;
+  rightMeta?: React.ReactNode;
+  panel: React.ReactNode;
+  titleIsPurple?: boolean; // packages headings
 };
 
 function CardGrid({
   items,
   openIndex,
-  setOpenIndex,
+  onToggle,
   className = "",
+  headingStrong = true, // services use strong dark headings
 }: {
   items: CardItem[];
   openIndex: number | null;
-  setOpenIndex: (i: number | null) => void;
+  onToggle: (i: number | null) => void;
   className?: string;
+  headingStrong?: boolean;
 }) {
   return (
     <div className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 ${className}`}>
@@ -90,27 +92,33 @@ function CardGrid({
         return (
           <div
             key={it.title + i}
-            className={`rounded-2xl border bg-white shadow-sm overflow-hidden transition-shadow
-              ${open ? "border-indigo-200 ring-2 ring-indigo-200 shadow-xl relative z-40" : "border-indigo-200"}`}
+            className={`rounded-2xl border bg-white shadow-sm overflow-hidden transition-shadow relative
+              ${open ? "border-indigo-200 ring-2 ring-indigo-200 shadow-xl z-60" : "border-indigo-200 z-10"}`}
           >
             {/* Header */}
             <button
               type="button"
               aria-expanded={open}
               aria-controls={`panel-${it.title}-${i}`}
-              onClick={() => setOpenIndex(open ? null : i)}
+              onClick={() => onToggle(open ? null : i)}
               className="w-full text-left px-4 sm:px-5 py-3 sm:py-4 flex items-start gap-3"
             >
               <div className="flex-1">
                 <div
                   className={`font-semibold ${
                     it.titleIsPurple ? "text-2xl" : "text-lg sm:text-xl"
+                  } ${
+                    it.titleIsPurple
+                      ? ""
+                      : headingStrong
+                      ? "text-slate-900"
+                      : "text-slate-800"
                   }`}
                   style={it.titleIsPurple ? { color: brand.purple } : undefined}
                 >
                   {it.title}
                 </div>
-                {it.subtitle && <div className="mt-0.5 text-sm text-slate-600">{it.subtitle}</div>}
+                {it.subtitle && <div className="mt-0.5 text-sm text-slate-700">{it.subtitle}</div>}
               </div>
               <div className="ml-2 shrink-0 flex flex-col items-end">
                 {it.rightMeta && <div className="text-[11px] sm:text-xs text-slate-500 mb-1">{it.rightMeta}</div>}
@@ -123,16 +131,14 @@ function CardGrid({
               </div>
             </button>
 
-            {/* Panel (in place) */}
+            {/* Panel (max-height animation) */}
             <div
               id={`panel-${it.title}-${i}`}
-              className={`grid transition-[grid-template-rows] duration-300 ease-out ${
-                open ? "grid-rows-[1fr]" : "grid-rows-[0fr]"
+              className={`transition-[max-height] duration-300 ease-out overflow-hidden border-t border-black/10 ${
+                open ? "max-h-[1200px] py-4" : "max-h-0"
               }`}
             >
-              <div className="overflow-hidden border-t border-black/10">
-                <div className="px-4 sm:px-5 py-4">{it.panel}</div>
-              </div>
+              <div className="px-4 sm:px-5">{it.panel}</div>
             </div>
           </div>
         );
@@ -152,9 +158,8 @@ export default function FynstraSite({
   bannerRight?: string;
 }) {
   const containerRef = useScrollReveal();
-  const [mobileOpen, setMobileOpen] = useState(false);
 
-  // nothing pre-open
+  // Nothing pre-open
   const [openService, setOpenService] = useState<number | null>(null);
   const [openPackage, setOpenPackage] = useState<number | null>(null);
 
@@ -170,13 +175,13 @@ export default function FynstraSite({
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  // Lock body scroll when mobile nav or backdrop is shown
+  // Lock body scroll when backdrop is shown
   useEffect(() => {
-    document.body.style.overflow = mobileOpen || anyOpen ? "hidden" : "";
+    document.body.style.overflow = anyOpen ? "hidden" : "";
     return () => {
       document.body.style.overflow = "";
     };
-  }, [mobileOpen, anyOpen]);
+  }, [anyOpen]);
 
   // Data: Services
   const services: CardItem[] = [
@@ -187,11 +192,7 @@ export default function FynstraSite({
       panel: (
         <div className="text-slate-700 space-y-3">
           <ul className="space-y-2">
-            {[
-              "Web + landing pages",
-              "About / Service pages",
-              "Blogs, emails, proposals",
-            ].map((p) => (
+            {["Web + landing pages", "About / Service pages", "Blogs, emails, proposals"].map((p) => (
               <li key={p} className="flex gap-2 items-start">
                 <span className="mt-1 h-2 w-2 rounded-full" style={{ background: brand.purple }} />
                 {p}
@@ -246,9 +247,7 @@ export default function FynstraSite({
               </li>
             ))}
           </ul>
-          <p className="text-sm text-slate-600">
-            Fixed price after a quick scoping call and sample document review.
-          </p>
+          <p className="text-sm text-slate-600">Fixed price after a quick scoping call and sample document review.</p>
         </div>
       ),
     },
@@ -408,7 +407,6 @@ export default function FynstraSite({
         .btn-pri:hover { filter: brightness(.95); }
         .btn-ghost { border: 1px solid rgba(0,0,0,.1); color: #0f172a; background: transparent; }
         .btn-ghost:hover { background: rgba(0,0,0,.04); }
-        @keyframes menuDown { from { transform: translateY(-12px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
       `}</style>
 
       {/* NAV */}
@@ -433,26 +431,10 @@ export default function FynstraSite({
             <a href="#contact" className="hover:text-slate-900">Contact</a>
             <a href="#contact" className="btn btn-pri ml-2">Book a chat</a>
           </nav>
-
-          <button
-            className="md:hidden inline-flex items-center justify-center p-2 rounded-xl border border-black/10 text-slate-700 hover:bg-black/5"
-            aria-label="Open menu"
-            aria-expanded={mobileOpen}
-            onClick={() => setMobileOpen((v) => !v)}
-          >
-            <span className="sr-only">Menu</span>
-            <div className="space-y-1.5">
-              <span className="block h-0.5 w-5 bg-slate-700 rounded" />
-              <span className="block h-0.5 w-5 bg-slate-700 rounded" />
-              <span className="block h-0.5 w-5 bg-slate-700 rounded" />
-            </div>
-          </button>
         </div>
       </header>
 
-      {/* MOBILE overlay (unchanged, omitted for brevity) */}
-
-      {/* HERO (unchanged from your latest good version) */}
+      {/* HERO (trimmed for brevity) */}
       <section id="top" className="relative overflow-hidden">
         <div className="absolute inset-0 -z-10">
           <div
@@ -537,7 +519,7 @@ export default function FynstraSite({
 
       {/* SERVICES */}
       <section id="services" className="py-16 sm:py-20 lg:py-24 bg-slate-50 relative">
-        {/* Dim backdrop when any card open (Services or Packages) */}
+        {/* Backdrop behind content but above page (open card elevated above this) */}
         {anyOpen && (
           <button
             aria-label="Close expanded card"
@@ -545,7 +527,7 @@ export default function FynstraSite({
               setOpenService(null);
               setOpenPackage(null);
             }}
-            className="fixed inset-0 bg-black/70 z-30"
+            className="fixed inset-0 bg-black/70 z-50"
           />
         )}
 
@@ -557,17 +539,29 @@ export default function FynstraSite({
             </p>
           </div>
 
-          {/* Services in-place accordion */}
+          {/* Services — in place; opening one closes packages */}
           <div className="mt-8 sm:mt-10">
-            <CardGrid items={services} openIndex={openService} setOpenIndex={setOpenService} />
+            <CardGrid
+              items={services}
+              openIndex={openService}
+              onToggle={(i) => {
+                setOpenPackage(null);
+                setOpenService(i);
+              }}
+              headingStrong
+            />
           </div>
 
-          {/* Packages — purple headings, in-place expansion */}
+          {/* Packages — in place; opening one closes services */}
           <div className="mt-10 sm:mt-12">
             <CardGrid
               items={packages}
               openIndex={openPackage}
-              setOpenIndex={setOpenPackage}
+              onToggle={(i) => {
+                setOpenService(null);
+                setOpenPackage(i);
+              }}
+              headingStrong={false}
             />
           </div>
 
