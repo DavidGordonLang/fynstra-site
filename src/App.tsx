@@ -97,7 +97,7 @@ function CardGrid({
           <div
             key={it.title + i}
             className={`relative rounded-2xl border bg-white shadow-sm transition-all
-              ${open ? "border-indigo-200 ring-2 ring-indigo-200 shadow-xl z-60" : "border-indigo-200 z-40"}
+              ${open ? "border-indigo-200 ring-2 ring-indigo-200 shadow-xl z-[60]" : "border-indigo-200 z-0"}
               ${dimOthers ? "opacity-40" : "opacity-100"}`}
           >
             {/* Header (always visible) */}
@@ -135,7 +135,7 @@ function CardGrid({
               id={`panel-${it.title}-${i}`}
               className={`
                 ${open ? "pointer-events-auto" : "pointer-events-none"}
-                absolute left-0 right-0
+                absolute left-0 right-0 z-[65]
                 ${open ? "top-[calc(100%+0.5rem)]" : "top-[calc(100%)]"}
               `}
               aria-hidden={!open}
@@ -533,7 +533,7 @@ export default function FynstraSite({
 
       {/* SERVICES */}
       <section id="services" className="py-16 sm:py-20 lg:py-24 bg-slate-50 relative">
-        {/* Global dimmer — sits above the page, below the open card */}
+        {/* Global dimmer — above page, below open card */}
         {anyOpen && (
           <button
             aria-label="Close expanded card"
@@ -541,12 +541,12 @@ export default function FynstraSite({
               setOpenService(null);
               setOpenPackage(null);
             }}
-            className="fixed inset-0 bg-black/70 z-50"
+            className="fixed inset-0 bg-black/70 z-[50]"
           />
         )}
 
-        {/* Content sits below dimmer by default; open card itself has z-60 inside CardGrid */}
-        <div className="relative z-40 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        {/* IMPORTANT: remove z-40 here to avoid trapping children below the dimmer */}
+        <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="reveal" data-reveal>
             <h2 className="text-2xl sm:text-4xl font-semibold text-slate-900">Services</h2>
             <p className="mt-3 max-w-2xl text-slate-700">
