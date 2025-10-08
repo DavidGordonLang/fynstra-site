@@ -2,9 +2,8 @@ import React, { useEffect, useRef, useState } from "react";
 
 /**
  * Fynstra — One-page marketing site
- * - Cards expand "in place" as floating panels (no row growth)
- * - Global dim backdrop behind the open card (open card stays bright)
- * - Single-open per group; opening one group closes the other
+ * - Open card floats above a global dimmer; all other cards dim
+ * - Expand "in place" with a floating panel (grid row doesn’t grow)
  * - Strong contrast for Services headings
  */
 
@@ -69,19 +68,21 @@ type CardItem = {
   subtitle?: string;
   rightMeta?: React.ReactNode;
   panel: React.ReactNode;
-  titleIsPurple?: boolean; // packages headings
+  titleIsPurple?: boolean; // for package headings
 };
 
 function CardGrid({
   items,
   openIndex,
   onToggle,
+  anyOpen,
   className = "",
   headingStrong = true,
 }: {
   items: CardItem[];
   openIndex: number | null;
   onToggle: (i: number | null) => void;
+  anyOpen: boolean;
   className?: string;
   headingStrong?: boolean;
 }) {
@@ -89,11 +90,14 @@ function CardGrid({
     <div className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 ${className}`}>
       {items.map((it, i) => {
         const open = openIndex === i;
+        const dimOthers = anyOpen && !open; // visual dim for non-selected tiles
+
         return (
           <div
             key={it.title + i}
-            className={`relative rounded-2xl border bg-white shadow-sm transition-shadow
-              ${open ? "border-indigo-200 ring-2 ring-indigo-200 shadow-xl" : "border-indigo-200"}`}
+            className={`relative rounded-2xl border bg-white shadow-sm transition-all
+              ${open ? "border-indigo-200 ring-2 ring-indigo-200 shadow-xl z-60" : "border-indigo-200 z-40"}
+              ${dimOthers ? "opacity-40" : "opacity-100"}`}
           >
             {/* Header (always visible) */}
             <button
@@ -132,7 +136,6 @@ function CardGrid({
                 ${open ? "pointer-events-auto" : "pointer-events-none"}
                 absolute left-0 right-0
                 ${open ? "top-[calc(100%+0.5rem)]" : "top-[calc(100%)]"}
-                z-60
               `}
               aria-hidden={!open}
             >
@@ -163,7 +166,6 @@ export default function FynstraSite({
 }) {
   const containerRef = useScrollReveal();
 
-  // Nothing pre-open
   const [openService, setOpenService] = useState<number | null>(null);
   const [openPackage, setOpenPackage] = useState<number | null>(null);
 
@@ -187,7 +189,6 @@ export default function FynstraSite({
     };
   }, [anyOpen]);
 
-  // Data: Services
   const services: CardItem[] = [
     {
       title: "Copywriting",
@@ -257,7 +258,6 @@ export default function FynstraSite({
     },
   ];
 
-  // Data: Packages
   const packages: CardItem[] = [
     {
       title: "Budget",
@@ -427,7 +427,6 @@ export default function FynstraSite({
               Fynstra
             </span>
           </a>
-
           <nav className="hidden md:flex items-center gap-6 text-slate-700">
             <a href="#about" className="hover:text-slate-900">About</a>
             <a href="#services" className="hover:text-slate-900">Services</a>
@@ -438,7 +437,7 @@ export default function FynstraSite({
         </div>
       </header>
 
-      {/* HERO (kept same as previous good state) */}
+      {/* HERO (unchanged core) */}
       <section id="top" className="relative overflow-hidden">
         <div className="absolute inset-0 -z-10">
           <div
@@ -480,191 +479,4 @@ export default function FynstraSite({
                     <div className="mt-3 text-xl sm:text-3xl font-semibold tracking-tight">Clarity through content</div>
                     <div className="mt-2 sm:mt-3 text-sm sm:text-base text-white/85 font-light">Copy • Strategy • Comms</div>
                   </div>
-                  <div className="pointer-events-none absolute inset-0 opacity-[0.06] mix-blend-overlay" style={{ backgroundImage: "radial-gradient(circle at 1px 1px, rgba(255,255,255,.8) 1px, transparent 1px)", backgroundSize: "6px 6px" }} />
-                </div>
-                <div className="mt-3 sm:mt-4 text-slate-700 text-sm sm:text-base">
-                  Lean, modern, and fast to ship. This prototype mirrors the final structure we’ll deploy on Vercel.
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ABOUT */}
-      <section id="about" className="py-16 sm:py-20 lg:py-24 bg-white">
-        <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
-          <div className="grid lg:grid-cols-12 gap-6 sm:gap-10 items-start">
-            <div className="lg:col-span-5 reveal" data-reveal>
-              <h2 className="text-2xl sm:text-4xl font-semibold text-slate-900">About Fynstra</h2>
-              <p className="mt-3 sm:mt-4 text-slate-700">
-                We pair sharp language with sensible structure. From copywriting to process-minded consulting, our work turns ambiguity into action. Clear artifacts, faster decisions, better outcomes.
-              </p>
-              <ul className="mt-5 sm:mt-6 space-y-3 text-slate-700">
-                <li className="flex items-start gap-3"><span className="mt-1 h-2.5 w-2.5 rounded-full" style={{ background: brand.purple }}></span> Crisp copy and messaging frameworks</li>
-                <li className="flex items-start gap-3"><span className="mt-1 h-2.5 w-2.5 rounded-full" style={{ background: brand.purple }}></span> Practical consulting: strategy to operations</li>
-                <li className="flex items-start gap-3"><span className="mt-1 h-2.5 w-2.5 rounded-full" style={{ background: brand.purple }}></span> KYC/compliance support with plain-English communication</li>
-              </ul>
-            </div>
-            <div className="lg:col-span-7 reveal" data-reveal>
-              <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                {["Clear", "Consistent", "Credible"].map((k, i) => (
-                  <div key={k} className="rounded-2xl border border-black/10 bg-white p-5 sm:p-6 shadow-sm">
-                    <div className="text-xs sm:text-sm text-slate-500">Principle {i + 1}</div>
-                    <div className="mt-1 text-lg sm:text-xl font-semibold text-slate-900">{k}</div>
-                    <p className="mt-2 sm:mt-3 text-sm text-slate-600">We keep language simple, structure tidy, and promises realistic.</p>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* SERVICES */}
-      <section id="services" className="py-16 sm:py-20 lg:py-24 bg-slate-50 relative">
-        {/* Dim backdrop (z-30). Open card floats above at z-60. */}
-        {anyOpen && (
-          <button
-            aria-label="Close expanded card"
-            onClick={() => {
-              setOpenService(null);
-              setOpenPackage(null);
-            }}
-            className="fixed inset-0 bg-black/70 z-30"
-          />
-        )}
-
-        <div className="relative z-40 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="reveal" data-reveal>
-            <h2 className="text-2xl sm:text-4xl font-semibold text-slate-900">Services</h2>
-            <p className="mt-3 max-w-2xl text-slate-700">
-              Choose a focused engagement or mix-and-match. Open a card for scope and pricing details.
-            </p>
-          </div>
-
-          {/* Services — opening one closes packages */}
-          <div className="mt-8 sm:mt-10">
-            <CardGrid
-              items={services}
-              openIndex={openService}
-              onToggle={(i) => {
-                setOpenPackage(null);
-                setOpenService(i);
-              }}
-              headingStrong
-            />
-          </div>
-
-          {/* Packages — opening one closes services */}
-          <div className="mt-10 sm:mt-12">
-            <CardGrid
-              items={packages}
-              openIndex={openPackage}
-              onToggle={(i) => {
-                setOpenService(null);
-                setOpenPackage(i);
-              }}
-              headingStrong={false}
-            />
-          </div>
-
-          <p className="mt-6 text-sm text-slate-500">
-            Ranges are indicative; we’ll confirm scope and a fixed quote after a short brief.
-          </p>
-        </div>
-      </section>
-
-      {/* TESTIMONIALS */}
-      <section id="testimonials" className="py-16 sm:py-20 lg:py-24 bg-white">
-        <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
-          <div className="reveal" data-reveal>
-            <h2 className="text-2xl sm:text-4xl font-semibold text-slate-900">Kind words</h2>
-            <p className="mt-3 text-slate-700 max-w-2xl">Placeholders until we add real quotes. Keep it concise and outcome-focused.</p>
-          </div>
-          <div className="mt-8 sm:mt-10 grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
-            {[1, 2, 3].map((i) => (
-              <figure key={i} className="reveal" data-reveal>
-                <div className="rounded-2xl border border-black/10 bg-slate-50 p-5 sm:p-6 h-full">
-                  <blockquote className="text-slate-700">“Fynstra made our message clearer and our rollout smoother. The copy just worked.”</blockquote>
-                  <figcaption className="mt-4 text-sm text-slate-500">Client name • Role, Company</figcaption>
-                </div>
-              </figure>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* CONTACT */}
-      <section id="contact" className="py-16 sm:py-20 lg:py-24 bg-slate-50">
-        <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-10 items-start">
-            <div className="reveal" data-reveal>
-              <h2 className="text-2xl sm:text-4xl font-semibold text-slate-900">Let’s talk</h2>
-              <p className="mt-3 text-slate-700 max-w-xl">
-                Two ways to connect: drop a note or book a quick intro call. We’ll keep it focused on goals, scope, and timelines.
-              </p>
-              <div className="mt-6 flex flex-wrap gap-3">
-                <a href="#calendly" className="btn btn-pri">Book a call</a>
-                <a href="mailto:info@fynstra.co.uk" className="btn btn-ghost">Email us</a>
-              </div>
-              <div className="mt-8 sm:mt-10 text-sm text-slate-600">
-                Prefer a simple brief? Add bullet points about your goals, audience, deliverables, and deadline — we’ll reply with a scoped plan.
-              </div>
-            </div>
-
-            <div className="reveal" data-reveal>
-              <form className="rounded-2xl border border-black/10 bg-white p-5 sm:p-6 shadow-sm">
-                <div className="grid grid-cols-1 gap-4">
-                  <label className="block">
-                    <span className="text-sm text-slate-600">Name</span>
-                    <input className="mt-1 w-full rounded-xl border border-black/10 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-300" placeholder="Your name" />
-                  </label>
-                  <label className="block">
-                    <span className="text-sm text-slate-600">Email</span>
-                    <input type="email" className="mt-1 w-full rounded-xl border border-black/10 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-300" placeholder="you@company.com" />
-                  </label>
-                  <label className="block">
-                    <span className="text-sm text-slate-600">Project overview</span>
-                    <textarea rows={4} className="mt-1 w-full rounded-xl border border-black/10 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-300" placeholder="Goals, audience, deliverables, timeline" />
-                  </label>
-                  <button type="button" className="btn btn-pri w-full">Send (placeholder)</button>
-                </div>
-                <p className="mt-3 text-xs text-slate-500">
-                  This form is a front-end placeholder. Swap for a real form handler (Formspree, Resend, serverless function) when we go live.
-                </p>
-              </form>
-            </div>
-          </div>
-
-          <div id="calendly" className="mt-10 sm:mt-14 reveal" data-reveal>
-            <div className="rounded-2xl overflow-hidden border border-black/10 bg-white shadow-sm">
-              <div className="px-5 sm:px-6 py-4 border-b border-black/10 flex items-center justify-between">
-                <div>
-                  <div className="text-sm text-slate-500">Scheduling</div>
-                  <div className="text-base sm:text-lg font-semibold text-slate-900">Book a 20-minute intro</div>
-                </div>
-                <a href={CALENDLY_URL} className="btn btn-pri">Open Calendly</a>
-              </div>
-              <div className="aspect-[16/9] bg-slate-50 flex items-center justify-center text-slate-500">
-                <iframe title="Calendly" src={CALENDLY_URL} className="w-full h-full hidden" />
-                <div className="p-6 text-center">Calendly embed goes here. Replace URL above and show the iframe when ready.</div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* FOOTER */}
-      <footer className="py-8 sm:py-10 bg-white border-t border-black/5">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-3 sm:gap-4">
-          <div className="flex items-center gap-3">
-            <img src={logoSrc} onError={(e) => ((e.currentTarget.src = fallbackLogo))} alt="Fynstra" className="h-6 w-6 sm:h-7 sm:w-7 rounded-xl object-contain" />
-            <span className="text-slate-700 text-sm sm:text-base">© {new Date().getFullYear()} Fynstra Ltd</span>
-          </div>
-          <div className="text-slate-500 text-xs sm:text-sm">Built with React + Tailwind. Deployed on Vercel.</div>
-        </div>
-      </footer>
-    </div>
-  );
-}
+                  <div className="pointer-events-none absolute inset-0 opacity-[0.06] mix-blend-overlay" style={{ backgroundImage: "radial-gradient(circle at 1px 1px, rgba(255,255,255,.8) 1px,analysis
