@@ -1,10 +1,10 @@
 import React, { useEffect, useRef, useState } from "react";
 
 /**
- * Fynstra — One-page marketing site (smooth card transitions)
- * - Floating card panel slides+fades in place
- * - Backdrop fades at the same speed
- * - No added deps (pure React + Tailwind)
+ * Fynstra — One-page marketing site (with mobile menu + smooth card transitions)
+ * - Mobile: hamburger opens slide/fade sheet; backdrop dims
+ * - Cards: floating panels slide/fade; siblings dim; backdrop synced
+ * - No extra deps (React + Tailwind)
  */
 
 // ---------- Brand ----------
@@ -182,6 +182,7 @@ export default function FynstraSite({
 
   const [openService, setOpenService] = useState<number | null>(null);
   const [openPackage, setOpenPackage] = useState<number | null>(null);
+  const [mobileOpen, setMobileOpen] = useState(false); // mobile menu
 
   const anyOpen = openService !== null || openPackage !== null;
 
@@ -196,13 +197,14 @@ export default function FynstraSite({
     }
   }, [anyOpen]);
 
-  // Lock body scroll when a card is open
+  // Lock body scroll when a card is open or mobile menu is open
   useEffect(() => {
-    document.body.style.overflow = anyOpen ? "hidden" : "";
+    const lock = anyOpen || mobileOpen;
+    document.body.style.overflow = lock ? "hidden" : "";
     return () => {
       document.body.style.overflow = "";
     };
-  }, [anyOpen]);
+  }, [anyOpen, mobileOpen]);
 
   useEffect(() => {
     document.documentElement.classList.add("scroll-smooth");
@@ -430,19 +432,22 @@ export default function FynstraSite({
       `}</style>
 
       {/* NAV */}
-      <header className="sticky top-0 z-50 backdrop-blur-sm bg-white/70 border-b border-black/5">
+      <header className="sticky top-0 z-[70] backdrop-blur-sm bg-white/70 border-b border-black/5">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+          {/* Brand */}
           <a href="#top" className="flex items-center gap-3 group">
             <img
-              src={PUBLIC_LOGO}
+              src={logoSrc}
               onError={(e) => ((e.currentTarget.src = fallbackLogo))}
               alt="Fynstra"
-              className="h-12 w-12 object-contain relative top-1"
+              className="h-10 w-10 sm:h-12 sm:w-12 object-contain"
             />
             <span className="text-xl sm:text-2xl font-semibold text-slate-900 group-hover:text-slate-700 transition">
               Fynstra
             </span>
           </a>
+
+          {/* Desktop nav */}
           <nav className="hidden md:flex items-center gap-6 text-slate-700">
             <a href="#about" className="hover:text-slate-900">About</a>
             <a href="#services" className="hover:text-slate-900">Services</a>
@@ -450,6 +455,44 @@ export default function FynstraSite({
             <a href="#contact" className="hover:text-slate-900">Contact</a>
             <a href="#contact" className="btn btn-pri ml-2">Book a chat</a>
           </nav>
+
+          {/* Mobile hamburger */}
+          <button
+            type="button"
+            aria-label="Open menu"
+            className="md:hidden inline-flex items-center justify-center rounded-xl p-2 text-slate-600 hover:bg-slate-100"
+            onClick={() => setMobileOpen(true)}
+          >
+            <svg className="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M4 6h16M4 12h16M4 18h16" strokeLinecap="round" />
+            </svg>
+          </button>
+        </div>
+
+        {/* Mobile overlay + panel */}
+        {/* Backdrop */}
+        <div
+          onClick={() => setMobileOpen(false)}
+          className={[
+            "md:hidden fixed inset-0 z-[80] bg-black/50 transition-opacity",
+            mobileOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
+          ].join(" ")}
+        />
+        {/* Panel */}
+        <div
+          className={[
+            "md:hidden fixed top-16 inset-x-0 z-[85] px-4",
+            "transition-all duration-300 ease-[cubic-bezier(0.2,0.8,0.2,1)]",
+            mobileOpen ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-2 pointer-events-none"
+          ].join(" ")}
+        >
+          <div className="rounded-2xl border border-black/10 bg-white p-4 shadow-lg">
+            <a href="#about" onClick={() => setMobileOpen(false)} className="block px-2 py-2 rounded-lg hover:bg-slate-50">About</a>
+            <a href="#services" onClick={() => setMobileOpen(false)} className="block px-2 py-2 rounded-lg hover:bg-slate-50">Services</a>
+            <a href="#testimonials" onClick={() => setMobileOpen(false)} className="block px-2 py-2 rounded-lg hover:bg-slate-50">Testimonials</a>
+            <a href="#contact" onClick={() => setMobileOpen(false)} className="block px-2 py-2 rounded-lg hover:bg-slate-50">Contact</a>
+            <a href="#contact" onClick={() => setMobileOpen(false)} className="mt-3 btn btn-pri w-full">Book a chat</a>
+          </div>
         </div>
       </header>
 
@@ -461,8 +504,8 @@ export default function FynstraSite({
             className="absolute inset-0 transition-opacity duration-500"
             style={{ background: "linear-gradient(90deg, var(--fynstra-blue) 0%, var(--fynstra-lavender) 50%, var(--fynstra-purple) 100%)" }}
           />
-          <img src={defaultBannerLeft} alt="Brand motif" className="absolute left-0 top-0 opacity-40 w-56 sm:w-72 md:w-96 -translate-x-[15%] -translate-y-[15%] blur-[1px]" />
-          <img src={defaultBannerRight} alt="Brand motif" className="absolute right-[-20%] md:right-[-10%] bottom-[-28%] md:bottom-[-20%] opacity-50 w-[28rem] sm:w-[36rem] md:w-[48rem] rotate-6 blur-[0.5px]" />
+          <img src={bannerLeft} alt="Brand motif" className="absolute left-0 top-0 opacity-40 w-56 sm:w-72 md:w-96 -translate-x-[15%] -translate-y-[15%] blur-[1px]" />
+          <img src={bannerRight} alt="Brand motif" className="absolute right-[-20%] md:right-[-10%] bottom-[-28%] md:bottom-[-20%] opacity-50 w-[28rem] sm:w-[36rem] md:w-[48rem] rotate-6 blur-[0.5px]" />
           <div className="absolute inset-0 bg-gradient-to-tr from-white/60 via-white/30 to-transparent" />
         </div>
 
@@ -480,7 +523,7 @@ export default function FynstraSite({
                 <a href="#contact" className="btn btn-ghost">Get in touch</a>
               </div>
               <div className="mt-8 sm:mt-10 flex items-center gap-4">
-                <img src={PUBLIC_LOGO} onError={(e) => ((e.currentTarget.src = fallbackLogo))} alt="Fynstra" className="h-9 w-9 sm:h-10 sm:w-10 rounded-xl object-contain" />
+                <img src={logoSrc} onError={(e) => ((e.currentTarget.src = fallbackLogo))} alt="Fynstra" className="h-9 w-9 sm:h-10 sm:w-10 rounded-xl object-contain" />
               </div>
             </div>
 
@@ -491,7 +534,7 @@ export default function FynstraSite({
                   <div className="absolute -top-16 -right-16 h-56 w-56 sm:h-64 sm:w-64 rounded-full bg-white/30 blur-3xl opacity-40" />
                   <div className="absolute -bottom-20 -left-20 h-64 w-64 sm:h-72 sm:w-72 rounded-full bg-[rgba(79,180,198,0.35)] blur-3xl opacity-50" />
                   <div className="relative z-10 h-full w-full flex flex-col items-start justify-center text-white px-6 sm:px-10">
-                    <img src={PUBLIC_LOGO} onError={(e) => ((e.currentTarget.src = fallbackLogo))} alt="Fynstra" className="h-16 w-16 sm:h-20 sm:w-20 rounded-2xl object-contain shadow-md ring-1 ring-white/40" />
+                    <img src={logoSrc} onError={(e) => ((e.currentTarget.src = fallbackLogo))} alt="Fynstra" className="h-16 w-16 sm:h-20 sm:w-20 rounded-2xl object-contain shadow-md ring-1 ring-white/40" />
                     <div className="mt-3 text-xl sm:text-3xl font-semibold tracking-tight">Clarity through content</div>
                     <div className="mt-2 sm:mt-3 text-sm sm:text-base text-white/85 font-light">Copy • Strategy • Comms</div>
                   </div>
@@ -561,7 +604,6 @@ export default function FynstraSite({
           />
         )}
 
-        {/* Services content wrapper (no z-40 so cards can rise above backdrop) */}
         <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="reveal" data-reveal>
             <h2 className="text-2xl sm:text-4xl font-semibold text-slate-900">Services</h2>
@@ -689,7 +731,7 @@ export default function FynstraSite({
       <footer className="py-8 sm:py-10 bg-white border-t border-black/5">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-3 sm:gap-4">
           <div className="flex items-center gap-3">
-            <img src={PUBLIC_LOGO} onError={(e) => ((e.currentTarget.src = fallbackLogo))} alt="Fynstra" className="h-6 w-6 sm:h-7 sm:w-7 rounded-xl object-contain" />
+            <img src={logoSrc} onError={(e) => ((e.currentTarget.src = fallbackLogo))} alt="Fynstra" className="h-6 w-6 sm:h-7 sm:w-7 rounded-xl object-contain" />
             <span className="text-slate-700 text-sm sm:text-base">© {new Date().getFullYear()} Fynstra Ltd</span>
           </div>
           <div className="text-slate-500 text-xs sm:text-sm">Built with React + Tailwind. Deployed on Vercel.</div>
