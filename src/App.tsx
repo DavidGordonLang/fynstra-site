@@ -5,7 +5,7 @@ import React, { useEffect, useRef } from "react";
  * Stack: React + TailwindCSS (no extra deps)
  *
  * Notes:
- * - Ensure /public/fynstra-logo.png exists for the real logo (or we’ll use SVG fallbacks).
+ * - Put your transparent logo at /public/fynstra-logo.png (PNG w/ alpha).
  * - Replace CALENDLY_URL with your real link when ready.
  */
 
@@ -20,7 +20,7 @@ const brand = {
   bg: "#FAFAFA",
 };
 
-// Inline SVG fallback tiles (so the app renders even without assets)
+// Lightweight SVG fallback tiles (keeps UI pretty if assets are missing)
 const svgTile = (a: string, b: string) =>
   "data:image/svg+xml;utf8," +
   encodeURIComponent(
@@ -35,12 +35,12 @@ const svgTile = (a: string, b: string) =>
     </svg>`
   );
 
-const PUBLIC_LOGO = "/fynstra-logo.png"; // put your transparent PNG here
-const defaultLogo = svgTile(brand.lavender, brand.purple);
+const PUBLIC_LOGO = "/fynstra-logo.png"; // transparent PNG in /public
+const fallbackLogo = svgTile(brand.lavender, brand.purple);
 const defaultBannerLeft = svgTile(brand.blue, brand.lavender);
 const defaultBannerRight = svgTile(brand.lavender, brand.purple);
 
-const CALENDLY_URL = "https://calendly.com/"; // Replace when ready
+const CALENDLY_URL = "https://calendly.com/"; // TODO: replace with your link
 
 function useScrollReveal() {
   const containerRef = useRef<HTMLDivElement | null>(null);
@@ -79,13 +79,13 @@ export default function FynstraSite({
   useEffect(() => {
     document.documentElement.classList.add("scroll-smooth");
 
-    // Sanity “tests”
+    // Tiny runtime checks
     const ids = ["top", "about", "services", "testimonials", "contact"];
     const missing = ids.filter((id) => !document.getElementById(id));
     if (missing.length) console.warn("[Fynstra] Missing section ids:", missing.join(", "));
-
-    const sectionCount = document.querySelectorAll("section").length;
-    if (sectionCount < 5) console.warn("[Fynstra] Expected >= 5 <section> elements, found:", sectionCount);
+    if (document.querySelectorAll("section").length < 5) {
+      console.warn("[Fynstra] Expected >= 5 <section> elements.");
+    }
 
     // Darken hero on scroll
     const hero = document.getElementById("hero-bg");
@@ -141,7 +141,12 @@ export default function FynstraSite({
       <header className="sticky top-0 z-40 backdrop-blur-sm bg-white/70 border-b border-black/5">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
           <a href="#top" className="flex items-center gap-3 group">
-            <img src={logoSrc} alt="Fynstra" className="h-12 w-12 object-contain relative top-1" />
+            <img
+              src={logoSrc}
+              onError={(e) => ((e.currentTarget.src = fallbackLogo))}
+              alt="Fynstra"
+              className="h-12 w-12 object-contain relative top-1"
+            />
             <span className="text-2xl font-semibold text-slate-900 group-hover:text-slate-700 transition">
               Fynstra
             </span>
@@ -199,11 +204,16 @@ export default function FynstraSite({
 
               {/* Logo only row (per request) */}
               <div className="mt-10 flex items-center gap-4">
-                <img src={logoSrc} alt="Fynstra" className="h-10 w-10 rounded-xl object-contain" />
+                <img
+                  src={logoSrc}
+                  onError={(e) => ((e.currentTarget.src = fallbackLogo))}
+                  alt="Fynstra"
+                  className="h-10 w-10 rounded-xl object-contain"
+                />
               </div>
             </div>
 
-            {/* Right column — branded card */}
+            {/* Right column — larger branded card */}
             <div className="reveal" data-reveal>
               <div className="relative rounded-3xl ring-1 ring-black/10 bg-white/60 backdrop-blur p-6 shadow-xl">
                 {/* Branded gradient panel */}
@@ -213,21 +223,25 @@ export default function FynstraSite({
                     className="absolute inset-0"
                     style={{ background: "linear-gradient(135deg, var(--fynstra-blue), var(--fynstra-purple))" }}
                   />
-                  {/* Soft decorative glows */}
-                  <div className="absolute -top-10 -right-10 h-40 w-40 rounded-full bg-white/30 blur-3xl opacity-40" />
-                  <div className="absolute -bottom-12 -left-12 h-52 w-52 rounded-full bg-[rgba(79,180,198,0.35)] blur-3xl opacity-50" />
 
-                  {/* Centered brand lockup */}
-                  <div className="relative z-10 h-full w-full flex flex-col items-center justify-center text-white">
+                  {/* Soft decorative glows */}
+                  <div className="absolute -top-16 -right-16 h-64 w-64 rounded-full bg-white/30 blur-3xl opacity-40" />
+                  <div className="absolute -bottom-20 -left-20 h-72 w-72 rounded-full bg-[rgba(79,180,198,0.35)] blur-3xl opacity-50" />
+
+                  {/* Enlarged brand lockup */}
+                  <div className="relative z-10 h-full w-full flex flex-col items-center justify-center text-white scale-[1.35] sm:scale-[1.5]">
                     <img
                       src={logoSrc}
+                      onError={(e) => ((e.currentTarget.src = fallbackLogo))}
                       alt="Fynstra"
-                      className="h-16 w-16 rounded-2xl object-contain shadow-md ring-1 ring-white/40"
+                      className="h-20 w-20 rounded-2xl object-contain shadow-md ring-1 ring-white/40"
                     />
-                    <div className="mt-3 text-xl sm:text-2xl font-semibold tracking-tight">
+                    <div className="mt-3 text-2xl sm:text-3xl font-semibold tracking-tight">
                       Clarity through content
                     </div>
-                    <div className="mt-2 text-sm text-white/85">Copy • Strategy • Comms</div>
+                    <div className="mt-3 text-base text-white/85 font-light">
+                      Copy • Strategy • Comms
+                    </div>
                   </div>
 
                   {/* Subtle noise overlay for texture */}
@@ -242,7 +256,7 @@ export default function FynstraSite({
                 </div>
 
                 {/* Caption under card */}
-                <div className="mt-4 text-slate-700">
+                <div className="mt-4 text-slate-700 text-sm sm:text-base">
                   Lean, modern, and fast to ship. This prototype mirrors the final structure we’ll deploy on Vercel.
                 </div>
               </div>
@@ -458,7 +472,12 @@ export default function FynstraSite({
       <footer className="py-10 bg-white border-t border-black/5">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-3">
-            <img src={logoSrc} alt="Fynstra" className="h-7 w-7 rounded-xl object-contain" />
+            <img
+              src={logoSrc}
+              onError={(e) => ((e.currentTarget.src = fallbackLogo))}
+              alt="Fynstra"
+              className="h-7 w-7 rounded-xl object-contain"
+            />
             <span className="text-slate-700">© {new Date().getFullYear()} Fynstra Ltd</span>
           </div>
           <div className="text-slate-500 text-sm">Built with React + Tailwind. Deployed on Vercel.</div>
