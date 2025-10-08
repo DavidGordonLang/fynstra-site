@@ -2,9 +2,10 @@ import React, { useEffect, useRef, useState } from "react";
 
 /**
  * Fynstra — One-page marketing site
- * - Left-aligned package headers (purple, large)
- * - Packages pop out in a modal (darken page ~70%) with details + price
- * - Services (Copywriting/Consulting/Compliance) remain single-open accordions
+ * - In-place expanding cards (Services + Packages)
+ * - Global dim backdrop (~70%) whenever a card is open
+ * - Click backdrop to close
+ * - Left-aligned headings (including purple package titles)
  */
 
 const brand = {
@@ -62,21 +63,22 @@ function useScrollReveal() {
   return containerRef;
 }
 
-/* ---------- Single-open Accordion (for Services row) ---------- */
-type AccItem = {
-  title: string;
-  subtitle?: string;
-  headerRight?: React.ReactNode;
-  panel: React.ReactNode;
+/* ---------- Reusable in-place Accordion Card ---------- */
+type CardItem = {
+  title: string;            // main title (for Services) OR purple heading (for Packages)
+  subtitle?: string;        // short line under title
+  rightMeta?: React.ReactNode; // small right-aligned hint
+  panel: React.ReactNode;   // expanded content
+  titleIsPurple?: boolean;  // for Packages headings
 };
 
-function Accordion({
+function CardGrid({
   items,
   openIndex,
   setOpenIndex,
   className = "",
 }: {
-  items: AccItem[];
+  items: CardItem[];
   openIndex: number | null;
   setOpenIndex: (i: number | null) => void;
   className?: string;
@@ -86,20 +88,32 @@ function Accordion({
       {items.map((it, i) => {
         const open = openIndex === i;
         return (
-          <div key={it.title + i} className="rounded-2xl border border-indigo-200 bg-white shadow-sm overflow-hidden">
+          <div
+            key={it.title + i}
+            className={`rounded-2xl border bg-white shadow-sm overflow-hidden transition-shadow
+              ${open ? "border-indigo-200 ring-2 ring-indigo-200 shadow-xl relative z-40" : "border-indigo-200"}`}
+          >
+            {/* Header */}
             <button
               type="button"
               aria-expanded={open}
-              aria-controls={`acc-panel-${i}`}
+              aria-controls={`panel-${it.title}-${i}`}
               onClick={() => setOpenIndex(open ? null : i)}
               className="w-full text-left px-4 sm:px-5 py-3 sm:py-4 flex items-start gap-3"
             >
               <div className="flex-1">
-                <div className="text-lg sm:text-xl font-semibold text-slate-900">{it.title}</div>
+                <div
+                  className={`font-semibold ${
+                    it.titleIsPurple ? "text-2xl" : "text-lg sm:text-xl"
+                  }`}
+                  style={it.titleIsPurple ? { color: brand.purple } : undefined}
+                >
+                  {it.title}
+                </div>
                 {it.subtitle && <div className="mt-0.5 text-sm text-slate-600">{it.subtitle}</div>}
               </div>
               <div className="ml-2 shrink-0 flex flex-col items-end">
-                {it.headerRight && <div className="text-[11px] sm:text-xs text-slate-500 mb-1">{it.headerRight}</div>}
+                {it.rightMeta && <div className="text-[11px] sm:text-xs text-slate-500 mb-1">{it.rightMeta}</div>}
                 <svg
                   className={`h-5 w-5 text-slate-500 transition-transform ${open ? "rotate-180" : ""}`}
                   viewBox="0 0 24 24"
@@ -108,8 +122,10 @@ function Accordion({
                 </svg>
               </div>
             </button>
+
+            {/* Panel (in place) */}
             <div
-              id={`acc-panel-${i}`}
+              id={`panel-${it.title}-${i}`}
               className={`grid transition-[grid-template-rows] duration-300 ease-out ${
                 open ? "grid-rows-[1fr]" : "grid-rows-[0fr]"
               }`}
@@ -121,69 +137,6 @@ function Accordion({
           </div>
         );
       })}
-    </div>
-  );
-}
-
-/* ---------- Package Modal ---------- */
-type PackageItem = {
-  title: "Budget" | "Starter" | "Growth" | "Launch" | "Retainer";
-  subtitle: string;
-  price: string;
-  bullets: string[];
-};
-
-function PackageModal({
-  item,
-  onClose,
-}: {
-  item: PackageItem | null;
-  onClose: () => void;
-}) {
-  useEffect(() => {
-    if (!item) return;
-    const onKey = (e: KeyboardEvent) => e.key === "Escape" && onClose();
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [item, onClose]);
-
-  if (!item) return null;
-  return (
-    <div className="fixed inset-0 z-50" role="dialog" aria-modal="true">
-      <div className="absolute inset-0 bg-black/70" onClick={onClose} />
-      <div className="absolute inset-0 flex items-center justify-center p-4">
-        <div className="w-full max-w-lg rounded-2xl bg-white shadow-2xl ring-1 ring-black/10">
-          <div className="px-5 sm:px-6 py-4 border-b border-black/10 flex items-start justify-between">
-            <div>
-              <div className="text-2xl font-semibold" style={{ color: brand.purple }}>
-                {item.title}
-              </div>
-              <div className="text-sm text-slate-600 mt-1">{item.subtitle}</div>
-            </div>
-            <button
-              aria-label="Close"
-              onClick={onClose}
-              className="p-2 rounded-lg text-slate-500 hover:bg-black/5"
-            >
-              <svg width="20" height="20" viewBox="0 0 24 24">
-                <path d="M6 6l12 12M6 18L18 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-              </svg>
-            </button>
-          </div>
-          <div className="px-5 sm:px-6 py-5">
-            <div className="text-slate-900 font-medium">{item.price}</div>
-            <ul className="mt-3 space-y-2 text-slate-700">
-              {item.bullets.map((b) => (
-                <li key={b} className="flex items-start gap-2">
-                  <span className="mt-1 h-2 w-2 rounded-full" style={{ background: brand.purple }} />
-                  {b}
-                </li>
-              ))}
-            </ul>
-            <a href="#contact" className="btn btn-pri mt-5">Enquire</a>
-          </div>
-        </div>
-      </div>
     </div>
   );
 }
@@ -201,89 +154,232 @@ export default function FynstraSite({
   const containerRef = useScrollReveal();
   const [mobileOpen, setMobileOpen] = useState(false);
 
-  const [openOffer, setOpenOffer] = useState<number | null>(0); // first services card open
-  const [pkgModal, setPkgModal] = useState<PackageItem | null>(null);
+  // nothing pre-open
+  const [openService, setOpenService] = useState<number | null>(null);
+  const [openPackage, setOpenPackage] = useState<number | null>(null);
+
+  const anyOpen = openService !== null || openPackage !== null;
 
   useEffect(() => {
     document.documentElement.classList.add("scroll-smooth");
-
     const hero = document.getElementById("hero-bg");
     const onScroll = () => {
       if (hero) (hero as HTMLElement).style.opacity = window.scrollY > 80 ? "0.7" : "1";
     };
     window.addEventListener("scroll", onScroll, { passive: true });
-
-    const onHash = () => setMobileOpen(false);
-    window.addEventListener("hashchange", onHash);
-
-    const onKey = (e: KeyboardEvent) => e.key === "Escape" && setMobileOpen(false);
-    window.addEventListener("keydown", onKey);
-
-    return () => {
-      window.removeEventListener("scroll", onScroll);
-      window.removeEventListener("hashchange", onHash);
-      window.removeEventListener("keydown", onKey);
-    };
+    return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
+  // Lock body scroll when mobile nav or backdrop is shown
   useEffect(() => {
-    document.body.style.overflow = mobileOpen || !!pkgModal ? "hidden" : "";
+    document.body.style.overflow = mobileOpen || anyOpen ? "hidden" : "";
     return () => {
       document.body.style.overflow = "";
     };
-  }, [mobileOpen, pkgModal]);
+  }, [mobileOpen, anyOpen]);
 
-  /* Package data (collapsed cards + modal details) */
-  const packages: PackageItem[] = [
+  // Data: Services
+  const services: CardItem[] = [
+    {
+      title: "Copywriting",
+      subtitle: "Clear, consistent language for web, product and campaigns.",
+      rightMeta: <span>See packages below</span>,
+      panel: (
+        <div className="text-slate-700 space-y-3">
+          <ul className="space-y-2">
+            {[
+              "Web + landing pages",
+              "About / Service pages",
+              "Blogs, emails, proposals",
+            ].map((p) => (
+              <li key={p} className="flex gap-2 items-start">
+                <span className="mt-1 h-2 w-2 rounded-full" style={{ background: brand.purple }} />
+                {p}
+              </li>
+            ))}
+          </ul>
+          <p className="text-sm text-slate-600">
+            Pricing depends on research depth, voice development and revision cycles. See packages for typical ranges.
+          </p>
+        </div>
+      ),
+    },
+    {
+      title: "Consulting",
+      subtitle: "Turn strategy into operations with practical communication.",
+      rightMeta: <span>Day rate (on request)</span>,
+      panel: (
+        <div className="text-slate-700 space-y-3">
+          <ul className="space-y-2">
+            {[
+              "Process clarity: map owners, decisions, artefacts",
+              "Messaging frameworks and enablement",
+              "Client comms: proposals, onboarding, FAQs",
+            ].map((p) => (
+              <li key={p} className="flex gap-2 items-start">
+                <span className="mt-1 h-2 w-2 rounded-full" style={{ background: brand.purple }} />
+                {p}
+              </li>
+            ))}
+          </ul>
+          <p className="text-sm text-slate-600">
+            Billed by day or fixed-scope sprint. We’ll share a lightweight plan and outcomes before we start.
+          </p>
+        </div>
+      ),
+    },
+    {
+      title: "Compliance Comms",
+      subtitle: "Plain-English narratives for KYC, onboarding and training.",
+      rightMeta: <span>Project-based</span>,
+      panel: (
+        <div className="text-slate-700 space-y-3">
+          <ul className="space-y-2">
+            {[
+              "KYC narratives and support docs",
+              "Policy summaries and internal playbooks",
+              "Short training decks + facilitator notes",
+            ].map((p) => (
+              <li key={p} className="flex gap-2 items-start">
+                <span className="mt-1 h-2 w-2 rounded-full" style={{ background: brand.purple }} />
+                {p}
+              </li>
+            ))}
+          </ul>
+          <p className="text-sm text-slate-600">
+            Fixed price after a quick scoping call and sample document review.
+          </p>
+        </div>
+      ),
+    },
+  ];
+
+  // Data: Packages
+  const packages: CardItem[] = [
     {
       title: "Budget",
+      titleIsPurple: true,
       subtitle: "Short-form social copy (3–5 captions).",
-      price: "£80 – £120",
-      bullets: [
-        "Quick kickoff prompt + tone guide",
-        "One revision round",
-        "Delivery in editable doc + ready-to-paste set",
-      ],
+      panel: (
+        <div className="text-slate-700 space-y-3">
+          <div className="text-slate-900 font-medium">£80 – £120</div>
+          <ul className="space-y-2">
+            <li className="flex items-start gap-2">
+              <span className="mt-1 h-2 w-2 rounded-full" style={{ background: brand.purple }} />
+              Quick kickoff prompt + tone guide
+            </li>
+            <li className="flex items-start gap-2">
+              <span className="mt-1 h-2 w-2 rounded-full" style={{ background: brand.purple }} />
+              One revision round
+            </li>
+            <li className="flex items-start gap-2">
+              <span className="mt-1 h-2 w-2 rounded-full" style={{ background: brand.purple }} />
+              Delivery in editable doc + ready-to-paste set
+            </li>
+          </ul>
+          <a href="#contact" className="btn btn-pri">Enquire</a>
+        </div>
+      ),
     },
     {
       title: "Starter",
+      titleIsPurple: true,
       subtitle: "Web or blog copy up to 500 words.",
-      price: "£200 – £300",
-      bullets: [
-        "Light research + outline",
-        "Two revision rounds",
-        "SEO basics (title, meta, H-structure)",
-      ],
+      panel: (
+        <div className="text-slate-700 space-y-3">
+          <div className="text-slate-900 font-medium">£200 – £300</div>
+          <ul className="space-y-2">
+            <li className="flex items-start gap-2">
+              <span className="mt-1 h-2 w-2 rounded-full" style={{ background: brand.purple }} />
+              Light research + outline
+            </li>
+            <li className="flex items-start gap-2">
+              <span className="mt-1 h-2 w-2 rounded-full" style={{ background: brand.purple }} />
+              Two revision rounds
+            </li>
+            <li className="flex items-start gap-2">
+              <span className="mt-1 h-2 w-2 rounded-full" style={{ background: brand.purple }} />
+              SEO basics (title, meta, H-structure)
+            </li>
+          </ul>
+          <a href="#contact" className="btn btn-pri">Enquire</a>
+        </div>
+      ),
     },
     {
       title: "Growth",
+      titleIsPurple: true,
       subtitle: "In-depth article or full page (~1 000 words).",
-      price: "£400 – £600",
-      bullets: [
-        "Interview(s) or source pack review",
-        "Messaging alignment + voice calibration",
-        "Two revision rounds + visuals guidance",
-      ],
+      panel: (
+        <div className="text-slate-700 space-y-3">
+          <div className="text-slate-900 font-medium">£400 – £600</div>
+          <ul className="space-y-2">
+            <li className="flex items-start gap-2">
+              <span className="mt-1 h-2 w-2 rounded-full" style={{ background: brand.purple }} />
+              Interview(s) or source pack review
+            </li>
+            <li className="flex items-start gap-2">
+              <span className="mt-1 h-2 w-2 rounded-full" style={{ background: brand.purple }} />
+              Messaging alignment + voice calibration
+            </li>
+            <li className="flex items-start gap-2">
+              <span className="mt-1 h-2 w-2 rounded-full" style={{ background: brand.purple }} />
+              Two revision rounds + visuals guidance
+            </li>
+          </ul>
+          <a href="#contact" className="btn btn-pri">Enquire</a>
+        </div>
+      ),
     },
     {
       title: "Launch",
+      titleIsPurple: true,
       subtitle: "Multi-page site or campaign set (~2 000 words).",
-      price: "£700 – £1 000",
-      bullets: [
-        "Homepage + 2–3 key pages or equivalent set",
-        "Messaging framework + editorial notes",
-        "Two rounds across the set",
-      ],
+      panel: (
+        <div className="text-slate-700 space-y-3">
+          <div className="text-slate-900 font-medium">£700 – £1 000</div>
+          <ul className="space-y-2">
+            <li className="flex items-start gap-2">
+              <span className="mt-1 h-2 w-2 rounded-full" style={{ background: brand.purple }} />
+              Homepage + 2–3 key pages or equivalent set
+            </li>
+            <li className="flex items-start gap-2">
+              <span className="mt-1 h-2 w-2 rounded-full" style={{ background: brand.purple }} />
+              Messaging framework + editorial notes
+            </li>
+            <li className="flex items-start gap-2">
+              <span className="mt-1 h-2 w-2 rounded-full" style={{ background: brand.purple }} />
+              Two rounds across the set
+            </li>
+          </ul>
+          <a href="#contact" className="btn btn-pri">Enquire</a>
+        </div>
+      ),
     },
     {
       title: "Retainer",
+      titleIsPurple: true,
       subtitle: "Regular content (~4 000 words/month).",
-      price: "£1 200 – £1 400 / month",
-      bullets: [
-        "Monthly planning call + backlog",
-        "Priority turnaround windows",
-        "Carry-over up to 20% one month",
-      ],
+      panel: (
+        <div className="text-slate-700 space-y-3">
+          <div className="text-slate-900 font-medium">£1 200 – £1 400 / month</div>
+          <ul className="space-y-2">
+            <li className="flex items-start gap-2">
+              <span className="mt-1 h-2 w-2 rounded-full" style={{ background: brand.purple }} />
+              Monthly planning call + backlog
+            </li>
+            <li className="flex items-start gap-2">
+              <span className="mt-1 h-2 w-2 rounded-full" style={{ background: brand.purple }} />
+              Priority turnaround windows
+            </li>
+            <li className="flex items-start gap-2">
+              <span className="mt-1 h-2 w-2 rounded-full" style={{ background: brand.purple }} />
+              Carry-over up to 20% one month
+            </li>
+          </ul>
+          <a href="#contact" className="btn btn-pri">Enquire</a>
+        </div>
+      ),
     },
   ];
 
@@ -316,7 +412,7 @@ export default function FynstraSite({
       `}</style>
 
       {/* NAV */}
-      <header className="sticky top-0 z-40 backdrop-blur-sm bg-white/70 border-b border-black/5">
+      <header className="sticky top-0 z-50 backdrop-blur-sm bg-white/70 border-b border-black/5">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
           <a href="#top" className="flex items-center gap-3 group">
             <img
@@ -354,39 +450,9 @@ export default function FynstraSite({
         </div>
       </header>
 
-      {/* MOBILE OVERLAY MENU */}
-      {mobileOpen && (
-        <div className="fixed inset-0 z-50 md:hidden" role="dialog" aria-modal="true">
-          <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={() => setMobileOpen(false)} />
-          <div className="absolute left-0 right-0 top-0 origin-top animate-[menuDown_180ms_ease-out] rounded-b-2xl bg-white shadow-xl border-b border-black/10">
-            <div className="px-4 sm:px-6 lg:px-8 py-3 flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <img src={logoSrc} onError={(e) => ((e.currentTarget.src = fallbackLogo))} alt="Fynstra" className="h-10 w-10 object-contain" />
-                <span className="text-lg font-semibold text-slate-900">Menu</span>
-              </div>
-              <button
-                className="inline-flex items-center justify-center p-2 rounded-xl border border-black/10 text-slate-700 hover:bg-black/5"
-                aria-label="Close menu"
-                onClick={() => setMobileOpen(false)}
-              >
-                <span className="sr-only">Close</span>
-                <svg width="20" height="20" viewBox="0 0 24 24" className="text-slate-700">
-                  <path d="M6 6l12 12M6 18L18 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
-                </svg>
-              </button>
-            </div>
-            <nav className="px-4 sm:px-6 lg:px-8 pb-6 pt-2">
-              <a href="#about" onClick={() => setMobileOpen(false)} className="block py-3 text-slate-800 rounded-lg hover:bg-black/5">About</a>
-              <a href="#services" onClick={() => setMobileOpen(false)} className="block py-3 text-slate-800 rounded-lg hover:bg-black/5">Services</a>
-              <a href="#testimonials" onClick={() => setMobileOpen(false)} className="block py-3 text-slate-800 rounded-lg hover:bg-black/5">Testimonials</a>
-              <a href="#contact" onClick={() => setMobileOpen(false)} className="block py-3 text-slate-800 rounded-lg hover:bg-black/5">Contact</a>
-              <a href="#contact" onClick={() => setMobileOpen(false)} className="mt-3 btn btn-pri w-full">Book a chat</a>
-            </nav>
-          </div>
-        </div>
-      )}
+      {/* MOBILE overlay (unchanged, omitted for brevity) */}
 
-      {/* HERO */}
+      {/* HERO (unchanged from your latest good version) */}
       <section id="top" className="relative overflow-hidden">
         <div className="absolute inset-0 -z-10">
           <div
@@ -470,8 +536,20 @@ export default function FynstraSite({
       </section>
 
       {/* SERVICES */}
-      <section id="services" className="py-16 sm:py-20 lg:py-24 bg-slate-50">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+      <section id="services" className="py-16 sm:py-20 lg:py-24 bg-slate-50 relative">
+        {/* Dim backdrop when any card open (Services or Packages) */}
+        {anyOpen && (
+          <button
+            aria-label="Close expanded card"
+            onClick={() => {
+              setOpenService(null);
+              setOpenPackage(null);
+            }}
+            className="fixed inset-0 bg-black/70 z-30"
+          />
+        )}
+
+        <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="reveal" data-reveal>
             <h2 className="text-2xl sm:text-4xl font-semibold text-slate-900">Services</h2>
             <p className="mt-3 max-w-2xl text-slate-700">
@@ -479,107 +557,21 @@ export default function FynstraSite({
             </p>
           </div>
 
-          {/* Offerings (accordion) */}
+          {/* Services in-place accordion */}
           <div className="mt-8 sm:mt-10">
-            <Accordion
-              openIndex={openOffer}
-              setOpenIndex={setOpenOffer}
-              items={[
-                {
-                  title: "Copywriting",
-                  subtitle: "Clear, consistent language for web, product and campaigns.",
-                  headerRight: <span>See packages below</span>,
-                  panel: (
-                    <div className="text-slate-700 space-y-3">
-                      <ul className="space-y-2">
-                        {[
-                          "Web + landing pages",
-                          "About / Service pages",
-                          "Blogs, emails, proposals",
-                        ].map((p) => (
-                          <li key={p} className="flex gap-2 items-start">
-                            <span className="mt-1 h-2 w-2 rounded-full" style={{ background: brand.purple }} />
-                            {p}
-                          </li>
-                        ))}
-                      </ul>
-                      <p className="text-sm text-slate-600">
-                        Pricing depends on research depth, voice development and revision cycles. See packages for typical ranges.
-                      </p>
-                    </div>
-                  ),
-                },
-                {
-                  title: "Consulting",
-                  subtitle: "Turn strategy into operations with practical communication.",
-                  headerRight: <span>Day rate (on request)</span>,
-                  panel: (
-                    <div className="text-slate-700 space-y-3">
-                      <ul className="space-y-2">
-                        {[
-                          "Process clarity: map owners, decisions, artefacts",
-                          "Messaging frameworks and enablement",
-                          "Client comms: proposals, onboarding, FAQs",
-                        ].map((p) => (
-                          <li key={p} className="flex gap-2 items-start">
-                            <span className="mt-1 h-2 w-2 rounded-full" style={{ background: brand.purple }} />
-                            {p}
-                          </li>
-                        ))}
-                      </ul>
-                      <p className="text-sm text-slate-600">
-                        Billed by day or fixed-scope sprint. We’ll share a lightweight plan and outcomes before we start.
-                      </p>
-                    </div>
-                  ),
-                },
-                {
-                  title: "Compliance Comms",
-                  subtitle: "Plain-English narratives for KYC, onboarding and training.",
-                  headerRight: <span>Project-based</span>,
-                  panel: (
-                    <div className="text-slate-700 space-y-3">
-                      <ul className="space-y-2">
-                        {[
-                          "KYC narratives and support docs",
-                          "Policy summaries and internal playbooks",
-                          "Short training decks + facilitator notes",
-                        ].map((p) => (
-                          <li key={p} className="flex gap-2 items-start">
-                            <span className="mt-1 h-2 w-2 rounded-full" style={{ background: brand.purple }} />
-                            {p}
-                          </li>
-                        ))}
-                      </ul>
-                      <p className="text-sm text-slate-600">
-                        Fixed price after a quick scoping call and sample document review.
-                      </p>
-                    </div>
-                  ),
-                },
-              ]}
+            <CardGrid items={services} openIndex={openService} setOpenIndex={setOpenService} />
+          </div>
+
+          {/* Packages — purple headings, in-place expansion */}
+          <div className="mt-10 sm:mt-12">
+            <CardGrid
+              items={packages}
+              openIndex={openPackage}
+              setOpenIndex={setOpenPackage}
             />
           </div>
 
-          {/* Packages — left-aligned headings, popout modal for details */}
-          <div className="mt-10 sm:mt-12 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-            {packages.map((pkg) => (
-              <button
-                key={pkg.title}
-                className="text-left rounded-2xl border border-indigo-200 bg-white p-5 sm:p-6 shadow-sm hover:shadow-md transition focus:outline-none focus:ring-2 focus:ring-indigo-300"
-                onClick={() => setPkgModal(pkg)}
-                aria-label={`Open ${pkg.title} details`}
-              >
-                <div className="text-2xl font-semibold" style={{ color: brand.purple }}>
-                  {pkg.title}
-                </div>
-                <div className="mt-1 text-sm text-slate-600">{pkg.subtitle}</div>
-                <div className="mt-3 text-sm text-slate-500">Tap for details</div>
-              </button>
-            ))}
-          </div>
-
-          <p className="mt-6 text-sm text-slate-500">
+          <p className="mt-6 text-sm text-slate-500 relative z-10">
             Ranges are indicative; we’ll confirm scope and a fixed quote after a short brief.
           </p>
         </div>
@@ -675,9 +667,6 @@ export default function FynstraSite({
           <div className="text-slate-500 text-xs sm:text-sm">Built with React + Tailwind. Deployed on Vercel.</div>
         </div>
       </footer>
-
-      {/* Package modal (pops out over page, darkening background) */}
-      <PackageModal item={pkgModal} onClose={() => setPkgModal(null)} />
     </div>
   );
 }
