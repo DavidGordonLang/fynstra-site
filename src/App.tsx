@@ -1,13 +1,12 @@
 import React, { useEffect, useRef, useState } from "react";
 
 /**
- * Fynstra — One-page marketing site (with mobile menu + smooth card transitions)
- * - Mobile: hamburger opens slide/fade sheet; backdrop dims
- * - Cards: floating panels slide/fade; siblings dim; backdrop synced
+ * Fynstra — One-page marketing site
+ * - Mobile menu: hamburger -> slide/fade sheet with dark text
+ * - Services/Packages: floating panels expand in place; siblings dim; synced backdrop
  * - No extra deps (React + Tailwind)
  */
 
-// ---------- Brand ----------
 const brand = {
   blue: "#CFE4FF",
   lavender: "#C8BBFF",
@@ -18,10 +17,9 @@ const brand = {
   bg: "#FAFAFA",
 };
 
-// Animation timing (used everywhere for sync)
+// shared timing so backdrop + panel feel synchronized
 const ANIM_MS = 320;
 
-// Small SVG fallback if /public/fynstra-logo.png is missing
 const svgTile = (a: string, b: string) =>
   "data:image/svg+xml;utf8," +
   encodeURIComponent(
@@ -42,7 +40,6 @@ const defaultBannerLeft = svgTile(brand.blue, brand.lavender);
 const defaultBannerRight = svgTile(brand.lavender, brand.purple);
 const CALENDLY_URL = "https://calendly.com/";
 
-// ---------- Utilities ----------
 function useScrollReveal() {
   const containerRef = useRef<HTMLDivElement | null>(null);
   useEffect(() => {
@@ -66,13 +63,12 @@ function useScrollReveal() {
   return containerRef;
 }
 
-// ---------- Floating-panel Card Grid ----------
 type CardItem = {
   title: string;
   subtitle?: string;
   rightMeta?: React.ReactNode;
   panel: React.ReactNode;
-  titleIsPurple?: boolean; // for package headings
+  titleIsPurple?: boolean;
 };
 
 function CardGrid({
@@ -107,7 +103,7 @@ function CardGrid({
               `duration-[${ANIM_MS}ms] ease-[cubic-bezier(0.2,0.8,0.2,1)]`,
             ].join(" ")}
           >
-            {/* Header (always visible) */}
+            {/* Header */}
             <button
               type="button"
               aria-expanded={open}
@@ -141,7 +137,7 @@ function CardGrid({
               </div>
             </button>
 
-            {/* Floating panel (grid row does not grow) */}
+            {/* Floating panel */}
             <div
               id={`panel-${it.title}-${i}`}
               className={[
@@ -168,8 +164,7 @@ function CardGrid({
   );
 }
 
-// ------------------------------- Page -------------------------------
-export default function FynstraSite({
+export default function App({
   logoSrc = PUBLIC_LOGO,
   bannerLeft = defaultBannerLeft,
   bannerRight = defaultBannerRight,
@@ -182,22 +177,20 @@ export default function FynstraSite({
 
   const [openService, setOpenService] = useState<number | null>(null);
   const [openPackage, setOpenPackage] = useState<number | null>(null);
-  const [mobileOpen, setMobileOpen] = useState(false); // mobile menu
+  const [mobileOpen, setMobileOpen] = useState(false);
 
   const anyOpen = openService !== null || openPackage !== null;
 
-  // Backdrop mount control for fade-out (keeps it in DOM during animation)
   const [backdropVisible, setBackdropVisible] = useState(false);
   useEffect(() => {
-    if (anyOpen) {
-      setBackdropVisible(true);
-    } else {
+    if (anyOpen) setBackdropVisible(true);
+    else {
       const t = setTimeout(() => setBackdropVisible(false), ANIM_MS);
       return () => clearTimeout(t);
     }
   }, [anyOpen]);
 
-  // Lock body scroll when a card is open or mobile menu is open
+  // lock scroll when a card or the mobile sheet is open
   useEffect(() => {
     const lock = anyOpen || mobileOpen;
     document.body.style.overflow = lock ? "hidden" : "";
@@ -216,7 +209,7 @@ export default function FynstraSite({
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  // Services
+  // Services (top row)
   const services: CardItem[] = [
     {
       title: "Copywriting",
@@ -284,7 +277,7 @@ export default function FynstraSite({
     },
   ];
 
-  // Packages
+  // Packages (second row)
   const packages: CardItem[] = [
     {
       title: "Budget",
@@ -405,7 +398,6 @@ export default function FynstraSite({
 
   return (
     <div ref={containerRef} className="text-slate-100 bg-white selection:bg-indigo-200/60">
-      {/* Global tokens + helpers */}
       <style>{`
         :root {
           --fynstra-blue: ${brand.blue};
@@ -431,10 +423,9 @@ export default function FynstraSite({
         .btn-ghost:hover { background: rgba(0,0,0,.04); }
       `}</style>
 
-      {/* NAV */}
+      {/* HEADER (with fixed dark-text mobile sheet) */}
       <header className="sticky top-0 z-[70] backdrop-blur-sm bg-white/70 border-b border-black/5">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-          {/* Brand */}
           <a href="#top" className="flex items-center gap-3 group">
             <img
               src={logoSrc}
@@ -447,7 +438,6 @@ export default function FynstraSite({
             </span>
           </a>
 
-          {/* Desktop nav */}
           <nav className="hidden md:flex items-center gap-6 text-slate-700">
             <a href="#about" className="hover:text-slate-900">About</a>
             <a href="#services" className="hover:text-slate-900">Services</a>
@@ -456,7 +446,6 @@ export default function FynstraSite({
             <a href="#contact" className="btn btn-pri ml-2">Book a chat</a>
           </nav>
 
-          {/* Mobile hamburger */}
           <button
             type="button"
             aria-label="Open menu"
@@ -469,8 +458,7 @@ export default function FynstraSite({
           </button>
         </div>
 
-        {/* Mobile overlay + panel */}
-        {/* Backdrop */}
+        {/* Mobile backdrop */}
         <div
           onClick={() => setMobileOpen(false)}
           className={[
@@ -478,7 +466,8 @@ export default function FynstraSite({
             mobileOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
           ].join(" ")}
         />
-        {/* Panel */}
+
+        {/* Mobile sheet (dark text) */}
         <div
           className={[
             "md:hidden fixed top-16 inset-x-0 z-[85] px-4",
@@ -486,7 +475,7 @@ export default function FynstraSite({
             mobileOpen ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-2 pointer-events-none"
           ].join(" ")}
         >
-          <div className="rounded-2xl border border-black/10 bg-white p-4 shadow-lg">
+          <div className="rounded-2xl border border-black/10 bg-white p-4 shadow-lg text-slate-900">
             <a href="#about" onClick={() => setMobileOpen(false)} className="block px-2 py-2 rounded-lg hover:bg-slate-50">About</a>
             <a href="#services" onClick={() => setMobileOpen(false)} className="block px-2 py-2 rounded-lg hover:bg-slate-50">Services</a>
             <a href="#testimonials" onClick={() => setMobileOpen(false)} className="block px-2 py-2 rounded-lg hover:bg-slate-50">Testimonials</a>
@@ -588,7 +577,7 @@ export default function FynstraSite({
 
       {/* SERVICES */}
       <section id="services" className="py-16 sm:py-20 lg:py-24 bg-slate-50 relative">
-        {/* Backdrop fades with the same duration as the card */}
+        {/* dim background when any card is open */}
         {backdropVisible && (
           <button
             aria-label="Close expanded card"
@@ -612,7 +601,6 @@ export default function FynstraSite({
             </p>
           </div>
 
-          {/* Services */}
           <div className="mt-8 sm:mt-10">
             <CardGrid
               items={services}
@@ -626,7 +614,6 @@ export default function FynstraSite({
             />
           </div>
 
-          {/* Packages */}
           <div className="mt-10 sm:mt-12">
             <CardGrid
               items={packages}
