@@ -5,8 +5,8 @@ import React, { useEffect, useRef } from "react";
  * Stack: React + TailwindCSS (no extra deps)
  *
  * Notes:
+ * - Ensure /public/fynstra-logo.png exists for the real logo (or we’ll use SVG fallbacks).
  * - Replace CALENDLY_URL with your real link when ready.
- * - Ensure /public/fynstra-logo.png exists for the real logo.
  */
 
 // --- Brand system from your style guide ---
@@ -20,7 +20,7 @@ const brand = {
   bg: "#FAFAFA",
 };
 
-// Inline SVG fallbacks (render cleanly before assets are added)
+// Inline SVG fallback tiles (so the app renders even without assets)
 const svgTile = (a: string, b: string) =>
   "data:image/svg+xml;utf8," +
   encodeURIComponent(
@@ -35,8 +35,7 @@ const svgTile = (a: string, b: string) =>
     </svg>`
   );
 
-// If you have /public/fynstra-logo.png, we’ll prefer that; otherwise fallback to SVG tile
-const PUBLIC_LOGO = "/fynstra-logo.png";
+const PUBLIC_LOGO = "/fynstra-logo.png"; // put your transparent PNG here
 const defaultLogo = svgTile(brand.lavender, brand.purple);
 const defaultBannerLeft = svgTile(brand.blue, brand.lavender);
 const defaultBannerRight = svgTile(brand.lavender, brand.purple);
@@ -67,7 +66,7 @@ function useScrollReveal() {
 }
 
 export default function FynstraSite({
-  logoSrc = PUBLIC_LOGO || defaultLogo,
+  logoSrc = PUBLIC_LOGO,
   bannerLeft = defaultBannerLeft,
   bannerRight = defaultBannerRight,
 }: {
@@ -93,7 +92,7 @@ export default function FynstraSite({
     const handleScroll = () => {
       if (!hero) return;
       const y = window.scrollY;
-      hero.style.opacity = y > 80 ? "0.7" : "1";
+      (hero as HTMLElement).style.opacity = y > 80 ? "0.7" : "1";
     };
     window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
@@ -142,11 +141,7 @@ export default function FynstraSite({
       <header className="sticky top-0 z-40 backdrop-blur-sm bg-white/70 border-b border-black/5">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
           <a href="#top" className="flex items-center gap-3 group">
-            <img
-              src={logoSrc}
-              alt="Fynstra"
-              className="h-12 w-12 object-contain relative top-1"
-            />
+            <img src={logoSrc} alt="Fynstra" className="h-12 w-12 object-contain relative top-1" />
             <span className="text-2xl font-semibold text-slate-900 group-hover:text-slate-700 transition">
               Fynstra
             </span>
@@ -189,8 +184,8 @@ export default function FynstraSite({
         {/* Content */}
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-24 sm:py-28 lg:py-32">
           <div className="grid lg:grid-cols-2 gap-10 items-center">
+            {/* Left column */}
             <div className="reveal" data-reveal>
-              {/* Removed the small badge chip above the headline */}
               <h1 className="text-4xl sm:text-5xl lg:text-6xl font-semibold text-slate-900 leading-tight">
                 Build momentum with <span className="heading-gradient">crisp, credible</span> communication.
               </h1>
@@ -202,61 +197,58 @@ export default function FynstraSite({
                 <a href="#contact" className="btn btn-ghost">Get in touch</a>
               </div>
 
-              {/* Replaced text line with the actual logo only */}
+              {/* Logo only row (per request) */}
               <div className="mt-10 flex items-center gap-4">
-                <img
-                  src={logoSrc}
-                  alt="Fynstra"
-                  className="h-10 w-10 rounded-xl object-contain"
-                />
+                <img src={logoSrc} alt="Fynstra" className="h-10 w-10 rounded-xl object-contain" />
               </div>
             </div>
 
-           <div className="reveal" data-reveal>
-  <div className="relative rounded-3xl ring-1 ring-black/10 bg-white/60 backdrop-blur p-6 shadow-xl">
-    {/* Branded gradient panel */}
-    <div className="relative aspect-[4/3] rounded-2xl overflow-hidden">
-      {/* Gradient base */}
-      <div
-        className="absolute inset-0"
-        style={{ background: "linear-gradient(135deg, var(--fynstra-blue), var(--fynstra-purple))" }}
-      />
-      {/* Soft decorative glow */}
-      <div className="absolute -top-10 -right-10 h-40 w-40 rounded-full bg-white/30 blur-3xl opacity-40" />
-      <div className="absolute -bottom-12 -left-12 h-52 w-52 rounded-full bg-[rgba(79,180,198,0.35)] blur-3xl opacity-50" />
+            {/* Right column — branded card */}
+            <div className="reveal" data-reveal>
+              <div className="relative rounded-3xl ring-1 ring-black/10 bg-white/60 backdrop-blur p-6 shadow-xl">
+                {/* Branded gradient panel */}
+                <div className="relative aspect-[4/3] rounded-2xl overflow-hidden">
+                  {/* Gradient base */}
+                  <div
+                    className="absolute inset-0"
+                    style={{ background: "linear-gradient(135deg, var(--fynstra-blue), var(--fynstra-purple))" }}
+                  />
+                  {/* Soft decorative glows */}
+                  <div className="absolute -top-10 -right-10 h-40 w-40 rounded-full bg-white/30 blur-3xl opacity-40" />
+                  <div className="absolute -bottom-12 -left-12 h-52 w-52 rounded-full bg-[rgba(79,180,198,0.35)] blur-3xl opacity-50" />
 
-      {/* Centered brand lockup */}
-      <div className="relative z-10 h-full w-full flex flex-col items-center justify-center text-white">
-        <img
-          src={logoSrc}
-          alt="Fynstra"
-          className="h-16 w-16 rounded-2xl object-contain shadow-md ring-1 ring-white/40"
-        />
-        <div className="mt-3 text-xl sm:text-2xl font-semibold tracking-tight">
-          Clarity through content
+                  {/* Centered brand lockup */}
+                  <div className="relative z-10 h-full w-full flex flex-col items-center justify-center text-white">
+                    <img
+                      src={logoSrc}
+                      alt="Fynstra"
+                      className="h-16 w-16 rounded-2xl object-contain shadow-md ring-1 ring-white/40"
+                    />
+                    <div className="mt-3 text-xl sm:text-2xl font-semibold tracking-tight">
+                      Clarity through content
+                    </div>
+                    <div className="mt-2 text-sm text-white/85">Copy • Strategy • Comms</div>
+                  </div>
+
+                  {/* Subtle noise overlay for texture */}
+                  <div
+                    className="pointer-events-none absolute inset-0 opacity-[0.06] mix-blend-overlay"
+                    style={{
+                      backgroundImage:
+                        "radial-gradient(circle at 1px 1px, rgba(255,255,255,.8) 1px, transparent 1px)",
+                      backgroundSize: "6px 6px",
+                    }}
+                  />
+                </div>
+
+                {/* Caption under card */}
+                <div className="mt-4 text-slate-700">
+                  Lean, modern, and fast to ship. This prototype mirrors the final structure we’ll deploy on Vercel.
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
-        <div className="mt-2 text-sm text-white/85">
-          Copy • Strategy • Comms
-        </div>
-      </div>
-
-      {/* Subtle noise overlay for texture (pure CSS) */}
-      <div
-        className="pointer-events-none absolute inset-0 opacity-[0.06] mix-blend-overlay"
-        style={{
-          backgroundImage:
-            "radial-gradient(circle at 1px 1px, rgba(255,255,255,.8) 1px, transparent 1px)",
-          backgroundSize: "6px 6px",
-        }}
-      />
-    </div>
-
-    {/* Caption under card */}
-    <div className="mt-4 text-slate-700">
-      Lean, modern, and fast to ship. This prototype mirrors the final structure we’ll deploy on Vercel.
-    </div>
-  </div>
-</div>
       </section>
 
       {/* ABOUT */}
@@ -294,7 +286,9 @@ export default function FynstraSite({
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="reveal" data-reveal>
             <h2 className="text-3xl sm:text-4xl font-semibold text-slate-900">Services</h2>
-            <p className="mt-3 max-w-2xl text-slate-700">Choose a focused engagement or mix-and-match. Packages align with UK market rates and deliverables are clearly scoped.</p>
+            <p className="mt-3 max-w-2xl text-slate-700">
+              Choose a focused engagement or mix-and-match. Packages align with UK market rates and deliverables are clearly scoped.
+            </p>
           </div>
 
           <div className="mt-10 grid md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -321,7 +315,9 @@ export default function FynstraSite({
                   <h3 className="mt-1 text-xl font-semibold text-slate-900">{card.title}</h3>
                   <ul className="mt-4 space-y-2 text-slate-700">
                     {card.points.map((p) => (
-                      <li key={p} className="flex gap-2 items-start"><span className="mt-1 h-2 w-2 rounded-full" style={{ background: brand.purple }}></span>{p}</li>
+                      <li key={p} className="flex gap-2 items-start">
+                        <span className="mt-1 h-2 w-2 rounded-full" style={{ background: brand.purple }}></span>{p}
+                      </li>
                     ))}
                   </ul>
                   <div className="mt-6 text-sm text-slate-600">{card.price}</div>
@@ -336,7 +332,9 @@ export default function FynstraSite({
               <div className="rounded-2xl border border-indigo-200 bg-white p-6 shadow-sm">
                 <div className="text-sm text-indigo-700">Popular</div>
                 <h3 className="mt-1 text-xl font-semibold text-slate-900">Growth Package</h3>
-                <p className="mt-2 text-slate-700">~1,000 words: a page set or long-form article with light research and brand-tuned voice. Two rounds of edits.</p>
+                <p className="mt-2 text-slate-700">
+                  ~1,000 words: a page set or long-form article with light research and brand-tuned voice. Two rounds of edits.
+                </p>
                 <div className="mt-4 text-slate-900 font-medium">£500 – £700</div>
                 <a href="#contact" className="mt-5 btn btn-pri">Start a brief</a>
               </div>
@@ -345,7 +343,9 @@ export default function FynstraSite({
               <div className="rounded-2xl border border-indigo-200 bg-white p-6 shadow-sm">
                 <div className="text-sm text-indigo-700">For launches</div>
                 <h3 className="mt-1 text-xl font-semibold text-slate-900">Launch Set</h3>
-                <p className="mt-2 text-slate-700">~2,000 words: homepage + About + Services or equivalent. Messaging framework + editorial guidelines.</p>
+                <p className="mt-2 text-slate-700">
+                  ~2,000 words: homepage + About + Services or equivalent. Messaging framework + editorial guidelines.
+                </p>
                 <div className="mt-4 text-slate-900 font-medium">£900 – £1,200</div>
                 <a href="#contact" className="mt-5 btn btn-pri">Talk scope</a>
               </div>
@@ -359,13 +359,17 @@ export default function FynstraSite({
         <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
           <div className="reveal" data-reveal>
             <h2 className="text-3xl sm:text-4xl font-semibold text-slate-900">Kind words</h2>
-            <p className="mt-3 text-slate-700 max-w-2xl">Placeholders until we add real quotes. Keep it concise and outcome-focused.</p>
+            <p className="mt-3 text-slate-700 max-w-2xl">
+              Placeholders until we add real quotes. Keep it concise and outcome-focused.
+            </p>
           </div>
           <div className="mt-10 grid md:grid-cols-3 gap-6">
             {[1, 2, 3].map((i) => (
               <figure key={i} className="reveal" data-reveal>
                 <div className="rounded-2xl border border-black/10 bg-slate-50 p-6 h-full">
-                  <blockquote className="text-slate-700">“Fynstra made our message clearer and our rollout smoother. The copy just worked.”</blockquote>
+                  <blockquote className="text-slate-700">
+                    “Fynstra made our message clearer and our rollout smoother. The copy just worked.”
+                  </blockquote>
                   <figcaption className="mt-4 text-sm text-slate-500">Client name • Role, Company</figcaption>
                 </div>
               </figure>
@@ -380,12 +384,16 @@ export default function FynstraSite({
           <div className="grid lg:grid-cols-2 gap-10 items-start">
             <div className="reveal" data-reveal>
               <h2 className="text-3xl sm:text-4xl font-semibold text-slate-900">Let’s talk</h2>
-              <p className="mt-3 text-slate-700 max-w-xl">Two ways to connect: drop a note or book a quick intro call. We’ll keep it focused on goals, scope, and timelines.</p>
+              <p className="mt-3 text-slate-700 max-w-xl">
+                Two ways to connect: drop a note or book a quick intro call. We’ll keep it focused on goals, scope, and timelines.
+              </p>
               <div className="mt-6 flex flex-wrap gap-3">
                 <a href="#calendly" className="btn btn-pri">Book a call</a>
                 <a href="mailto:hello@fynstra.co.uk" className="btn btn-ghost">Email us</a>
               </div>
-              <div className="mt-10 text-sm text-slate-600">Prefer a simple brief? Add bullet points about your goals, audience, deliverables, and deadline — we’ll reply with a scoped plan.</div>
+              <div className="mt-10 text-sm text-slate-600">
+                Prefer a simple brief? Add bullet points about your goals, audience, deliverables, and deadline — we’ll reply with a scoped plan.
+              </div>
             </div>
 
             <div className="reveal" data-reveal>
@@ -394,19 +402,32 @@ export default function FynstraSite({
                 <div className="grid grid-cols-1 gap-4">
                   <label className="block">
                     <span className="text-sm text-slate-600">Name</span>
-                    <input className="mt-1 w-full rounded-xl border border-black/10 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-300" placeholder="Your name" />
+                    <input
+                      className="mt-1 w-full rounded-xl border border-black/10 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-300"
+                      placeholder="Your name"
+                    />
                   </label>
                   <label className="block">
                     <span className="text-sm text-slate-600">Email</span>
-                    <input type="email" className="mt-1 w-full rounded-xl border border-black/10 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-300" placeholder="you@company.com" />
+                    <input
+                      type="email"
+                      className="mt-1 w-full rounded-xl border border-black/10 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-300"
+                      placeholder="you@company.com"
+                    />
                   </label>
                   <label className="block">
                     <span className="text-sm text-slate-600">Project overview</span>
-                    <textarea rows={4} className="mt-1 w-full rounded-xl border border-black/10 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-300" placeholder="Goals, audience, deliverables, timeline" />
+                    <textarea
+                      rows={4}
+                      className="mt-1 w-full rounded-xl border border-black/10 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-300"
+                      placeholder="Goals, audience, deliverables, timeline"
+                    />
                   </label>
                   <button type="button" className="btn btn-pri w-full">Send (placeholder)</button>
                 </div>
-                <p className="mt-3 text-xs text-slate-500">This form is a front-end placeholder. Swap for a real form handler (Formspree, Beehiiv, Resend, serverless function) when we go live.</p>
+                <p className="mt-3 text-xs text-slate-500">
+                  This form is a front-end placeholder. Swap for a real form handler (Formspree, Resend, serverless function) when we go live.
+                </p>
               </form>
             </div>
           </div>
@@ -422,7 +443,7 @@ export default function FynstraSite({
                 <a href={CALENDLY_URL} className="btn btn-pri">Open Calendly</a>
               </div>
               <div className="aspect-[16/9] bg-slate-50 flex items-center justify-center text-slate-500">
-                {/* Replace iframe src below with your Calendly link and remove the placeholder overlay */}
+                {/* Replace iframe src below with your Calendly link and show it when ready */}
                 <iframe title="Calendly" src={CALENDLY_URL} className="w-full h-full hidden" />
                 <div className="p-6 text-center">
                   Calendly embed goes here. Replace URL above and show the iframe when ready.
