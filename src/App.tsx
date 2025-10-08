@@ -403,7 +403,7 @@ export default function FynstraSite({
               </p>
               <div className="mt-6 flex flex-wrap gap-3">
                 <a href="#calendly" className="btn btn-pri">Book a call</a>
-                <a href="mailto:hello@fynstra.co.uk" className="btn btn-ghost">Email us</a>
+                <a href="mailto:info@fynstra.co.uk" className="btn btn-ghost">Email us</a>
               </div>
               <div className="mt-10 text-sm text-slate-600">
                 Prefer a simple brief? Add bullet points about your goals, audience, deliverables, and deadline — we’ll reply with a scoped plan.
