@@ -140,8 +140,14 @@ export default function FynstraSite({
       <header className="sticky top-0 z-40 backdrop-blur-sm bg-white/70 border-b border-black/5">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
           <a href="#top" className="flex items-center gap-3 group">
-            <img src={logoSrc} alt="Fynstra" className="h-8 w-8 rounded-xl shadow-sm" />
-            <span className="text-xl font-semibold text-slate-900 group-hover:text-slate-700 transition">Fynstra</span>
+           <img
+  src="/fynstra-logo.png"
+  alt="Fynstra logo"
+  className="h-12 w-12 object-contain relative top-1"
+/>
+<span className="text-2xl font-semibold text-slate-900 group-hover:text-slate-700 transition">
+  Fynstra
+</span>
           </a>
           <nav className="hidden md:flex items-center gap-6 text-slate-700">
             <a href="#about" className="hover:text-slate-900">About</a>
