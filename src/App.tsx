@@ -2,9 +2,9 @@ import React, { useEffect, useRef, useState } from "react";
 
 /**
  * Fynstra — One-page marketing site (Copywriting-first)
- * - Mobile menu: hamburger -> slide/fade sheet with dark text
- * - Services/Packages: floating panels expand in place; siblings dim; synced backdrop
- * - No extra deps (React + Tailwind)
+ * - React + Tailwind (no extra deps)
+ * - Consistent premium animations for all expandable cards
+ * - Mobile menu sheet with dark text and smooth transitions
  */
 
 const brand = {
@@ -17,8 +17,9 @@ const brand = {
   bg: "#FAFAFA",
 };
 
-// shared timing so backdrop + panel feel synchronized
-const ANIM_MS = 320;
+// shared animation timing (backdrop and panels stay in sync)
+const ANIM_MS = 420; // 420ms feels a bit more premium than 300ms
+const EASE = "[cubic-bezier(0.22,0.61,0.36,1)]"; // material-ish ease-in-out
 
 const svgTile = (a: string, b: string) =>
   "data:image/svg+xml;utf8," +
@@ -63,6 +64,10 @@ function useScrollReveal() {
   return containerRef;
 }
 
+/* ================
+ * Expandable Card Grid
+ * ================*/
+
 type CardItem = {
   title: string;
   subtitle?: string;
@@ -86,11 +91,12 @@ function CardGrid({
   onToggle: (i: number | null) => void;
   anyOpen: boolean;
   className?: string;
-  center?: boolean; // centers a single item row
+  center?: boolean;
   cols?: { base: number; md: number; lg: number };
   headingStrong?: boolean;
 }) {
   const gridCols = `grid-cols-${cols.base} md:grid-cols-${cols.md} lg:grid-cols-${cols.lg}`;
+
   return (
     <div
       className={[
@@ -108,19 +114,19 @@ function CardGrid({
           <div
             key={it.title + i}
             className={[
-              "relative rounded-2xl border bg-white shadow-sm transition-all w-full",
+              "relative rounded-2xl border bg-white shadow-sm transition-opacity",
               "border-indigo-200",
-              open ? "ring-2 ring-indigo-200 shadow-xl z-[60]" : "z-0",
+              open ? "z-[60]" : "z-0",
               dimOthers ? "opacity-40" : "opacity-100",
-              `duration-[${ANIM_MS}ms] ease-[cubic-bezier(0.2,0.8,0.2,1)]`,
-              center ? "max-w-2xl" : "",
+              `duration-[${ANIM_MS}ms] ease-${EASE}`,
+              center ? "w-full max-w-2xl" : "w-full",
             ].join(" ")}
           >
             {/* Header */}
             <button
               type="button"
               aria-expanded={open}
-              aria-controls={`panel-${it.title}-${i}`}
+              aria-controls={`panel-${i}`}
               onClick={() => onToggle(open ? null : i)}
               className="w-full text-left px-4 sm:px-5 py-3 sm:py-4 flex items-start gap-3"
             >
@@ -133,40 +139,50 @@ function CardGrid({
                 >
                   {it.title}
                 </div>
-                {it.subtitle && <div className="mt-0.5 text-sm text-slate-700">{it.subtitle}</div>}
+                {it.subtitle && (
+                  <div className="mt-0.5 text-sm text-slate-700">{it.subtitle}</div>
+                )}
               </div>
+
               <div className="ml-2 shrink-0 flex flex-col items-end">
-                {it.rightMeta && <div className="text-[11px] sm:text-xs text-slate-500 mb-1">{it.rightMeta}</div>}
+                {it.rightMeta && (
+                  <div className="text-[11px] sm:text-xs text-slate-500 mb-1">
+                    {it.rightMeta}
+                  </div>
+                )}
                 <svg
                   className={[
                     "h-5 w-5 text-slate-500 transition-transform",
                     open ? "rotate-180" : "",
-                    `duration-[${ANIM_MS}ms]`,
+                    `duration-[${ANIM_MS}ms] ease-${EASE}`,
                   ].join(" ")}
                   viewBox="0 0 24 24"
                 >
-                  <path d="M6 9l6 6 6-6" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" />
+                  <path
+                    d="M6 9l6 6 6-6"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    fill="none"
+                    strokeLinecap="round"
+                  />
                 </svg>
               </div>
             </button>
 
-            {/* Floating panel */}
+            {/* Floating expandable panel */}
             <div
-              id={`panel-${it.title}-${i}`}
+              id={`panel-${i}`}
               className={[
                 "absolute left-0 right-0 z-[65] will-change-[transform,opacity]",
-                open ? "pointer-events-auto top-[calc(100%+0.5rem)]" : "pointer-events-none top-[calc(100%)]",
+                "transition-all transform-gpu",
+                `duration-[${ANIM_MS}ms] ease-${EASE}`,
+                open
+                  ? "pointer-events-auto top-[calc(100%+0.5rem)] opacity-100 translate-y-0 scale-[1] shadow-xl"
+                  : "pointer-events-none top-[calc(100%)] opacity-0 -translate-y-1 scale-[0.98]",
               ].join(" ")}
               aria-hidden={!open}
             >
-              <div
-                className={[
-                  "rounded-2xl border border-black/10 bg-white shadow-xl px-4 sm:px-5 py-4",
-                  "transition-all",
-                  `duration-[${ANIM_MS}ms] ease-[cubic-bezier(0.2,0.8,0.2,1)]`,
-                  open ? "opacity-100 translate-y-0 scale-[1]" : "opacity-0 -translate-y-1 scale-[0.98]",
-                ].join(" ")}
-              >
+              <div className="rounded-2xl border border-black/10 bg-white px-4 sm:px-5 py-4">
                 {it.panel}
               </div>
             </div>
@@ -176,6 +192,10 @@ function CardGrid({
     </div>
   );
 }
+
+/* ================
+ * App
+ * ================*/
 
 export default function App({
   logoSrc = PUBLIC_LOGO,
@@ -194,19 +214,19 @@ export default function App({
 
   const anyOpen = openService !== null || openPackage !== null;
 
+  // smoother backdrop removal (linger slightly to avoid "snap")
   const [backdropVisible, setBackdropVisible] = useState(false);
   useEffect(() => {
     if (anyOpen) setBackdropVisible(true);
     else {
-      const t = setTimeout(() => setBackdropVisible(false), ANIM_MS);
+      const t = setTimeout(() => setBackdropVisible(false), ANIM_MS + 80);
       return () => clearTimeout(t);
     }
   }, [anyOpen]);
 
-  // lock scroll when a card or the mobile sheet is open
+  // lock scroll when cards or menu are open
   useEffect(() => {
-    const lock = anyOpen || mobileOpen;
-    document.body.style.overflow = lock ? "hidden" : "";
+    document.body.style.overflow = anyOpen || mobileOpen ? "hidden" : "";
     return () => {
       document.body.style.overflow = "";
     };
@@ -222,7 +242,7 @@ export default function App({
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  // Services: Copywriting only (centered)
+  // Services (copywriting only)
   const services: CardItem[] = [
     {
       title: "Copywriting",
@@ -231,22 +251,30 @@ export default function App({
       panel: (
         <div className="text-slate-700 space-y-3">
           <ul className="space-y-2">
-            {["Web + landing pages", "About / Service pages", "Blogs, emails, proposals"].map((p) => (
+            {[
+              "Web + landing pages",
+              "About / Service pages",
+              "Blogs, emails, proposals",
+            ].map((p) => (
               <li key={p} className="flex gap-2 items-start">
-                <span className="mt-1 h-2 w-2 rounded-full" style={{ background: brand.purple }} />
+                <span
+                  className="mt-1 h-2 w-2 rounded-full"
+                  style={{ background: brand.purple }}
+                />
                 {p}
               </li>
             ))}
           </ul>
           <p className="text-sm text-slate-600">
-            Pricing depends on research depth, voice development and revision cycles. See packages for typical ranges.
+            Pricing depends on research depth, voice development and revision
+            cycles. See packages for typical ranges.
           </p>
         </div>
       ),
     },
   ];
 
-  // Packages (unchanged ranges)
+  // Packages
   const packages: CardItem[] = [
     {
       title: "Budget",
@@ -262,12 +290,17 @@ export default function App({
               "Delivery in editable doc + ready-to-paste set",
             ].map((p) => (
               <li key={p} className="flex items-start gap-2">
-                <span className="mt-1 h-2 w-2 rounded-full" style={{ background: brand.purple }} />
+                <span
+                  className="mt-1 h-2 w-2 rounded-full"
+                  style={{ background: brand.purple }}
+                />
                 {p}
               </li>
             ))}
           </ul>
-          <a href="#contact" className="btn btn-pri">Enquire</a>
+          <a href="#contact" className="btn btn-pri">
+            Enquire
+          </a>
         </div>
       ),
     },
@@ -285,12 +318,17 @@ export default function App({
               "SEO basics (title, meta, H-structure)",
             ].map((p) => (
               <li key={p} className="flex items-start gap-2">
-                <span className="mt-1 h-2 w-2 rounded-full" style={{ background: brand.purple }} />
+                <span
+                  className="mt-1 h-2 w-2 rounded-full"
+                  style={{ background: brand.purple }}
+                />
                 {p}
               </li>
             ))}
           </ul>
-          <a href="#contact" className="btn btn-pri">Enquire</a>
+          <a href="#contact" className="btn btn-pri">
+            Enquire
+          </a>
         </div>
       ),
     },
@@ -308,12 +346,17 @@ export default function App({
               "Two revision rounds + visuals guidance",
             ].map((p) => (
               <li key={p} className="flex items-start gap-2">
-                <span className="mt-1 h-2 w-2 rounded-full" style={{ background: brand.purple }} />
+                <span
+                  className="mt-1 h-2 w-2 rounded-full"
+                  style={{ background: brand.purple }}
+                />
                 {p}
               </li>
             ))}
           </ul>
-          <a href="#contact" className="btn btn-pri">Enquire</a>
+          <a href="#contact" className="btn btn-pri">
+            Enquire
+          </a>
         </div>
       ),
     },
@@ -331,12 +374,17 @@ export default function App({
               "Two rounds across the set",
             ].map((p) => (
               <li key={p} className="flex items-start gap-2">
-                <span className="mt-1 h-2 w-2 rounded-full" style={{ background: brand.purple }} />
+                <span
+                  className="mt-1 h-2 w-2 rounded-full"
+                  style={{ background: brand.purple }}
+                />
                 {p}
               </li>
             ))}
           </ul>
-          <a href="#contact" className="btn btn-pri">Enquire</a>
+          <a href="#contact" className="btn btn-pri">
+            Enquire
+          </a>
         </div>
       ),
     },
@@ -354,12 +402,17 @@ export default function App({
               "Carry-over up to 20% one month",
             ].map((p) => (
               <li key={p} className="flex items-start gap-2">
-                <span className="mt-1 h-2 w-2 rounded-full" style={{ background: brand.purple }} />
+                <span
+                  className="mt-1 h-2 w-2 rounded-full"
+                  style={{ background: brand.purple }}
+                />
                 {p}
               </li>
             ))}
           </ul>
-          <a href="#contact" className="btn btn-pri">Enquire</a>
+          <a href="#contact" className="btn btn-pri">
+            Enquire
+          </a>
         </div>
       ),
     },
@@ -367,6 +420,7 @@ export default function App({
 
   return (
     <div ref={containerRef} className="text-slate-100 bg-white selection:bg-indigo-200/60">
+      {/* Global styles */}
       <style>{`
         :root {
           --fynstra-blue: ${brand.blue};
@@ -392,7 +446,7 @@ export default function App({
         .btn-ghost:hover { background: rgba(0,0,0,.04); }
       `}</style>
 
-      {/* HEADER (mobile-friendly) */}
+      {/* HEADER */}
       <Header
         logoSrc={logoSrc}
         fallbackLogo={fallbackLogo}
@@ -411,9 +465,9 @@ export default function App({
       {/* ABOUT */}
       <About />
 
-      {/* SERVICES – copywriting only */}
+      {/* SERVICES + PACKAGES */}
       <section id="services" className="py-16 sm:py-20 lg:py-24 bg-slate-50 relative">
-        {/* dim background when any card is open */}
+        {/* Premium backdrop (blur + dim) */}
         {backdropVisible && (
           <button
             aria-label="Close expanded card"
@@ -422,9 +476,9 @@ export default function App({
               setOpenPackage(null);
             }}
             className={[
-              "fixed inset-0 bg-black/70 z-[50] transition-opacity",
-              anyOpen ? "opacity-100" : "opacity-0",
-              `duration-[${ANIM_MS}ms] ease-[cubic-bezier(0.2,0.8,0.2,1)]`,
+              "fixed inset-0 z-[50] transition-opacity backdrop-blur-sm",
+              anyOpen ? "bg-black/60 opacity-100" : "bg-black/60 opacity-0 pointer-events-none",
+              `duration-[${ANIM_MS}ms] ease-${EASE}`,
             ].join(" ")}
           />
         )}
@@ -437,7 +491,7 @@ export default function App({
             </p>
           </div>
 
-          {/* Single centered card */}
+          {/* Single centered service card */}
           <div className="mt-8 sm:mt-10">
             <CardGrid
               items={services}
@@ -486,9 +540,9 @@ export default function App({
   );
 }
 
-/* =======================
+/* ================
  * Subcomponents
- * =======================*/
+ * ================*/
 
 function Header({
   logoSrc,
@@ -511,7 +565,7 @@ function Header({
             alt="Fynstra"
             className="h-10 w-10 sm:h-12 sm:w-12 object-contain"
           />
-        <span className="text-xl sm:text-2xl font-semibold text-slate-900 group-hover:text-slate-700 transition">
+          <span className="text-xl sm:text-2xl font-semibold text-slate-900 group-hover:text-slate-700 transition">
             Fynstra
           </span>
         </a>
@@ -540,17 +594,19 @@ function Header({
       <div
         onClick={() => setMobileOpen(false)}
         className={[
-          "md:hidden fixed inset-0 z-[80] bg-black/50 transition-opacity",
-          mobileOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
+          "md:hidden fixed inset-0 z-[80] bg-black/50 transition-opacity backdrop-blur-[2px]",
+          mobileOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none",
+          `duration-[${ANIM_MS}ms] ease-${EASE}`,
         ].join(" ")}
       />
 
-      {/* Mobile sheet (dark text) */}
+      {/* Mobile sheet */}
       <div
         className={[
           "md:hidden fixed top-16 inset-x-0 z-[85] px-4",
-          "transition-all duration-300 ease-[cubic-bezier(0.2,0.8,0.2,1)]",
-          mobileOpen ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-2 pointer-events-none"
+          "transition-all",
+          `duration-[${ANIM_MS}ms] ease-${EASE}`,
+          mobileOpen ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-2 pointer-events-none",
         ].join(" ")}
       >
         <div className="rounded-2xl border border-black/10 bg-white p-4 shadow-lg text-slate-900">
@@ -582,10 +638,21 @@ function Hero({
         <div
           id="hero-bg"
           className="absolute inset-0 transition-opacity duration-500"
-          style={{ background: "linear-gradient(90deg, var(--fynstra-blue) 0%, var(--fynstra-lavender) 50%, var(--fynstra-purple) 100%)" }}
+          style={{
+            background:
+              "linear-gradient(90deg, var(--fynstra-blue) 0%, var(--fynstra-lavender) 50%, var(--fynstra-purple) 100%)",
+          }}
         />
-        <img src={bannerLeft} alt="Brand motif" className="absolute left-0 top-0 opacity-40 w-56 sm:w-72 md:w-96 -translate-x-[15%] -translate-y-[15%] blur-[1px]" />
-        <img src={bannerRight} alt="Brand motif" className="absolute right-[-20%] md:right-[-10%] bottom-[-28%] md:bottom-[-20%] opacity-50 w-[28rem] sm:w-[36rem] md:w-[48rem] rotate-6 blur-[0.5px]" />
+        <img
+          src={bannerLeft}
+          alt="Brand motif"
+          className="absolute left-0 top-0 opacity-40 w-56 sm:w-72 md:w-96 -translate-x-[15%] -translate-y-[15%] blur-[1px]"
+        />
+        <img
+          src={bannerRight}
+          alt="Brand motif"
+          className="absolute right-[-20%] md:right-[-10%] bottom-[-28%] md:bottom-[-20%] opacity-50 w-[28rem] sm:w-[36rem] md:w-[48rem] rotate-6 blur-[0.5px]"
+        />
         <div className="absolute inset-0 bg-gradient-to-tr from-white/60 via-white/30 to-transparent" />
       </div>
 
@@ -604,20 +671,40 @@ function Hero({
               <a href="#contact" className="btn btn-ghost">Get in touch</a>
             </div>
             <div className="mt-8 sm:mt-10 flex items-center gap-4">
-              <img src={logoSrc} onError={(e) => ((e.currentTarget.src = fallbackLogo))} alt="Fynstra" className="h-9 w-9 sm:h-10 sm:w-10 rounded-xl object-contain" />
+              <img
+                src={logoSrc}
+                onError={(e) => ((e.currentTarget.src = fallbackLogo))}
+                alt="Fynstra"
+                className="h-9 w-9 sm:h-10 sm:w-10 rounded-xl object-contain"
+              />
             </div>
           </div>
 
           <div className="reveal" data-reveal>
             <div className="relative rounded-3xl ring-1 ring-black/10 bg-white/60 backdrop-blur p-4 sm:p-6 shadow-xl">
               <div className="relative aspect-[4/3] rounded-2xl overflow-hidden">
-                <div className="absolute inset-0" style={{ background: "linear-gradient(135deg, var(--fynstra-blue), var(--fynstra-purple))" }} />
+                <div
+                  className="absolute inset-0"
+                  style={{
+                    background:
+                      "linear-gradient(135deg, var(--fynstra-blue), var(--fynstra-purple))",
+                  }}
+                />
                 <div className="absolute -top-16 -right-16 h-56 w-56 sm:h-64 sm:w-64 rounded-full bg-white/30 blur-3xl opacity-40" />
                 <div className="absolute -bottom-20 -left-20 h-64 w-64 sm:h-72 sm:w-72 rounded-full bg-[rgba(79,180,198,0.35)] blur-3xl opacity-50" />
                 <div className="relative z-10 h-full w-full flex flex-col items-start justify-center text-white px-6 sm:px-10">
-                  <img src={logoSrc} onError={(e) => ((e.currentTarget.src = fallbackLogo))} alt="Fynstra" className="h-16 w-16 sm:h-20 sm:w-20 rounded-2xl object-contain shadow-md ring-1 ring-white/40" />
-                  <div className="mt-3 text-xl sm:text-3xl font-semibold tracking-tight">Clarity through content</div>
-                  <div className="mt-2 sm:mt-3 text-sm sm:text-base text-white/85 font-light">Copy • Strategy • Comms</div>
+                  <img
+                    src={logoSrc}
+                    onError={(e) => ((e.currentTarget.src = fallbackLogo))}
+                    alt="Fynstra"
+                    className="h-16 w-16 sm:h-20 sm:w-20 rounded-2xl object-contain shadow-md ring-1 ring-white/40"
+                  />
+                  <div className="mt-3 text-xl sm:text-3xl font-semibold tracking-tight">
+                    Clarity through content
+                  </div>
+                  <div className="mt-2 sm:mt-3 text-sm sm:text-base text-white/85 font-light">
+                    Copy • Strategy • Comms
+                  </div>
                 </div>
                 <div
                   className="pointer-events-none absolute inset-0 opacity-[0.06] mix-blend-overlay"
@@ -651,9 +738,18 @@ function About() {
               into action. Clear artifacts, faster decisions, better outcomes.
             </p>
             <ul className="mt-5 sm:mt-6 space-y-3 text-slate-700">
-              <li className="flex items-start gap-3"><span className="mt-1 h-2.5 w-2.5 rounded-full" style={{ background: brand.purple }}></span> Crisp copy and messaging frameworks</li>
-              <li className="flex items-start gap-3"><span className="mt-1 h-2.5 w-2.5 rounded-full" style={{ background: brand.purple }}></span> Practical guidance: structure, tone, voice</li>
-              <li className="flex items-start gap-3"><span className="mt-1 h-2.5 w-2.5 rounded-full" style={{ background: brand.purple }}></span> Lightweight process that respects your time</li>
+              <li className="flex items-start gap-3">
+                <span className="mt-1 h-2.5 w-2.5 rounded-full" style={{ background: brand.purple }}></span>
+                Crisp copy and messaging frameworks
+              </li>
+              <li className="flex items-start gap-3">
+                <span className="mt-1 h-2.5 w-2.5 rounded-full" style={{ background: brand.purple }}></span>
+                Practical guidance: structure, tone, voice
+              </li>
+              <li className="flex items-start gap-3">
+                <span className="mt-1 h-2.5 w-2.5 rounded-full" style={{ background: brand.purple }}></span>
+                Lightweight process that respects your time
+              </li>
             </ul>
           </div>
           <div className="lg:col-span-7 reveal" data-reveal>
@@ -681,14 +777,20 @@ function Testimonials() {
       <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
         <div className="reveal" data-reveal>
           <h2 className="text-2xl sm:text-4xl font-semibold text-slate-900">Kind words</h2>
-          <p className="mt-3 text-slate-700 max-w-2xl">Placeholders until we add real quotes. Keep it concise and outcome-focused.</p>
+          <p className="mt-3 text-slate-700 max-w-2xl">
+            Placeholders until we add real quotes. Keep it concise and outcome-focused.
+          </p>
         </div>
         <div className="mt-8 sm:mt-10 grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
           {[1, 2, 3].map((i) => (
             <figure key={i} className="reveal" data-reveal>
               <div className="rounded-2xl border border-black/10 bg-slate-50 p-5 sm:p-6 h-full">
-                <blockquote className="text-slate-700">“Fynstra made our message clearer and our rollout smoother. The copy just worked.”</blockquote>
-                <figcaption className="mt-4 text-sm text-slate-500">Client name • Role, Company</figcaption>
+                <blockquote className="text-slate-700">
+                  “Fynstra made our message clearer and our rollout smoother. The copy just worked.”
+                </blockquote>
+                <figcaption className="mt-4 text-sm text-slate-500">
+                  Client name • Role, Company
+                </figcaption>
               </div>
             </figure>
           ))}
@@ -722,15 +824,26 @@ function Contact() {
               <div className="grid grid-cols-1 gap-4">
                 <label className="block">
                   <span className="text-sm text-slate-600">Name</span>
-                  <input className="mt-1 w-full rounded-xl border border-black/10 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-300" placeholder="Your name" />
+                  <input
+                    className="mt-1 w-full rounded-xl border border-black/10 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-300"
+                    placeholder="Your name"
+                  />
                 </label>
                 <label className="block">
                   <span className="text-sm text-slate-600">Email</span>
-                  <input type="email" className="mt-1 w-full rounded-xl border border-black/10 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-300" placeholder="you@company.com" />
+                  <input
+                    type="email"
+                    className="mt-1 w-full rounded-xl border border-black/10 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-300"
+                    placeholder="you@company.com"
+                  />
                 </label>
                 <label className="block">
                   <span className="text-sm text-slate-600">Project overview</span>
-                  <textarea rows={4} className="mt-1 w-full rounded-xl border border-black/10 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-300" placeholder="Goals, audience, deliverables, timeline" />
+                  <textarea
+                    rows={4}
+                    className="mt-1 w-full rounded-xl border border-black/10 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-300"
+                    placeholder="Goals, audience, deliverables, timeline"
+                  />
                 </label>
                 <button type="button" className="btn btn-pri w-full">Send (placeholder)</button>
               </div>
@@ -753,7 +866,9 @@ function Contact() {
             </div>
             <div className="aspect-[16/9] bg-slate-50 flex items-center justify-center text-slate-500">
               <iframe title="Calendly" src={CALENDLY_URL} className="w-full h-full hidden" />
-              <div className="p-6 text-center">Calendly embed goes here. Replace URL above and show the iframe when ready.</div>
+              <div className="p-6 text-center">
+                Calendly embed goes here. Replace URL above and show the iframe when ready.
+              </div>
             </div>
           </div>
         </div>
@@ -767,10 +882,17 @@ function Footer({ logoSrc, fallbackLogo }: { logoSrc: string; fallbackLogo: stri
     <footer className="py-8 sm:py-10 bg-white border-t border-black/5">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-3 sm:gap-4">
         <div className="flex items-center gap-3">
-          <img src={logoSrc} onError={(e) => ((e.currentTarget.src = fallbackLogo))} alt="Fynstra" className="h-6 w-6 sm:h-7 sm:w-7 rounded-xl object-contain" />
+          <img
+            src={logoSrc}
+            onError={(e) => ((e.currentTarget.src = fallbackLogo))}
+            alt="Fynstra"
+            className="h-6 w-6 sm:h-7 sm:w-7 rounded-xl object-contain"
+          />
           <span className="text-slate-700 text-sm sm:text-base">© {new Date().getFullYear()} Fynstra Ltd</span>
         </div>
-        <div className="text-slate-500 text-xs sm:text-sm">Built with React + Tailwind. Deployed on Vercel.</div>
+        <div className="text-slate-500 text-xs sm:text-sm">
+          Built with React + Tailwind. Deployed on Vercel.
+        </div>
       </div>
     </footer>
   );
