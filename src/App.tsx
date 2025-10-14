@@ -2,9 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 
 /**
  * Fynstra — One-page marketing site (Copywriting-first)
- * Smooth, synchronized close:
- * - Card collapse, backdrop dim fade-up, and blur-out happen in the SAME time window.
- * - Overlay stays mounted until the transition ends (no snap).
+ * Fix: Card collapse, dim fade-up, and blur fade-out start together.
  */
 
 const brand = {
@@ -80,7 +78,7 @@ function CardGrid({
   openIndex,
   closingIndex,
   onToggle,
-  isOverlayActive,
+  overlayPhase, // 'open' | 'closing' | 'idle'
   className = "",
   center = false,
   cols = { base: 1, md: 2, lg: 3 },
@@ -90,7 +88,7 @@ function CardGrid({
   openIndex: number | null;
   closingIndex: number | null;
   onToggle: (i: number | null) => void;
-  isOverlayActive: boolean;
+  overlayPhase: "open" | "closing" | "idle";
   className?: string;
   center?: boolean;
   cols?: { base: number; md: number; lg: number };
@@ -104,7 +102,9 @@ function CardGrid({
         const isOpen = openIndex === i;
         const isClosing = closingIndex === i;
         const isActiveForPanel = isOpen || isClosing;
-        const dimOthers = isOverlayActive && !isActiveForPanel;
+
+        // Only dim siblings while overlayPhase is 'open'.
+        const dimOthers = overlayPhase === "open" && !isActiveForPanel;
 
         return (
           <div
@@ -156,9 +156,8 @@ function CardGrid({
                 className={[
                   "absolute left-0 right-0 z-[65] will-change-[transform,opacity]",
                   "transform-gpu",
-                  isOpen
-                    ? "pointer-events-auto top-[calc(100%+0.5rem)]"
-                    : "pointer-events-none top-[calc(100%+0.5rem)]",
+                  "top-[calc(100%+0.5rem)]",
+                  isOpen ? "pointer-events-auto" : "pointer-events-none",
                 ].join(" ")}
                 style={{
                   transition: `opacity ${ANIM_MS}ms ${EASE}, transform ${ANIM_MS}ms ${EASE}`,
@@ -201,32 +200,20 @@ export default function App({
   const [closingService, setClosingService] = useState<number | null>(null);
   const [closingPackage, setClosingPackage] = useState<number | null>(null);
 
-  // Overlay mount control
-  const isOverlayActive =
-    openService !== null ||
-    openPackage !== null ||
-    closingService !== null ||
-    closingPackage !== null;
-
-  const [overlayMounted, setOverlayMounted] = useState(false);
-  useEffect(() => {
-    if (isOverlayActive) {
-      setOverlayMounted(true);
-    } else {
-      const t = setTimeout(() => setOverlayMounted(false), ANIM_MS); // unmount after fade/blur finishes
-      return () => clearTimeout(t);
-    }
-  }, [isOverlayActive]);
+  // Overlay phase: drives opacity, blur, and sibling dim timing
+  const [overlayPhase, setOverlayPhase] = useState<"open" | "closing" | "idle">("idle");
+  const overlayMounted = overlayPhase !== "idle";
 
   const [mobileOpen, setMobileOpen] = useState(false);
 
   // lock scroll when cards or menu are open
   useEffect(() => {
-    document.body.style.overflow = isOverlayActive || mobileOpen ? "hidden" : "";
+    const lock = overlayPhase !== "idle" || mobileOpen;
+    document.body.style.overflow = lock ? "hidden" : "";
     return () => {
       document.body.style.overflow = "";
     };
-  }, [isOverlayActive, mobileOpen]);
+  }, [overlayPhase, mobileOpen]);
 
   useEffect(() => {
     document.documentElement.classList.add("scroll-smooth");
@@ -283,9 +270,7 @@ export default function App({
               </li>
             ))}
           </ul>
-          <a href="#contact" className="btn btn-pri">
-            Enquire
-          </a>
+          <a href="#contact" className="btn btn-pri">Enquire</a>
         </div>
       ),
     },
@@ -304,9 +289,7 @@ export default function App({
               </li>
             ))}
           </ul>
-          <a href="#contact" className="btn btn-pri">
-            Enquire
-          </a>
+          <a href="#contact" className="btn btn-pri">Enquire</a>
         </div>
       ),
     },
@@ -329,9 +312,7 @@ export default function App({
               </li>
             ))}
           </ul>
-          <a href="#contact" className="btn btn-pri">
-            Enquire
-          </a>
+          <a href="#contact" className="btn btn-pri">Enquire</a>
         </div>
       ),
     },
@@ -354,9 +335,7 @@ export default function App({
               </li>
             ))}
           </ul>
-          <a href="#contact" className="btn btn-pri">
-            Enquire
-          </a>
+          <a href="#contact" className="btn btn-pri">Enquire</a>
         </div>
       ),
     },
@@ -377,18 +356,18 @@ export default function App({
               )
             )}
           </ul>
-          <a href="#contact" className="btn btn-pri">
-            Enquire
-          </a>
+          <a href="#contact" className="btn btn-pri">Enquire</a>
         </div>
       ),
     },
   ];
 
-  // Close helpers (trigger closing state to animate out)
+  /* ---------- Close helpers ---------- */
+
   const startCloseService = (idx: number) => {
     setClosingService(idx);
     setOpenService(null);
+    // closing anim finishes after ANIM_MS
     setTimeout(() => setClosingService(null), ANIM_MS);
   };
   const startClosePackage = (idx: number) => {
@@ -397,38 +376,72 @@ export default function App({
     setTimeout(() => setClosingPackage(null), ANIM_MS);
   };
 
-  // Toggle with switch logic (close first, then open next)
+  const closeAllWithOverlay = () => {
+    // Start overlay fade/blur-out NOW
+    setOverlayPhase("closing");
+    if (openService !== null) startCloseService(openService);
+    if (openPackage !== null) startClosePackage(openPackage);
+    // Unmount overlay after fade completes
+    setTimeout(() => setOverlayPhase("idle"), ANIM_MS);
+  };
+
+  /* ---------- Toggle handlers ---------- */
+
   const toggleService = (i: number | null) => {
     if (i === null) {
-      if (openService !== null) startCloseService(openService);
+      if (openService !== null) closeAllWithOverlay();
       return;
     }
-    if (openPackage !== null) startClosePackage(openPackage);
+    // Switching from packages -> services: keep overlay 'open'
+    if (openPackage !== null) {
+      setClosingPackage(openPackage);
+      setTimeout(() => setClosingPackage(null), ANIM_MS);
+      setOpenPackage(null);
+    }
     if (openService === null) {
+      setOverlayPhase("open");
       setOpenService(i);
     } else if (openService === i) {
-      startCloseService(openService);
+      closeAllWithOverlay();
     } else {
+      // switch within services: keep overlay 'open'
       const prev = openService;
-      startCloseService(prev);
-      setTimeout(() => setOpenService(i), ANIM_MS + 10);
+      setClosingService(prev);
+      setOpenService(null);
+      setTimeout(() => {
+        setClosingService(null);
+        setOpenService(i);
+      }, ANIM_MS);
+      if (overlayPhase === "idle") setOverlayPhase("open");
     }
   };
 
   const togglePackage = (i: number | null) => {
     if (i === null) {
-      if (openPackage !== null) startClosePackage(openPackage);
+      if (openPackage !== null) closeAllWithOverlay();
       return;
     }
-    if (openService !== null) startCloseService(openService);
+    // Switching from services -> packages: keep overlay 'open'
+    if (openService !== null) {
+      setClosingService(openService);
+      setTimeout(() => setClosingService(null), ANIM_MS);
+      setOpenService(null);
+    }
     if (openPackage === null) {
+      setOverlayPhase("open");
       setOpenPackage(i);
     } else if (openPackage === i) {
-      startClosePackage(openPackage);
+      closeAllWithOverlay();
     } else {
+      // switch within packages: keep overlay 'open'
       const prev = openPackage;
-      startClosePackage(prev);
-      setTimeout(() => setOpenPackage(i), ANIM_MS + 10);
+      setClosingPackage(prev);
+      setOpenPackage(null);
+      setTimeout(() => {
+        setClosingPackage(null);
+        setOpenPackage(i);
+      }, ANIM_MS);
+      if (overlayPhase === "idle") setOverlayPhase("open");
     }
   };
 
@@ -471,22 +484,18 @@ export default function App({
 
       {/* SERVICES + PACKAGES */}
       <section id="services" className="py-16 sm:py-20 lg:py-24 bg-slate-50 relative">
-        {/* Overlay (mounted while overlayMounted; opacity & blur driven by isOverlayActive) */}
+        {/* Overlay (mounted whenever phase != idle). Opacity + blur animate in both directions. */}
         {overlayMounted && (
           <button
             aria-label="Close expanded card"
-            onClick={() => {
-              if (openService !== null) startCloseService(openService);
-              if (openPackage !== null) startClosePackage(openPackage);
-            }}
+            onClick={closeAllWithOverlay}
             className="fixed inset-0 z-[50]"
             style={{
-              // sync opacity + blur with panel timing
               transition: `opacity ${ANIM_MS}ms ${EASE}, backdrop-filter ${ANIM_MS}ms ${EASE}`,
               background: "rgba(0,0,0,0.6)",
-              opacity: isOverlayActive ? 1 : 0,
-              backdropFilter: isOverlayActive ? "blur(4px)" : "blur(0px)",
-              pointerEvents: isOverlayActive ? "auto" : "none",
+              opacity: overlayPhase === "open" ? 1 : 0,
+              backdropFilter: overlayPhase === "open" ? "blur(4px)" : "blur(0px)",
+              pointerEvents: overlayPhase === "open" ? "auto" : "none",
             }}
           />
         )}
@@ -504,7 +513,7 @@ export default function App({
               openIndex={openService}
               closingIndex={closingService}
               onToggle={toggleService}
-              isOverlayActive={isOverlayActive}
+              overlayPhase={overlayPhase}
               center
               cols={{ base: 1, md: 1, lg: 1 }}
               headingStrong
@@ -518,7 +527,7 @@ export default function App({
               openIndex={openPackage}
               closingIndex={closingPackage}
               onToggle={togglePackage}
-              isOverlayActive={isOverlayActive}
+              overlayPhase={overlayPhase}
               headingStrong={false}
               cols={{ base: 1, md: 2, lg: 3 }}
             />
@@ -634,7 +643,8 @@ function Hero({
           id="hero-bg"
           className="absolute inset-0 transition-opacity duration-500"
           style={{
-            background: "linear-gradient(90deg, var(--fynstra-blue) 0%, var(--fynstra-lavender) 50%, var(--fynstra-purple) 100%)",
+            background:
+              "linear-gradient(90deg, var(--fynstra-blue) 0%, var(--fynstra-lavender) 50%, var(--fynstra-purple) 100%)",
           }}
         />
         <img
@@ -657,31 +667,56 @@ function Hero({
               Convert with <span className="heading-gradient">clear, credible</span> copy.
             </h1>
             <p className="mt-4 sm:mt-5 text-base sm:text-lg text-slate-700 max-w-xl">
-              We help startups ship copy that reads fast and feels right — landing pages, product pages, and content that moves the work forward.
+              We help startups ship copy that reads fast and feels right — landing pages, product pages, and content that
+              moves the work forward.
             </p>
             <div className="mt-6 sm:mt-8 flex flex-wrap gap-3">
               <a href="#services" className="btn btn-pri">Explore services</a>
               <a href="#contact" className="btn btn-ghost">Get in touch</a>
             </div>
             <div className="mt-8 sm:mt-10 flex items-center gap-4">
-              <img src={logoSrc} onError={(e) => ((e.currentTarget.src = fallbackLogo))} alt="Fynstra" className="h-9 w-9 sm:h-10 sm:w-10 rounded-xl object-contain" />
+              <img
+                src={logoSrc}
+                onError={(e) => ((e.currentTarget.src = fallbackLogo))}
+                alt="Fynstra"
+                className="h-9 w-9 sm:h-10 sm:w-10 rounded-xl object-contain"
+              />
             </div>
           </div>
 
           <div className="reveal" data-reveal>
             <div className="relative rounded-3xl ring-1 ring-black/10 bg-white/60 backdrop-blur p-4 sm:p-6 shadow-xl">
               <div className="relative aspect-[4/3] rounded-2xl overflow-hidden">
-                <div className="absolute inset-0" style={{ background: "linear-gradient(135deg, var(--fynstra-blue), var(--fynstra-purple))" }} />
+                <div
+                  className="absolute inset-0"
+                  style={{
+                    background:
+                      "linear-gradient(135deg, var(--fynstra-blue), var(--fynstra-purple))",
+                  }}
+                />
                 <div className="absolute -top-16 -right-16 h-56 w-56 sm:h-64 sm:w-64 rounded-full bg-white/30 blur-3xl opacity-40" />
                 <div className="absolute -bottom-20 -left-20 h-64 w-64 sm:h-72 sm:w-72 rounded-full bg-[rgba(79,180,198,0.35)] blur-3xl opacity-50" />
                 <div className="relative z-10 h-full w-full flex flex-col items-start justify-center text-white px-6 sm:px-10">
-                  <img src={logoSrc} onError={(e) => ((e.currentTarget.src = fallbackLogo))} alt="Fynstra" className="h-16 w-16 sm:h-20 sm:w-20 rounded-2xl object-contain shadow-md ring-1 ring-white/40" />
-                  <div className="mt-3 text-xl sm:text-3xl font-semibold tracking-tight">Clarity through content</div>
-                  <div className="mt-2 sm:mt-3 text-sm sm:text-base text-white/85 font-light">Copy • Strategy • Comms</div>
+                  <img
+                    src={logoSrc}
+                    onError={(e) => ((e.currentTarget.src = fallbackLogo))}
+                    alt="Fynstra"
+                    className="h-16 w-16 sm:h-20 sm:w-20 rounded-2xl object-contain shadow-md ring-1 ring-white/40"
+                  />
+                  <div className="mt-3 text-xl sm:text-3xl font-semibold tracking-tight">
+                    Clarity through content
+                  </div>
+                  <div className="mt-2 sm:mt-3 text-sm sm:text-base text-white/85 font-light">
+                    Copy • Strategy • Comms
+                  </div>
                 </div>
                 <div
                   className="pointer-events-none absolute inset-0 opacity-[0.06] mix-blend-overlay"
-                  style={{ backgroundImage: "radial-gradient(circle at 1px 1px, rgba(255,255,255,.8) 1px, transparent 1px)", backgroundSize: "6px 6px" }}
+                  style={{
+                    backgroundImage:
+                      "radial-gradient(circle at 1px 1px, rgba(255,255,255,.8) 1px, transparent 1px)",
+                    backgroundSize: "6px 6px",
+                  }}
                 />
               </div>
               <div className="mt-3 sm:mt-4 text-slate-700 text-sm sm:text-base">
@@ -703,7 +738,8 @@ function About() {
           <div className="lg:col-span-5 reveal" data-reveal>
             <h2 className="text-2xl sm:text-4xl font-semibold text-slate-900">About Fynstra</h2>
             <p className="mt-3 sm:mt-4 text-slate-700">
-              We pair sharp language with sensible structure. From web copy to content systems, our work turns ambiguity into action. Clear artifacts, faster decisions, better outcomes.
+              We pair sharp language with sensible structure. From web copy to content systems, our work turns ambiguity
+              into action. Clear artifacts, faster decisions, better outcomes.
             </p>
             <ul className="mt-5 sm:mt-6 space-y-3 text-slate-700">
               <li className="flex items-start gap-3"><span className="mt-1 h-2.5 w-2.5 rounded-full" style={{ background: brand.purple }}></span> Crisp copy and messaging frameworks</li>
@@ -716,7 +752,9 @@ function About() {
               {["Clear", "Consistent", "Credible"].map((k) => (
                 <div key={k} className="rounded-2xl border border-black/10 bg-white p-5 sm:p-6 shadow-sm">
                   <div className="text-lg sm:text-xl font-semibold text-slate-900">{k}</div>
-                  <p className="mt-2 sm:mt-3 text-sm text-slate-600">We keep language simple, structure tidy, and promises realistic.</p>
+                  <p className="mt-2 sm:mt-3 text-sm text-slate-600">
+                    We keep language simple, structure tidy, and promises realistic.
+                  </p>
                 </div>
               ))}
             </div>
@@ -733,13 +771,17 @@ function Testimonials() {
       <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
         <div className="reveal" data-reveal>
           <h2 className="text-2xl sm:text-4xl font-semibold text-slate-900">Kind words</h2>
-          <p className="mt-3 text-slate-700 max-w-2xl">Placeholders until we add real quotes. Keep it concise and outcome-focused.</p>
+          <p className="mt-3 text-slate-700 max-w-2xl">
+            Placeholders until we add real quotes. Keep it concise and outcome-focused.
+          </p>
         </div>
         <div className="mt-8 sm:mt-10 grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
           {[1, 2, 3].map((i) => (
             <figure key={i} className="reveal" data-reveal>
               <div className="rounded-2xl border border-black/10 bg-slate-50 p-5 sm:p-6 h-full">
-                <blockquote className="text-slate-700">“Fynstra made our message clearer and our rollout smoother. The copy just worked.”</blockquote>
+                <blockquote className="text-slate-700">
+                  “Fynstra made our message clearer and our rollout smoother. The copy just worked.”
+                </blockquote>
                 <figcaption className="mt-4 text-sm text-slate-500">Client name • Role, Company</figcaption>
               </div>
             </figure>
@@ -757,7 +799,9 @@ function Contact() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-10 items-start">
           <div className="reveal" data-reveal>
             <h2 className="text-2xl sm:text-4xl font-semibold text-slate-900">Let’s talk</h2>
-            <p className="mt-3 text-slate-700 max-w-xl">Two ways to connect: drop a note or book a quick intro call. We’ll keep it focused on goals, scope, and timelines.</p>
+            <p className="mt-3 text-slate-700 max-w-xl">
+              Two ways to connect: drop a note or book a quick intro call. We’ll keep it focused on goals, scope, and timelines.
+            </p>
             <div className="mt-6 flex flex-wrap gap-3">
               <a href="#calendly" className="btn btn-pri">Book a call</a>
               <a href="mailto:info@fynstra.co.uk" className="btn btn-ghost">Email us</a>
@@ -772,19 +816,32 @@ function Contact() {
               <div className="grid grid-cols-1 gap-4">
                 <label className="block">
                   <span className="text-sm text-slate-600">Name</span>
-                  <input className="mt-1 w-full rounded-xl border border-black/10 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-300" placeholder="Your name" />
+                  <input
+                    className="mt-1 w-full rounded-xl border border-black/10 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-300"
+                    placeholder="Your name"
+                  />
                 </label>
                 <label className="block">
                   <span className="text-sm text-slate-600">Email</span>
-                  <input type="email" className="mt-1 w-full rounded-xl border border-black/10 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-300" placeholder="you@company.com" />
+                  <input
+                    type="email"
+                    className="mt-1 w-full rounded-xl border border-black/10 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-300"
+                    placeholder="you@company.com"
+                  />
                 </label>
                 <label className="block">
                   <span className="text-sm text-slate-600">Project overview</span>
-                  <textarea rows={4} className="mt-1 w-full rounded-xl border border-black/10 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-300" placeholder="Goals, audience, deliverables, timeline" />
+                  <textarea
+                    rows={4}
+                    className="mt-1 w-full rounded-xl border border-black/10 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-300"
+                    placeholder="Goals, audience, deliverables, timeline"
+                  />
                 </label>
                 <button type="button" className="btn btn-pri w-full">Send (placeholder)</button>
               </div>
-              <p className="mt-3 text-xs text-slate-500">This form is a front-end placeholder. Swap for a real form handler (Formspree, Resend, serverless function) when we go live.</p>
+              <p className="mt-3 text-xs text-slate-500">
+                This form is a front-end placeholder. Swap for a real form handler (Formspree, Resend, serverless function) when we go live.
+              </p>
             </form>
           </div>
         </div>
@@ -801,7 +858,9 @@ function Contact() {
             </div>
             <div className="aspect-[16/9] bg-slate-50 flex items-center justify-center text-slate-500">
               <iframe title="Calendly" src={CALENDLY_URL} className="w-full h-full hidden" />
-              <div className="p-6 text-center">Calendly embed goes here. Replace URL above and show the iframe when ready.</div>
+              <div className="p-6 text-center">
+                Calendly embed goes here. Replace URL above and show the iframe when ready.
+              </div>
             </div>
           </div>
         </div>
@@ -815,10 +874,17 @@ function Footer({ logoSrc, fallbackLogo }: { logoSrc: string; fallbackLogo: stri
     <footer className="py-8 sm:py-10 bg-white border-t border-black/5">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-3 sm:gap-4">
         <div className="flex items-center gap-3">
-          <img src={logoSrc} onError={(e) => ((e.currentTarget.src = fallbackLogo))} alt="Fynstra" className="h-6 w-6 sm:h-7 sm:w-7 rounded-xl object-contain" />
+          <img
+            src={logoSrc}
+            onError={(e) => ((e.currentTarget.src = fallbackLogo))}
+            alt="Fynstra"
+            className="h-6 w-6 sm:h-7 sm:w-7 rounded-xl object-contain"
+          />
           <span className="text-slate-700 text-sm sm:text-base">© {new Date().getFullYear()} Fynstra Ltd</span>
         </div>
-        <div className="text-slate-500 text-xs sm:text-sm">Built with React + Tailwind. Deployed on Vercel.</div>
+        <div className="text-slate-500 text-xs sm:text-sm">
+          Built with React + Tailwind. Deployed on Vercel.
+        </div>
       </div>
     </footer>
   );
