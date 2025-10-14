@@ -2,8 +2,8 @@ import React, { useEffect, useRef, useState } from "react";
 
 /**
  * Fynstra — One-page marketing site (Copywriting-first)
- * - Premium expand/collapse: smooth open + smooth close (with "closing" state)
- * - Backdrop blur/dim synchronized with panels
+ * - Premium expand/collapse with smooth open/close
+ * - Overlay stays mounted through fade-out (no snap)
  * - Mobile menu preserved
  */
 
@@ -217,20 +217,20 @@ export default function App({
   const [openService, setOpenService] = useState<number | null>(null);
   const [openPackage, setOpenPackage] = useState<number | null>(null);
 
-  // closing indexes (to animate out smoothly)
+  // closing indexes (animate out smoothly)
   const [closingService, setClosingService] = useState<number | null>(null);
   const [closingPackage, setClosingPackage] = useState<number | null>(null);
 
   const [mobileOpen, setMobileOpen] = useState(false);
 
-  // keep backdrop/dimming while closing animations run
+  // consider "open" while any is open or closing (keeps siblings dim)
   const anyOpen =
     openService !== null ||
     openPackage !== null ||
     closingService !== null ||
     closingPackage !== null;
 
-  // backdrop visibility (lingers briefly on close)
+  // Backdrop visibility (linger after anyOpen goes false so fade completes)
   const [backdropVisible, setBackdropVisible] = useState(false);
   useEffect(() => {
     if (anyOpen) setBackdropVisible(true);
@@ -410,11 +410,6 @@ export default function App({
   ];
 
   // Backdrop + close helpers
-  const closeAll = () => {
-    if (openService !== null) startCloseService(openService);
-    if (openPackage !== null) startClosePackage(openPackage);
-  };
-
   const startCloseService = (idx: number) => {
     setClosingService(idx);
     setOpenService(null);
@@ -426,19 +421,17 @@ export default function App({
     setTimeout(() => setClosingPackage(null), ANIM_MS);
   };
 
-  // Toggle handlers ensure smooth close THEN open next (if switching)
   const toggleService = (i: number | null) => {
     if (i === null) {
       if (openService !== null) startCloseService(openService);
       return;
     }
-    if (openPackage !== null) startClosePackage(openPackage); // ensure only one area active
+    if (openPackage !== null) startClosePackage(openPackage);
     if (openService === null) {
       setOpenService(i);
     } else if (openService === i) {
       startCloseService(openService);
     } else {
-      // switch: close current first, then open new
       const prev = openService;
       startCloseService(prev);
       setTimeout(() => setOpenService(i), ANIM_MS + 20);
@@ -502,8 +495,8 @@ export default function App({
       <Hero
         logoSrc={logoSrc}
         fallbackLogo={fallbackLogo}
-        bannerLeft={defaultBannerLeft}
-        bannerRight={defaultBannerRight}
+        bannerLeft={bannerLeft}
+        bannerRight={bannerRight}
       />
 
       {/* ABOUT */}
@@ -511,11 +504,8 @@ export default function App({
 
       {/* SERVICES + PACKAGES */}
       <section id="services" className="py-16 sm:py-20 lg:py-24 bg-slate-50 relative">
-        {/* Backdrop (blur + dim) */}
-        {(openService !== null ||
-          openPackage !== null ||
-          closingService !== null ||
-          closingPackage !== null) && (
+        {/* Overlay now stays mounted through fade: render when anyOpen OR backdropVisible */}
+        {(anyOpen || backdropVisible) && (
           <button
             aria-label="Close expanded card"
             onClick={() => {
@@ -524,7 +514,7 @@ export default function App({
             }}
             className={[
               "fixed inset-0 z-[50] transition-opacity backdrop-blur-sm",
-              backdropVisible ? "bg-black/60 opacity-100" : "bg-black/60 opacity-0 pointer-events-none",
+              anyOpen ? "bg-black/60 opacity-100 pointer-events-auto" : "bg-black/60 opacity-0 pointer-events-none",
               `duration-[${ANIM_MS}ms] ease-${EASE}`,
             ].join(" ")}
           />
@@ -545,7 +535,7 @@ export default function App({
               openIndex={openService}
               closingIndex={closingService}
               onToggle={toggleService}
-              anyOpen={backdropVisible}
+              anyOpen={anyOpen}
               center
               cols={{ base: 1, md: 1, lg: 1 }}
               headingStrong
@@ -559,7 +549,7 @@ export default function App({
               openIndex={openPackage}
               closingIndex={closingPackage}
               onToggle={togglePackage}
-              anyOpen={backdropVisible}
+              anyOpen={anyOpen}
               headingStrong={false}
               cols={{ base: 1, md: 2, lg: 3 }}
             />
