@@ -2,9 +2,9 @@ import React, { useEffect, useRef, useState } from "react";
 
 /**
  * Fynstra — One-page marketing site (Copywriting-first)
- * - React + Tailwind (no extra deps)
- * - Consistent premium animations for all expandable cards
- * - Mobile menu sheet with dark text and smooth transitions
+ * - Premium expand/collapse: smooth open + smooth close (with "closing" state)
+ * - Backdrop blur/dim synchronized with panels
+ * - Mobile menu preserved
  */
 
 const brand = {
@@ -17,9 +17,8 @@ const brand = {
   bg: "#FAFAFA",
 };
 
-// shared animation timing (backdrop and panels stay in sync)
-const ANIM_MS = 420; // 420ms feels a bit more premium than 300ms
-const EASE = "[cubic-bezier(0.22,0.61,0.36,1)]"; // material-ish ease-in-out
+const ANIM_MS = 420;
+const EASE = "[cubic-bezier(0.22,0.61,0.36,1)]";
 
 const svgTile = (a: string, b: string) =>
   "data:image/svg+xml;utf8," +
@@ -64,9 +63,9 @@ function useScrollReveal() {
   return containerRef;
 }
 
-/* ================
+/* =========================
  * Expandable Card Grid
- * ================*/
+ * =========================*/
 
 type CardItem = {
   title: string;
@@ -79,6 +78,7 @@ type CardItem = {
 function CardGrid({
   items,
   openIndex,
+  closingIndex,
   onToggle,
   anyOpen,
   className = "",
@@ -88,6 +88,7 @@ function CardGrid({
 }: {
   items: CardItem[];
   openIndex: number | null;
+  closingIndex: number | null;
   onToggle: (i: number | null) => void;
   anyOpen: boolean;
   className?: string;
@@ -107,8 +108,10 @@ function CardGrid({
       ].join(" ")}
     >
       {items.map((it, i) => {
-        const open = openIndex === i;
-        const dimOthers = anyOpen && !open;
+        const isOpen = openIndex === i;
+        const isClosing = closingIndex === i;
+        const isActiveForPanel = isOpen || isClosing; // keep mounted during close
+        const dimOthers = anyOpen && !isActiveForPanel;
 
         return (
           <div
@@ -116,7 +119,7 @@ function CardGrid({
             className={[
               "relative rounded-2xl border bg-white shadow-sm transition-opacity",
               "border-indigo-200",
-              open ? "z-[60]" : "z-0",
+              isActiveForPanel ? "z-[60]" : "z-0",
               dimOthers ? "opacity-40" : "opacity-100",
               `duration-[${ANIM_MS}ms] ease-${EASE}`,
               center ? "w-full max-w-2xl" : "w-full",
@@ -125,9 +128,9 @@ function CardGrid({
             {/* Header */}
             <button
               type="button"
-              aria-expanded={open}
+              aria-expanded={isOpen}
               aria-controls={`panel-${i}`}
-              onClick={() => onToggle(open ? null : i)}
+              onClick={() => onToggle(isOpen ? null : i)}
               className="w-full text-left px-4 sm:px-5 py-3 sm:py-4 flex items-start gap-3"
             >
               <div className="flex-1">
@@ -153,7 +156,7 @@ function CardGrid({
                 <svg
                   className={[
                     "h-5 w-5 text-slate-500 transition-transform",
-                    open ? "rotate-180" : "",
+                    isOpen ? "rotate-180" : "",
                     `duration-[${ANIM_MS}ms] ease-${EASE}`,
                   ].join(" ")}
                   viewBox="0 0 24 24"
@@ -170,22 +173,24 @@ function CardGrid({
             </button>
 
             {/* Floating expandable panel */}
-            <div
-              id={`panel-${i}`}
-              className={[
-                "absolute left-0 right-0 z-[65] will-change-[transform,opacity]",
-                "transition-all transform-gpu",
-                `duration-[${ANIM_MS}ms] ease-${EASE}`,
-                open
-                  ? "pointer-events-auto top-[calc(100%+0.5rem)] opacity-100 translate-y-0 scale-[1] shadow-xl"
-                  : "pointer-events-none top-[calc(100%)] opacity-0 -translate-y-1 scale-[0.98]",
-              ].join(" ")}
-              aria-hidden={!open}
-            >
-              <div className="rounded-2xl border border-black/10 bg-white px-4 sm:px-5 py-4">
-                {it.panel}
+            {isActiveForPanel && (
+              <div
+                id={`panel-${i}`}
+                className={[
+                  "absolute left-0 right-0 z-[65] will-change-[transform,opacity]",
+                  "transition-all transform-gpu",
+                  `duration-[${ANIM_MS}ms] ease-${EASE}`,
+                  isOpen
+                    ? "pointer-events-auto top-[calc(100%+0.5rem)] opacity-100 translate-y-0 scale-[1] shadow-xl"
+                    : "pointer-events-none top-[calc(100%+0.5rem)] opacity-0 -translate-y-1 scale-[0.98]",
+                ].join(" ")}
+                aria-hidden={!isOpen}
+              >
+                <div className="rounded-2xl border border-black/10 bg-white px-4 sm:px-5 py-4">
+                  {it.panel}
+                </div>
               </div>
-            </div>
+            )}
           </div>
         );
       })}
@@ -193,9 +198,9 @@ function CardGrid({
   );
 }
 
-/* ================
+/* =========================
  * App
- * ================*/
+ * =========================*/
 
 export default function App({
   logoSrc = PUBLIC_LOGO,
@@ -208,13 +213,24 @@ export default function App({
 }) {
   const containerRef = useScrollReveal();
 
+  // open indexes
   const [openService, setOpenService] = useState<number | null>(null);
   const [openPackage, setOpenPackage] = useState<number | null>(null);
+
+  // closing indexes (to animate out smoothly)
+  const [closingService, setClosingService] = useState<number | null>(null);
+  const [closingPackage, setClosingPackage] = useState<number | null>(null);
+
   const [mobileOpen, setMobileOpen] = useState(false);
 
-  const anyOpen = openService !== null || openPackage !== null;
+  // keep backdrop/dimming while closing animations run
+  const anyOpen =
+    openService !== null ||
+    openPackage !== null ||
+    closingService !== null ||
+    closingPackage !== null;
 
-  // smoother backdrop removal (linger slightly to avoid "snap")
+  // backdrop visibility (lingers briefly on close)
   const [backdropVisible, setBackdropVisible] = useState(false);
   useEffect(() => {
     if (anyOpen) setBackdropVisible(true);
@@ -242,7 +258,7 @@ export default function App({
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  // Services (copywriting only)
+  // --- Services: Copywriting only (centered)
   const services: CardItem[] = [
     {
       title: "Copywriting",
@@ -274,7 +290,7 @@ export default function App({
     },
   ];
 
-  // Packages
+  // --- Packages
   const packages: CardItem[] = [
     {
       title: "Budget",
@@ -290,17 +306,12 @@ export default function App({
               "Delivery in editable doc + ready-to-paste set",
             ].map((p) => (
               <li key={p} className="flex items-start gap-2">
-                <span
-                  className="mt-1 h-2 w-2 rounded-full"
-                  style={{ background: brand.purple }}
-                />
+                <span className="mt-1 h-2 w-2 rounded-full" style={{ background: brand.purple }} />
                 {p}
               </li>
             ))}
           </ul>
-          <a href="#contact" className="btn btn-pri">
-            Enquire
-          </a>
+          <a href="#contact" className="btn btn-pri">Enquire</a>
         </div>
       ),
     },
@@ -318,17 +329,12 @@ export default function App({
               "SEO basics (title, meta, H-structure)",
             ].map((p) => (
               <li key={p} className="flex items-start gap-2">
-                <span
-                  className="mt-1 h-2 w-2 rounded-full"
-                  style={{ background: brand.purple }}
-                />
+                <span className="mt-1 h-2 w-2 rounded-full" style={{ background: brand.purple }} />
                 {p}
               </li>
             ))}
           </ul>
-          <a href="#contact" className="btn btn-pri">
-            Enquire
-          </a>
+          <a href="#contact" className="btn btn-pri">Enquire</a>
         </div>
       ),
     },
@@ -346,17 +352,12 @@ export default function App({
               "Two revision rounds + visuals guidance",
             ].map((p) => (
               <li key={p} className="flex items-start gap-2">
-                <span
-                  className="mt-1 h-2 w-2 rounded-full"
-                  style={{ background: brand.purple }}
-                />
+                <span className="mt-1 h-2 w-2 rounded-full" style={{ background: brand.purple }} />
                 {p}
               </li>
             ))}
           </ul>
-          <a href="#contact" className="btn btn-pri">
-            Enquire
-          </a>
+          <a href="#contact" className="btn btn-pri">Enquire</a>
         </div>
       ),
     },
@@ -374,17 +375,12 @@ export default function App({
               "Two rounds across the set",
             ].map((p) => (
               <li key={p} className="flex items-start gap-2">
-                <span
-                  className="mt-1 h-2 w-2 rounded-full"
-                  style={{ background: brand.purple }}
-                />
+                <span className="mt-1 h-2 w-2 rounded-full" style={{ background: brand.purple }} />
                 {p}
               </li>
             ))}
           </ul>
-          <a href="#contact" className="btn btn-pri">
-            Enquire
-          </a>
+          <a href="#contact" className="btn btn-pri">Enquire</a>
         </div>
       ),
     },
@@ -402,21 +398,69 @@ export default function App({
               "Carry-over up to 20% one month",
             ].map((p) => (
               <li key={p} className="flex items-start gap-2">
-                <span
-                  className="mt-1 h-2 w-2 rounded-full"
-                  style={{ background: brand.purple }}
-                />
+                <span className="mt-1 h-2 w-2 rounded-full" style={{ background: brand.purple }} />
                 {p}
               </li>
             ))}
           </ul>
-          <a href="#contact" className="btn btn-pri">
-            Enquire
-          </a>
+          <a href="#contact" className="btn btn-pri">Enquire</a>
         </div>
       ),
     },
   ];
+
+  // Backdrop + close helpers
+  const closeAll = () => {
+    if (openService !== null) startCloseService(openService);
+    if (openPackage !== null) startClosePackage(openPackage);
+  };
+
+  const startCloseService = (idx: number) => {
+    setClosingService(idx);
+    setOpenService(null);
+    setTimeout(() => setClosingService(null), ANIM_MS);
+  };
+  const startClosePackage = (idx: number) => {
+    setClosingPackage(idx);
+    setOpenPackage(null);
+    setTimeout(() => setClosingPackage(null), ANIM_MS);
+  };
+
+  // Toggle handlers ensure smooth close THEN open next (if switching)
+  const toggleService = (i: number | null) => {
+    if (i === null) {
+      if (openService !== null) startCloseService(openService);
+      return;
+    }
+    if (openPackage !== null) startClosePackage(openPackage); // ensure only one area active
+    if (openService === null) {
+      setOpenService(i);
+    } else if (openService === i) {
+      startCloseService(openService);
+    } else {
+      // switch: close current first, then open new
+      const prev = openService;
+      startCloseService(prev);
+      setTimeout(() => setOpenService(i), ANIM_MS + 20);
+    }
+  };
+
+  const togglePackage = (i: number | null) => {
+    if (i === null) {
+      if (openPackage !== null) startClosePackage(openPackage);
+      return;
+    }
+    if (openService !== null) startCloseService(openService);
+    if (openPackage === null) {
+      setOpenPackage(i);
+    } else if (openPackage === i) {
+      startClosePackage(openPackage);
+    } else {
+      const prev = openPackage;
+      startClosePackage(prev);
+      setTimeout(() => setOpenPackage(i), ANIM_MS + 20);
+    }
+  };
 
   return (
     <div ref={containerRef} className="text-slate-100 bg-white selection:bg-indigo-200/60">
@@ -458,8 +502,8 @@ export default function App({
       <Hero
         logoSrc={logoSrc}
         fallbackLogo={fallbackLogo}
-        bannerLeft={bannerLeft}
-        bannerRight={bannerRight}
+        bannerLeft={defaultBannerLeft}
+        bannerRight={defaultBannerRight}
       />
 
       {/* ABOUT */}
@@ -467,17 +511,20 @@ export default function App({
 
       {/* SERVICES + PACKAGES */}
       <section id="services" className="py-16 sm:py-20 lg:py-24 bg-slate-50 relative">
-        {/* Premium backdrop (blur + dim) */}
-        {backdropVisible && (
+        {/* Backdrop (blur + dim) */}
+        {(openService !== null ||
+          openPackage !== null ||
+          closingService !== null ||
+          closingPackage !== null) && (
           <button
             aria-label="Close expanded card"
             onClick={() => {
-              setOpenService(null);
-              setOpenPackage(null);
+              if (openService !== null) startCloseService(openService);
+              if (openPackage !== null) startClosePackage(openPackage);
             }}
             className={[
               "fixed inset-0 z-[50] transition-opacity backdrop-blur-sm",
-              anyOpen ? "bg-black/60 opacity-100" : "bg-black/60 opacity-0 pointer-events-none",
+              backdropVisible ? "bg-black/60 opacity-100" : "bg-black/60 opacity-0 pointer-events-none",
               `duration-[${ANIM_MS}ms] ease-${EASE}`,
             ].join(" ")}
           />
@@ -496,11 +543,9 @@ export default function App({
             <CardGrid
               items={services}
               openIndex={openService}
-              onToggle={(i) => {
-                setOpenPackage(null);
-                setOpenService(i);
-              }}
-              anyOpen={anyOpen}
+              closingIndex={closingService}
+              onToggle={toggleService}
+              anyOpen={backdropVisible}
               center
               cols={{ base: 1, md: 1, lg: 1 }}
               headingStrong
@@ -512,11 +557,9 @@ export default function App({
             <CardGrid
               items={packages}
               openIndex={openPackage}
-              onToggle={(i) => {
-                setOpenService(null);
-                setOpenPackage(i);
-              }}
-              anyOpen={anyOpen}
+              closingIndex={closingPackage}
+              onToggle={togglePackage}
+              anyOpen={backdropVisible}
               headingStrong={false}
               cols={{ base: 1, md: 2, lg: 3 }}
             />
@@ -540,9 +583,9 @@ export default function App({
   );
 }
 
-/* ================
+/* =========================
  * Subcomponents
- * ================*/
+ * =========================*/
 
 function Header({
   logoSrc,
@@ -738,25 +781,15 @@ function About() {
               into action. Clear artifacts, faster decisions, better outcomes.
             </p>
             <ul className="mt-5 sm:mt-6 space-y-3 text-slate-700">
-              <li className="flex items-start gap-3">
-                <span className="mt-1 h-2.5 w-2.5 rounded-full" style={{ background: brand.purple }}></span>
-                Crisp copy and messaging frameworks
-              </li>
-              <li className="flex items-start gap-3">
-                <span className="mt-1 h-2.5 w-2.5 rounded-full" style={{ background: brand.purple }}></span>
-                Practical guidance: structure, tone, voice
-              </li>
-              <li className="flex items-start gap-3">
-                <span className="mt-1 h-2.5 w-2.5 rounded-full" style={{ background: brand.purple }}></span>
-                Lightweight process that respects your time
-              </li>
+              <li className="flex items-start gap-3"><span className="mt-1 h-2.5 w-2.5 rounded-full" style={{ background: brand.purple }}></span> Crisp copy and messaging frameworks</li>
+              <li className="flex items-start gap-3"><span className="mt-1 h-2.5 w-2.5 rounded-full" style={{ background: brand.purple }}></span> Practical guidance: structure, tone, voice</li>
+              <li className="flex items-start gap-3"><span className="mt-1 h-2.5 w-2.5 rounded-full" style={{ background: brand.purple }}></span> Lightweight process that respects your time</li>
             </ul>
           </div>
           <div className="lg:col-span-7 reveal" data-reveal>
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {["Clear", "Consistent", "Credible"].map((k) => (
                 <div key={k} className="rounded-2xl border border-black/10 bg-white p-5 sm:p-6 shadow-sm">
-                  {/* removed "Principle n" label */}
                   <div className="text-lg sm:text-xl font-semibold text-slate-900">{k}</div>
                   <p className="mt-2 sm:mt-3 text-sm text-slate-600">
                     We keep language simple, structure tidy, and promises realistic.
