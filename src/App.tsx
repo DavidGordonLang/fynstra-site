@@ -433,7 +433,7 @@ export default function App({
           <div className="reveal" data-reveal>
             <h2 className="text-2xl sm:text-4xl font-semibold text-slate-900">Services</h2>
             <p className="mt-3 max-w-2xl text-slate-700">
-              We’re currently focused on copywriting for early traction. Consulting will feather in later.
+              We’re currently focused on copywriting for early traction.
             </p>
           </div>
 
@@ -451,7 +451,6 @@ export default function App({
               cols={{ base: 1, md: 1, lg: 1 }}
               headingStrong
             />
-            <p className="mt-4 text-sm text-slate-500">Consulting <span className="italic">(coming soon)</span>.</p>
           </div>
 
           {/* Packages */}
@@ -512,7 +511,7 @@ function Header({
             alt="Fynstra"
             className="h-10 w-10 sm:h-12 sm:w-12 object-contain"
           />
-          <span className="text-xl sm:text-2xl font-semibold text-slate-900 group-hover:text-slate-700 transition">
+        <span className="text-xl sm:text-2xl font-semibold text-slate-900 group-hover:text-slate-700 transition">
             Fynstra
           </span>
         </a>
@@ -659,11 +658,13 @@ function About() {
           </div>
           <div className="lg:col-span-7 reveal" data-reveal>
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              {["Clear", "Consistent", "Credible"].map((k, i) => (
+              {["Clear", "Consistent", "Credible"].map((k) => (
                 <div key={k} className="rounded-2xl border border-black/10 bg-white p-5 sm:p-6 shadow-sm">
-                  <div className="text-xs sm:text-sm text-slate-500">Principle {i + 1}</div>
-                  <div className="mt-1 text-lg sm:text-xl font-semibold text-slate-900">{k}</div>
-                  <p className="mt-2 sm:mt-3 text-sm text-slate-600">We keep language simple, structure tidy, and promises realistic.</p>
+                  {/* removed "Principle n" label */}
+                  <div className="text-lg sm:text-xl font-semibold text-slate-900">{k}</div>
+                  <p className="mt-2 sm:mt-3 text-sm text-slate-600">
+                    We keep language simple, structure tidy, and promises realistic.
+                  </p>
                 </div>
               ))}
             </div>
