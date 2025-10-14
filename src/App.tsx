@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 
 /**
- * Fynstra — One-page marketing site
+ * Fynstra — One-page marketing site (Copywriting-first)
  * - Mobile menu: hamburger -> slide/fade sheet with dark text
  * - Services/Packages: floating panels expand in place; siblings dim; synced backdrop
  * - No extra deps (React + Tailwind)
@@ -77,6 +77,8 @@ function CardGrid({
   onToggle,
   anyOpen,
   className = "",
+  center = false,
+  cols = { base: 1, md: 2, lg: 3 },
   headingStrong = true,
 }: {
   items: CardItem[];
@@ -84,10 +86,20 @@ function CardGrid({
   onToggle: (i: number | null) => void;
   anyOpen: boolean;
   className?: string;
+  center?: boolean; // centers a single item row
+  cols?: { base: number; md: number; lg: number };
   headingStrong?: boolean;
 }) {
+  const gridCols = `grid-cols-${cols.base} md:grid-cols-${cols.md} lg:grid-cols-${cols.lg}`;
   return (
-    <div className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 ${className}`}>
+    <div
+      className={[
+        "grid gap-4 sm:gap-6",
+        gridCols,
+        center ? "place-items-center" : "",
+        className,
+      ].join(" ")}
+    >
       {items.map((it, i) => {
         const open = openIndex === i;
         const dimOthers = anyOpen && !open;
@@ -96,11 +108,12 @@ function CardGrid({
           <div
             key={it.title + i}
             className={[
-              "relative rounded-2xl border bg-white shadow-sm transition-all",
+              "relative rounded-2xl border bg-white shadow-sm transition-all w-full",
               "border-indigo-200",
               open ? "ring-2 ring-indigo-200 shadow-xl z-[60]" : "z-0",
               dimOthers ? "opacity-40" : "opacity-100",
               `duration-[${ANIM_MS}ms] ease-[cubic-bezier(0.2,0.8,0.2,1)]`,
+              center ? "max-w-2xl" : "",
             ].join(" ")}
           >
             {/* Header */}
@@ -209,7 +222,7 @@ export default function App({
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  // Services (top row)
+  // Services: Copywriting only (centered)
   const services: CardItem[] = [
     {
       title: "Copywriting",
@@ -231,53 +244,9 @@ export default function App({
         </div>
       ),
     },
-    {
-      title: "Consulting",
-      subtitle: "Turn strategy into operations with practical communication.",
-      rightMeta: <span>Day rate (on request)</span>,
-      panel: (
-        <div className="text-slate-700 space-y-3">
-          <ul className="space-y-2">
-            {[
-              "Process clarity: map owners, decisions, artefacts",
-              "Messaging frameworks and enablement",
-              "Client comms: proposals, onboarding, FAQs",
-            ].map((p) => (
-              <li key={p} className="flex gap-2 items-start">
-                <span className="mt-1 h-2 w-2 rounded-full" style={{ background: brand.purple }} />
-                {p}
-              </li>
-            ))}
-          </ul>
-          <p className="text-sm text-slate-600">Billed by day or fixed-scope sprint. Lightweight plan before we start.</p>
-        </div>
-      ),
-    },
-    {
-      title: "Compliance Comms",
-      subtitle: "Plain-English narratives for KYC, onboarding and training.",
-      rightMeta: <span>Project-based</span>,
-      panel: (
-        <div className="text-slate-700 space-y-3">
-          <ul className="space-y-2">
-            {[
-              "KYC narratives and support docs",
-              "Policy summaries and internal playbooks",
-              "Short training decks + facilitator notes",
-            ].map((p) => (
-              <li key={p} className="flex gap-2 items-start">
-                <span className="mt-1 h-2 w-2 rounded-full" style={{ background: brand.purple }} />
-                {p}
-              </li>
-            ))}
-          </ul>
-          <p className="text-sm text-slate-600">Fixed price after a quick scoping call and sample document review.</p>
-        </div>
-      ),
-    },
   ];
 
-  // Packages (second row)
+  // Packages (unchanged ranges)
   const packages: CardItem[] = [
     {
       title: "Budget",
@@ -423,159 +392,26 @@ export default function App({
         .btn-ghost:hover { background: rgba(0,0,0,.04); }
       `}</style>
 
-      {/* HEADER (with fixed dark-text mobile sheet) */}
-      <header className="sticky top-0 z-[70] backdrop-blur-sm bg-white/70 border-b border-black/5">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-          <a href="#top" className="flex items-center gap-3 group">
-            <img
-              src={logoSrc}
-              onError={(e) => ((e.currentTarget.src = fallbackLogo))}
-              alt="Fynstra"
-              className="h-10 w-10 sm:h-12 sm:w-12 object-contain"
-            />
-            <span className="text-xl sm:text-2xl font-semibold text-slate-900 group-hover:text-slate-700 transition">
-              Fynstra
-            </span>
-          </a>
-
-          <nav className="hidden md:flex items-center gap-6 text-slate-700">
-            <a href="#about" className="hover:text-slate-900">About</a>
-            <a href="#services" className="hover:text-slate-900">Services</a>
-            <a href="#testimonials" className="hover:text-slate-900">Testimonials</a>
-            <a href="#contact" className="hover:text-slate-900">Contact</a>
-            <a href="#contact" className="btn btn-pri ml-2">Book a chat</a>
-          </nav>
-
-          <button
-            type="button"
-            aria-label="Open menu"
-            className="md:hidden inline-flex items-center justify-center rounded-xl p-2 text-slate-600 hover:bg-slate-100"
-            onClick={() => setMobileOpen(true)}
-          >
-            <svg className="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M4 6h16M4 12h16M4 18h16" strokeLinecap="round" />
-            </svg>
-          </button>
-        </div>
-
-        {/* Mobile backdrop */}
-        <div
-          onClick={() => setMobileOpen(false)}
-          className={[
-            "md:hidden fixed inset-0 z-[80] bg-black/50 transition-opacity",
-            mobileOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
-          ].join(" ")}
-        />
-
-        {/* Mobile sheet (dark text) */}
-        <div
-          className={[
-            "md:hidden fixed top-16 inset-x-0 z-[85] px-4",
-            "transition-all duration-300 ease-[cubic-bezier(0.2,0.8,0.2,1)]",
-            mobileOpen ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-2 pointer-events-none"
-          ].join(" ")}
-        >
-          <div className="rounded-2xl border border-black/10 bg-white p-4 shadow-lg text-slate-900">
-            <a href="#about" onClick={() => setMobileOpen(false)} className="block px-2 py-2 rounded-lg hover:bg-slate-50">About</a>
-            <a href="#services" onClick={() => setMobileOpen(false)} className="block px-2 py-2 rounded-lg hover:bg-slate-50">Services</a>
-            <a href="#testimonials" onClick={() => setMobileOpen(false)} className="block px-2 py-2 rounded-lg hover:bg-slate-50">Testimonials</a>
-            <a href="#contact" onClick={() => setMobileOpen(false)} className="block px-2 py-2 rounded-lg hover:bg-slate-50">Contact</a>
-            <a href="#contact" onClick={() => setMobileOpen(false)} className="mt-3 btn btn-pri w-full">Book a chat</a>
-          </div>
-        </div>
-      </header>
+      {/* HEADER (mobile-friendly) */}
+      <Header
+        logoSrc={logoSrc}
+        fallbackLogo={fallbackLogo}
+        mobileOpen={mobileOpen}
+        setMobileOpen={setMobileOpen}
+      />
 
       {/* HERO */}
-      <section id="top" className="relative overflow-hidden">
-        <div className="absolute inset-0 -z-10">
-          <div
-            id="hero-bg"
-            className="absolute inset-0 transition-opacity duration-500"
-            style={{ background: "linear-gradient(90deg, var(--fynstra-blue) 0%, var(--fynstra-lavender) 50%, var(--fynstra-purple) 100%)" }}
-          />
-          <img src={bannerLeft} alt="Brand motif" className="absolute left-0 top-0 opacity-40 w-56 sm:w-72 md:w-96 -translate-x-[15%] -translate-y-[15%] blur-[1px]" />
-          <img src={bannerRight} alt="Brand motif" className="absolute right-[-20%] md:right-[-10%] bottom-[-28%] md:bottom-[-20%] opacity-50 w-[28rem] sm:w-[36rem] md:w-[48rem] rotate-6 blur-[0.5px]" />
-          <div className="absolute inset-0 bg-gradient-to-tr from-white/60 via-white/30 to-transparent" />
-        </div>
-
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-16 sm:py-20 lg:py-32">
-          <div className="grid lg:grid-cols-2 gap-8 sm:gap-10 items-center">
-            <div className="reveal" data-reveal>
-              <h1 className="text-[2rem] sm:text-5xl lg:text-6xl font-semibold text-slate-900 leading-tight">
-                Build momentum with <span className="heading-gradient">crisp, credible</span> communication.
-              </h1>
-              <p className="mt-4 sm:mt-5 text-base sm:text-lg text-slate-700 max-w-xl">
-                Fynstra helps growing teams turn complex ideas into clean, persuasive content. Copywriting, communication frameworks, and practical consulting that move the work forward.
-              </p>
-              <div className="mt-6 sm:mt-8 flex flex-wrap gap-3">
-                <a href="#services" className="btn btn-pri">Explore services</a>
-                <a href="#contact" className="btn btn-ghost">Get in touch</a>
-              </div>
-              <div className="mt-8 sm:mt-10 flex items-center gap-4">
-                <img src={logoSrc} onError={(e) => ((e.currentTarget.src = fallbackLogo))} alt="Fynstra" className="h-9 w-9 sm:h-10 sm:w-10 rounded-xl object-contain" />
-              </div>
-            </div>
-
-            <div className="reveal" data-reveal>
-              <div className="relative rounded-3xl ring-1 ring-black/10 bg-white/60 backdrop-blur p-4 sm:p-6 shadow-xl">
-                <div className="relative aspect-[4/3] rounded-2xl overflow-hidden">
-                  <div className="absolute inset-0" style={{ background: "linear-gradient(135deg, var(--fynstra-blue), var(--fynstra-purple))" }} />
-                  <div className="absolute -top-16 -right-16 h-56 w-56 sm:h-64 sm:w-64 rounded-full bg-white/30 blur-3xl opacity-40" />
-                  <div className="absolute -bottom-20 -left-20 h-64 w-64 sm:h-72 sm:w-72 rounded-full bg-[rgba(79,180,198,0.35)] blur-3xl opacity-50" />
-                  <div className="relative z-10 h-full w-full flex flex-col items-start justify-center text-white px-6 sm:px-10">
-                    <img src={logoSrc} onError={(e) => ((e.currentTarget.src = fallbackLogo))} alt="Fynstra" className="h-16 w-16 sm:h-20 sm:w-20 rounded-2xl object-contain shadow-md ring-1 ring-white/40" />
-                    <div className="mt-3 text-xl sm:text-3xl font-semibold tracking-tight">Clarity through content</div>
-                    <div className="mt-2 sm:mt-3 text-sm sm:text-base text-white/85 font-light">Copy • Strategy • Comms</div>
-                  </div>
-                  <div
-                    className="pointer-events-none absolute inset-0 opacity-[0.06] mix-blend-overlay"
-                    style={{
-                      backgroundImage:
-                        "radial-gradient(circle at 1px 1px, rgba(255,255,255,.8) 1px, transparent 1px)",
-                      backgroundSize: "6px 6px",
-                    }}
-                  />
-                </div>
-                <div className="mt-3 sm:mt-4 text-slate-700 text-sm sm:text-base">
-                  Lean, modern, and fast to ship. This prototype mirrors the final structure we’ll deploy on Vercel.
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
+      <Hero
+        logoSrc={logoSrc}
+        fallbackLogo={fallbackLogo}
+        bannerLeft={bannerLeft}
+        bannerRight={bannerRight}
+      />
 
       {/* ABOUT */}
-      <section id="about" className="py-16 sm:py-20 lg:py-24 bg-white">
-        <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
-          <div className="grid lg:grid-cols-12 gap-6 sm:gap-10 items-start">
-            <div className="lg:col-span-5 reveal" data-reveal>
-              <h2 className="text-2xl sm:text-4xl font-semibold text-slate-900">About Fynstra</h2>
-              <p className="mt-3 sm:mt-4 text-slate-700">
-                We pair sharp language with sensible structure. From copywriting to process-minded consulting, our work turns ambiguity into action. Clear artifacts, faster decisions, better outcomes.
-              </p>
-              <ul className="mt-5 sm:mt-6 space-y-3 text-slate-700">
-                <li className="flex items-start gap-3"><span className="mt-1 h-2.5 w-2.5 rounded-full" style={{ background: brand.purple }}></span> Crisp copy and messaging frameworks</li>
-                <li className="flex items-start gap-3"><span className="mt-1 h-2.5 w-2.5 rounded-full" style={{ background: brand.purple }}></span> Practical consulting: strategy to operations</li>
-                <li className="flex items-start gap-3"><span className="mt-1 h-2.5 w-2.5 rounded-full" style={{ background: brand.purple }}></span> KYC/compliance support with plain-English communication</li>
-              </ul>
-            </div>
-            <div className="lg:col-span-7 reveal" data-reveal>
-              <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                {["Clear", "Consistent", "Credible"].map((k, i) => (
-                  <div key={k} className="rounded-2xl border border-black/10 bg-white p-5 sm:p-6 shadow-sm">
-                    <div className="text-xs sm:text-sm text-slate-500">Principle {i + 1}</div>
-                    <div className="mt-1 text-lg sm:text-xl font-semibold text-slate-900">{k}</div>
-                    <p className="mt-2 sm:mt-3 text-sm text-slate-600">We keep language simple, structure tidy, and promises realistic.</p>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
+      <About />
 
-      {/* SERVICES */}
+      {/* SERVICES – copywriting only */}
       <section id="services" className="py-16 sm:py-20 lg:py-24 bg-slate-50 relative">
         {/* dim background when any card is open */}
         {backdropVisible && (
@@ -597,10 +433,11 @@ export default function App({
           <div className="reveal" data-reveal>
             <h2 className="text-2xl sm:text-4xl font-semibold text-slate-900">Services</h2>
             <p className="mt-3 max-w-2xl text-slate-700">
-              Choose a focused engagement or mix-and-match. Open a card for scope and pricing details.
+              We’re currently focused on copywriting for early traction. Consulting will feather in later.
             </p>
           </div>
 
+          {/* Single centered card */}
           <div className="mt-8 sm:mt-10">
             <CardGrid
               items={services}
@@ -610,10 +447,14 @@ export default function App({
                 setOpenService(i);
               }}
               anyOpen={anyOpen}
+              center
+              cols={{ base: 1, md: 1, lg: 1 }}
               headingStrong
             />
+            <p className="mt-4 text-sm text-slate-500">Consulting <span className="italic">(coming soon)</span>.</p>
           </div>
 
+          {/* Packages */}
           <div className="mt-10 sm:mt-12">
             <CardGrid
               items={packages}
@@ -624,6 +465,7 @@ export default function App({
               }}
               anyOpen={anyOpen}
               headingStrong={false}
+              cols={{ base: 1, md: 2, lg: 3 }}
             />
           </div>
 
@@ -634,96 +476,301 @@ export default function App({
       </section>
 
       {/* TESTIMONIALS */}
-      <section id="testimonials" className="py-16 sm:py-20 lg:py-24 bg-white">
-        <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
-          <div className="reveal" data-reveal>
-            <h2 className="text-2xl sm:text-4xl font-semibold text-slate-900">Kind words</h2>
-            <p className="mt-3 text-slate-700 max-w-2xl">Placeholders until we add real quotes. Keep it concise and outcome-focused.</p>
-          </div>
-          <div className="mt-8 sm:mt-10 grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
-            {[1, 2, 3].map((i) => (
-              <figure key={i} className="reveal" data-reveal>
-                <div className="rounded-2xl border border-black/10 bg-slate-50 p-5 sm:p-6 h-full">
-                  <blockquote className="text-slate-700">“Fynstra made our message clearer and our rollout smoother. The copy just worked.”</blockquote>
-                  <figcaption className="mt-4 text-sm text-slate-500">Client name • Role, Company</figcaption>
-                </div>
-              </figure>
-            ))}
-          </div>
-        </div>
-      </section>
+      <Testimonials />
 
       {/* CONTACT */}
-      <section id="contact" className="py-16 sm:py-20 lg:py-24 bg-slate-50">
-        <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-10 items-start">
-            <div className="reveal" data-reveal>
-              <h2 className="text-2xl sm:text-4xl font-semibold text-slate-900">Let’s talk</h2>
-              <p className="mt-3 text-slate-700 max-w-xl">
-                Two ways to connect: drop a note or book a quick intro call. We’ll keep it focused on goals, scope, and timelines.
-              </p>
-              <div className="mt-6 flex flex-wrap gap-3">
-                <a href="#calendly" className="btn btn-pri">Book a call</a>
-                <a href="mailto:info@fynstra.co.uk" className="btn btn-ghost">Email us</a>
-              </div>
-              <div className="mt-8 sm:mt-10 text-sm text-slate-600">
-                Prefer a simple brief? Add bullet points about your goals, audience, deliverables, and deadline — we’ll reply with a scoped plan.
-              </div>
-            </div>
-
-            <div className="reveal" data-reveal>
-              <form className="rounded-2xl border border-black/10 bg-white p-5 sm:p-6 shadow-sm">
-                <div className="grid grid-cols-1 gap-4">
-                  <label className="block">
-                    <span className="text-sm text-slate-600">Name</span>
-                    <input className="mt-1 w-full rounded-xl border border-black/10 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-300" placeholder="Your name" />
-                  </label>
-                  <label className="block">
-                    <span className="text-sm text-slate-600">Email</span>
-                    <input type="email" className="mt-1 w-full rounded-xl border border-black/10 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-300" placeholder="you@company.com" />
-                  </label>
-                  <label className="block">
-                    <span className="text-sm text-slate-600">Project overview</span>
-                    <textarea rows={4} className="mt-1 w-full rounded-xl border border-black/10 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-300" placeholder="Goals, audience, deliverables, timeline" />
-                  </label>
-                  <button type="button" className="btn btn-pri w-full">Send (placeholder)</button>
-                </div>
-                <p className="mt-3 text-xs text-slate-500">
-                  This form is a front-end placeholder. Swap for a real form handler (Formspree, Resend, serverless function) when we go live.
-                </p>
-              </form>
-            </div>
-          </div>
-
-          {/* Calendly placeholder */}
-          <div id="calendly" className="mt-10 sm:mt-14 reveal" data-reveal>
-            <div className="rounded-2xl overflow-hidden border border-black/10 bg-white shadow-sm">
-              <div className="px-5 sm:px-6 py-4 border-b border-black/10 flex items-center justify-between">
-                <div>
-                  <div className="text-sm text-slate-500">Scheduling</div>
-                  <div className="text-base sm:text-lg font-semibold text-slate-900">Book a 20-minute intro</div>
-                </div>
-                <a href={CALENDLY_URL} className="btn btn-pri">Open Calendly</a>
-              </div>
-              <div className="aspect-[16/9] bg-slate-50 flex items-center justify-center text-slate-500">
-                <iframe title="Calendly" src={CALENDLY_URL} className="w-full h-full hidden" />
-                <div className="p-6 text-center">Calendly embed goes here. Replace URL above and show the iframe when ready.</div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
+      <Contact />
 
       {/* FOOTER */}
-      <footer className="py-8 sm:py-10 bg-white border-t border-black/5">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-3 sm:gap-4">
-          <div className="flex items-center gap-3">
-            <img src={logoSrc} onError={(e) => ((e.currentTarget.src = fallbackLogo))} alt="Fynstra" className="h-6 w-6 sm:h-7 sm:w-7 rounded-xl object-contain" />
-            <span className="text-slate-700 text-sm sm:text-base">© {new Date().getFullYear()} Fynstra Ltd</span>
-          </div>
-          <div className="text-slate-500 text-xs sm:text-sm">Built with React + Tailwind. Deployed on Vercel.</div>
-        </div>
-      </footer>
+      <Footer logoSrc={logoSrc} fallbackLogo={fallbackLogo} />
     </div>
+  );
+}
+
+/* =======================
+ * Subcomponents
+ * =======================*/
+
+function Header({
+  logoSrc,
+  fallbackLogo,
+  mobileOpen,
+  setMobileOpen,
+}: {
+  logoSrc: string;
+  fallbackLogo: string;
+  mobileOpen: boolean;
+  setMobileOpen: (v: boolean) => void;
+}) {
+  return (
+    <header className="sticky top-0 z-[70] backdrop-blur-sm bg-white/70 border-b border-black/5">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+        <a href="#top" className="flex items-center gap-3 group">
+          <img
+            src={logoSrc}
+            onError={(e) => ((e.currentTarget.src = fallbackLogo))}
+            alt="Fynstra"
+            className="h-10 w-10 sm:h-12 sm:w-12 object-contain"
+          />
+          <span className="text-xl sm:text-2xl font-semibold text-slate-900 group-hover:text-slate-700 transition">
+            Fynstra
+          </span>
+        </a>
+
+        <nav className="hidden md:flex items-center gap-6 text-slate-700">
+          <a href="#about" className="hover:text-slate-900">About</a>
+          <a href="#services" className="hover:text-slate-900">Services</a>
+          <a href="#testimonials" className="hover:text-slate-900">Testimonials</a>
+          <a href="#contact" className="hover:text-slate-900">Contact</a>
+          <a href="#contact" className="btn btn-pri ml-2">Book a chat</a>
+        </nav>
+
+        <button
+          type="button"
+          aria-label="Open menu"
+          className="md:hidden inline-flex items-center justify-center rounded-xl p-2 text-slate-600 hover:bg-slate-100"
+          onClick={() => setMobileOpen(true)}
+        >
+          <svg className="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <path d="M4 6h16M4 12h16M4 18h16" strokeLinecap="round" />
+          </svg>
+        </button>
+      </div>
+
+      {/* Mobile backdrop */}
+      <div
+        onClick={() => setMobileOpen(false)}
+        className={[
+          "md:hidden fixed inset-0 z-[80] bg-black/50 transition-opacity",
+          mobileOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
+        ].join(" ")}
+      />
+
+      {/* Mobile sheet (dark text) */}
+      <div
+        className={[
+          "md:hidden fixed top-16 inset-x-0 z-[85] px-4",
+          "transition-all duration-300 ease-[cubic-bezier(0.2,0.8,0.2,1)]",
+          mobileOpen ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-2 pointer-events-none"
+        ].join(" ")}
+      >
+        <div className="rounded-2xl border border-black/10 bg-white p-4 shadow-lg text-slate-900">
+          <a href="#about" onClick={() => setMobileOpen(false)} className="block px-2 py-2 rounded-lg hover:bg-slate-50">About</a>
+          <a href="#services" onClick={() => setMobileOpen(false)} className="block px-2 py-2 rounded-lg hover:bg-slate-50">Services</a>
+          <a href="#testimonials" onClick={() => setMobileOpen(false)} className="block px-2 py-2 rounded-lg hover:bg-slate-50">Testimonials</a>
+          <a href="#contact" onClick={() => setMobileOpen(false)} className="block px-2 py-2 rounded-lg hover:bg-slate-50">Contact</a>
+          <a href="#contact" onClick={() => setMobileOpen(false)} className="mt-3 btn btn-pri w-full">Book a chat</a>
+        </div>
+      </div>
+    </header>
+  );
+}
+
+function Hero({
+  logoSrc,
+  fallbackLogo,
+  bannerLeft,
+  bannerRight,
+}: {
+  logoSrc: string;
+  fallbackLogo: string;
+  bannerLeft: string;
+  bannerRight: string;
+}) {
+  return (
+    <section id="top" className="relative overflow-hidden">
+      <div className="absolute inset-0 -z-10">
+        <div
+          id="hero-bg"
+          className="absolute inset-0 transition-opacity duration-500"
+          style={{ background: "linear-gradient(90deg, var(--fynstra-blue) 0%, var(--fynstra-lavender) 50%, var(--fynstra-purple) 100%)" }}
+        />
+        <img src={bannerLeft} alt="Brand motif" className="absolute left-0 top-0 opacity-40 w-56 sm:w-72 md:w-96 -translate-x-[15%] -translate-y-[15%] blur-[1px]" />
+        <img src={bannerRight} alt="Brand motif" className="absolute right-[-20%] md:right-[-10%] bottom-[-28%] md:bottom-[-20%] opacity-50 w-[28rem] sm:w-[36rem] md:w-[48rem] rotate-6 blur-[0.5px]" />
+        <div className="absolute inset-0 bg-gradient-to-tr from-white/60 via-white/30 to-transparent" />
+      </div>
+
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-16 sm:py-20 lg:py-32">
+        <div className="grid lg:grid-cols-2 gap-8 sm:gap-10 items-center">
+          <div className="reveal" data-reveal>
+            <h1 className="text-[2rem] sm:text-5xl lg:text-6xl font-semibold text-slate-900 leading-tight">
+              Convert with <span className="heading-gradient">clear, credible</span> copy.
+            </h1>
+            <p className="mt-4 sm:mt-5 text-base sm:text-lg text-slate-700 max-w-xl">
+              We help startups ship copy that reads fast and feels right — landing pages, product pages, and content that
+              moves the work forward.
+            </p>
+            <div className="mt-6 sm:mt-8 flex flex-wrap gap-3">
+              <a href="#services" className="btn btn-pri">Explore services</a>
+              <a href="#contact" className="btn btn-ghost">Get in touch</a>
+            </div>
+            <div className="mt-8 sm:mt-10 flex items-center gap-4">
+              <img src={logoSrc} onError={(e) => ((e.currentTarget.src = fallbackLogo))} alt="Fynstra" className="h-9 w-9 sm:h-10 sm:w-10 rounded-xl object-contain" />
+            </div>
+          </div>
+
+          <div className="reveal" data-reveal>
+            <div className="relative rounded-3xl ring-1 ring-black/10 bg-white/60 backdrop-blur p-4 sm:p-6 shadow-xl">
+              <div className="relative aspect-[4/3] rounded-2xl overflow-hidden">
+                <div className="absolute inset-0" style={{ background: "linear-gradient(135deg, var(--fynstra-blue), var(--fynstra-purple))" }} />
+                <div className="absolute -top-16 -right-16 h-56 w-56 sm:h-64 sm:w-64 rounded-full bg-white/30 blur-3xl opacity-40" />
+                <div className="absolute -bottom-20 -left-20 h-64 w-64 sm:h-72 sm:w-72 rounded-full bg-[rgba(79,180,198,0.35)] blur-3xl opacity-50" />
+                <div className="relative z-10 h-full w-full flex flex-col items-start justify-center text-white px-6 sm:px-10">
+                  <img src={logoSrc} onError={(e) => ((e.currentTarget.src = fallbackLogo))} alt="Fynstra" className="h-16 w-16 sm:h-20 sm:w-20 rounded-2xl object-contain shadow-md ring-1 ring-white/40" />
+                  <div className="mt-3 text-xl sm:text-3xl font-semibold tracking-tight">Clarity through content</div>
+                  <div className="mt-2 sm:mt-3 text-sm sm:text-base text-white/85 font-light">Copy • Strategy • Comms</div>
+                </div>
+                <div
+                  className="pointer-events-none absolute inset-0 opacity-[0.06] mix-blend-overlay"
+                  style={{
+                    backgroundImage:
+                      "radial-gradient(circle at 1px 1px, rgba(255,255,255,.8) 1px, transparent 1px)",
+                    backgroundSize: "6px 6px",
+                  }}
+                />
+              </div>
+              <div className="mt-3 sm:mt-4 text-slate-700 text-sm sm:text-base">
+                Lean, modern, and fast to ship. This prototype mirrors the final structure we’ll deploy on Vercel.
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function About() {
+  return (
+    <section id="about" className="py-16 sm:py-20 lg:py-24 bg-white">
+      <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
+        <div className="grid lg:grid-cols-12 gap-6 sm:gap-10 items-start">
+          <div className="lg:col-span-5 reveal" data-reveal>
+            <h2 className="text-2xl sm:text-4xl font-semibold text-slate-900">About Fynstra</h2>
+            <p className="mt-3 sm:mt-4 text-slate-700">
+              We pair sharp language with sensible structure. From web copy to content systems, our work turns ambiguity
+              into action. Clear artifacts, faster decisions, better outcomes.
+            </p>
+            <ul className="mt-5 sm:mt-6 space-y-3 text-slate-700">
+              <li className="flex items-start gap-3"><span className="mt-1 h-2.5 w-2.5 rounded-full" style={{ background: brand.purple }}></span> Crisp copy and messaging frameworks</li>
+              <li className="flex items-start gap-3"><span className="mt-1 h-2.5 w-2.5 rounded-full" style={{ background: brand.purple }}></span> Practical guidance: structure, tone, voice</li>
+              <li className="flex items-start gap-3"><span className="mt-1 h-2.5 w-2.5 rounded-full" style={{ background: brand.purple }}></span> Lightweight process that respects your time</li>
+            </ul>
+          </div>
+          <div className="lg:col-span-7 reveal" data-reveal>
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              {["Clear", "Consistent", "Credible"].map((k, i) => (
+                <div key={k} className="rounded-2xl border border-black/10 bg-white p-5 sm:p-6 shadow-sm">
+                  <div className="text-xs sm:text-sm text-slate-500">Principle {i + 1}</div>
+                  <div className="mt-1 text-lg sm:text-xl font-semibold text-slate-900">{k}</div>
+                  <p className="mt-2 sm:mt-3 text-sm text-slate-600">We keep language simple, structure tidy, and promises realistic.</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function Testimonials() {
+  return (
+    <section id="testimonials" className="py-16 sm:py-20 lg:py-24 bg-white">
+      <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
+        <div className="reveal" data-reveal>
+          <h2 className="text-2xl sm:text-4xl font-semibold text-slate-900">Kind words</h2>
+          <p className="mt-3 text-slate-700 max-w-2xl">Placeholders until we add real quotes. Keep it concise and outcome-focused.</p>
+        </div>
+        <div className="mt-8 sm:mt-10 grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
+          {[1, 2, 3].map((i) => (
+            <figure key={i} className="reveal" data-reveal>
+              <div className="rounded-2xl border border-black/10 bg-slate-50 p-5 sm:p-6 h-full">
+                <blockquote className="text-slate-700">“Fynstra made our message clearer and our rollout smoother. The copy just worked.”</blockquote>
+                <figcaption className="mt-4 text-sm text-slate-500">Client name • Role, Company</figcaption>
+              </div>
+            </figure>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function Contact() {
+  return (
+    <section id="contact" className="py-16 sm:py-20 lg:py-24 bg-slate-50">
+      <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-10 items-start">
+          <div className="reveal" data-reveal>
+            <h2 className="text-2xl sm:text-4xl font-semibold text-slate-900">Let’s talk</h2>
+            <p className="mt-3 text-slate-700 max-w-xl">
+              Two ways to connect: drop a note or book a quick intro call. We’ll keep it focused on goals, scope, and timelines.
+            </p>
+            <div className="mt-6 flex flex-wrap gap-3">
+              <a href="#calendly" className="btn btn-pri">Book a call</a>
+              <a href="mailto:info@fynstra.co.uk" className="btn btn-ghost">Email us</a>
+            </div>
+            <div className="mt-8 sm:mt-10 text-sm text-slate-600">
+              Prefer a simple brief? Add bullet points about your goals, audience, deliverables, and deadline — we’ll reply with a scoped plan.
+            </div>
+          </div>
+
+          <div className="reveal" data-reveal>
+            <form className="rounded-2xl border border-black/10 bg-white p-5 sm:p-6 shadow-sm">
+              <div className="grid grid-cols-1 gap-4">
+                <label className="block">
+                  <span className="text-sm text-slate-600">Name</span>
+                  <input className="mt-1 w-full rounded-xl border border-black/10 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-300" placeholder="Your name" />
+                </label>
+                <label className="block">
+                  <span className="text-sm text-slate-600">Email</span>
+                  <input type="email" className="mt-1 w-full rounded-xl border border-black/10 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-300" placeholder="you@company.com" />
+                </label>
+                <label className="block">
+                  <span className="text-sm text-slate-600">Project overview</span>
+                  <textarea rows={4} className="mt-1 w-full rounded-xl border border-black/10 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-300" placeholder="Goals, audience, deliverables, timeline" />
+                </label>
+                <button type="button" className="btn btn-pri w-full">Send (placeholder)</button>
+              </div>
+              <p className="mt-3 text-xs text-slate-500">
+                This form is a front-end placeholder. Swap for a real form handler (Formspree, Resend, serverless function) when we go live.
+              </p>
+            </form>
+          </div>
+        </div>
+
+        {/* Calendly placeholder */}
+        <div id="calendly" className="mt-10 sm:mt-14 reveal" data-reveal>
+          <div className="rounded-2xl overflow-hidden border border-black/10 bg-white shadow-sm">
+            <div className="px-5 sm:px-6 py-4 border-b border-black/10 flex items-center justify-between">
+              <div>
+                <div className="text-sm text-slate-500">Scheduling</div>
+                <div className="text-base sm:text-lg font-semibold text-slate-900">Book a 20-minute intro</div>
+              </div>
+              <a href={CALENDLY_URL} className="btn btn-pri">Open Calendly</a>
+            </div>
+            <div className="aspect-[16/9] bg-slate-50 flex items-center justify-center text-slate-500">
+              <iframe title="Calendly" src={CALENDLY_URL} className="w-full h-full hidden" />
+              <div className="p-6 text-center">Calendly embed goes here. Replace URL above and show the iframe when ready.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function Footer({ logoSrc, fallbackLogo }: { logoSrc: string; fallbackLogo: string }) {
+  return (
+    <footer className="py-8 sm:py-10 bg-white border-t border-black/5">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-3 sm:gap-4">
+        <div className="flex items-center gap-3">
+          <img src={logoSrc} onError={(e) => ((e.currentTarget.src = fallbackLogo))} alt="Fynstra" className="h-6 w-6 sm:h-7 sm:w-7 rounded-xl object-contain" />
+          <span className="text-slate-700 text-sm sm:text-base">© {new Date().getFullYear()} Fynstra Ltd</span>
+        </div>
+        <div className="text-slate-500 text-xs sm:text-sm">Built with React + Tailwind. Deployed on Vercel.</div>
+      </div>
+    </footer>
   );
 }
