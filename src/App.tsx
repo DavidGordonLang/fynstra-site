@@ -1144,7 +1144,7 @@ function Footer({ logoSrc, fallbackLogo }: { logoSrc: string; fallbackLogo: stri
           />
           <span className="text-slate-700 text-sm sm:text-base">© {new Date().getFullYear()} Fynstra Ltd</span>
         </div>
-        <div className="text-slate-500 text-xs sm:text-sm">Built with React + Tailwind. Deployed on Vercel.</div>
+        <div className="text-slate-500 text-xs sm:text-sm">...</div>
       </div>
     </footer>
   );
