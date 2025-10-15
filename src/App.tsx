@@ -6,6 +6,8 @@ import React, { useEffect, useRef, useState } from "react";
  * - About = original airy layout + expandable principle cards (all expand together)
  * - Packages back to airy grid on desktop
  * - Open animation mirrors close (same timing, same curve, simultaneous overlay/panel)
+ * - NEW: Service card open anim fixed (mirrors close, no “instant” pop)
+ * - NEW: About cards get gradient that fades in on hover and stays when expanded
  */
 
 const brand = {
@@ -61,6 +63,7 @@ function useScrollReveal() {
     els.forEach((el) => io.observe(el));
     return () => io.disconnect();
   }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   return containerRef;
 }
 
@@ -99,84 +102,112 @@ function CardGrid({
 }) {
   const gridCols = `grid-cols-${cols.base} md:grid-cols-${cols.md} lg:grid-cols-${cols.lg}`;
 
+  // Inner item so each card can manage its “enter” animation cleanly.
+  const Item = ({
+    it,
+    i,
+  }: {
+    it: CardItem;
+    i: number;
+  }) => {
+    const isOpen = openIndex === i;
+    const isClosing = closingIndex === i;
+    const isActiveForPanel = isOpen || isClosing;
+
+    // Fade/dim siblings only while an overlay is actively open.
+    const dimOthers = overlayPhase === "open" && !isActiveForPanel;
+
+    // NEW: ensure open anim isn’t instant — give the browser one frame at opacity 0.
+    const [entered, setEntered] = useState(false);
+    useEffect(() => {
+      if (isOpen) {
+        setEntered(false);
+        const id = requestAnimationFrame(() => setEntered(true));
+        return () => cancelAnimationFrame(id);
+      } else {
+        setEntered(false);
+      }
+    }, [isOpen]);
+
+    return (
+      <div
+        key={it.title + i}
+        className={[
+          "relative rounded-2xl border bg-white shadow-sm transition-opacity",
+          "border-indigo-200",
+          isActiveForPanel ? "z-[60]" : "z-0",
+          dimOthers ? "opacity-40" : "opacity-100",
+        ].join(" ")}
+        style={{ transition: `opacity ${ANIM_MS}ms ${EASE}` }}
+      >
+        {/* Header */}
+        <button
+          type="button"
+          aria-expanded={isOpen}
+          aria-controls={`panel-${i}`}
+          onClick={() => onToggle(isOpen ? null : i)}
+          className="w-full text-left px-4 sm:px-5 py-3 sm:py-4 flex items-start gap-3"
+        >
+          <div className="flex-1">
+            <div
+              className={`font-semibold ${it.titleIsPurple ? "text-2xl" : "text-lg sm:text-xl"} ${
+                it.titleIsPurple ? "" : headingStrong ? "text-slate-900" : "text-slate-800"
+              }`}
+              style={it.titleIsPurple ? { color: brand.purple } : undefined}
+            >
+              {it.title}
+            </div>
+            {it.subtitle && <div className="mt-0.5 text-sm text-slate-700">{it.subtitle}</div>}
+          </div>
+
+          <div className="ml-2 shrink-0 flex flex-col items-end">
+            {it.rightMeta && <div className="text-[11px] sm:text-xs text-slate-500 mb-1">{it.rightMeta}</div>}
+            <svg
+              className={["h-5 w-5 text-slate-500 transition-transform", isOpen ? "rotate-180" : ""].join(" ")}
+              style={{ transition: `transform ${ANIM_MS}ms ${EASE}` }}
+              viewBox="0 0 24 24"
+            >
+              <path d="M6 9l6 6 6-6" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" />
+            </svg>
+          </div>
+        </button>
+
+        {/* Floating expandable panel (kept mounted while closing) */}
+        {isActiveForPanel && (
+          <div
+            id={`panel-${i}`}
+            className={[
+              "absolute left-0 right-0 z-[65] will-change-[transform,opacity]",
+              "transform-gpu",
+              "top-[calc(100%+0.5rem)]",
+              isOpen ? "pointer-events-auto" : "pointer-events-none",
+            ].join(" ")}
+            style={{
+              transition: `opacity ${ANIM_MS}ms ${EASE}, transform ${ANIM_MS}ms ${EASE}`,
+              // The key to mirror open/close: during open we show the first frame at 0, then animate to 1.
+              opacity: isOpen ? (entered ? 1 : 0) : 0,
+              transform: isOpen
+                ? entered
+                  ? "translateY(0) scale(1)"
+                  : "translateY(-4px) scale(0.985)"
+                : "translateY(-4px) scale(0.985)",
+            }}
+            aria-hidden={!isOpen}
+          >
+            <div className="rounded-2xl border border-black/10 bg-white px-4 sm:px-5 py-4 shadow-xl">
+              {it.panel}
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  };
+
   return (
     <div className={["grid gap-4 sm:gap-6", gridCols, center ? "place-items-center" : "", className].join(" ")}>
-      {items.map((it, i) => {
-        const isOpen = openIndex === i;
-        const isClosing = closingIndex === i;
-        const isActiveForPanel = isOpen || isClosing;
-
-        // Only dim siblings while overlayPhase is 'open'.
-        const dimOthers = overlayPhase === "open" && !isActiveForPanel;
-
-        return (
-          <div
-            key={it.title + i}
-            className={[
-              "relative rounded-2xl border bg-white shadow-sm transition-opacity",
-              "border-indigo-200",
-              isActiveForPanel ? "z-[60]" : "z-0",
-              dimOthers ? "opacity-40" : "opacity-100",
-            ].join(" ")}
-            style={{ transition: `opacity ${ANIM_MS}ms ${EASE}` }}
-          >
-            {/* Header */}
-            <button
-              type="button"
-              aria-expanded={isOpen}
-              aria-controls={`panel-${i}`}
-              onClick={() => onToggle(isOpen ? null : i)}
-              className="w-full text-left px-4 sm:px-5 py-3 sm:py-4 flex items-start gap-3"
-            >
-              <div className="flex-1">
-                <div
-                  className={`font-semibold ${it.titleIsPurple ? "text-2xl" : "text-lg sm:text-xl"} ${
-                    it.titleIsPurple ? "" : headingStrong ? "text-slate-900" : "text-slate-800"
-                  }`}
-                  style={it.titleIsPurple ? { color: brand.purple } : undefined}
-                >
-                  {it.title}
-                </div>
-                {it.subtitle && <div className="mt-0.5 text-sm text-slate-700">{it.subtitle}</div>}
-              </div>
-
-              <div className="ml-2 shrink-0 flex flex-col items-end">
-                {it.rightMeta && <div className="text-[11px] sm:text-xs text-slate-500 mb-1">{it.rightMeta}</div>}
-                <svg
-                  className={["h-5 w-5 text-slate-500 transition-transform", isOpen ? "rotate-180" : ""].join(" ")}
-                  style={{ transition: `transform ${ANIM_MS}ms ${EASE}` }}
-                  viewBox="0 0 24 24"
-                >
-                  <path d="M6 9l6 6 6-6" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" />
-                </svg>
-              </div>
-            </button>
-
-            {/* Floating expandable panel (kept mounted while closing) */}
-            {isActiveForPanel && (
-              <div
-                id={`panel-${i}`}
-                className={[
-                  "absolute left-0 right-0 z-[65] will-change-[transform,opacity]",
-                  "transform-gpu",
-                  "top-[calc(100%+0.5rem)]",
-                  isOpen ? "pointer-events-auto" : "pointer-events-none",
-                ].join(" ")}
-                style={{
-                  transition: `opacity ${ANIM_MS}ms ${EASE}, transform ${ANIM_MS}ms ${EASE}`,
-                  opacity: isOpen ? 1 : 0,
-                  transform: isOpen ? "translateY(0) scale(1)" : "translateY(-4px) scale(0.985)",
-                }}
-                aria-hidden={!isOpen}
-              >
-                <div className="rounded-2xl border border-black/10 bg-white px-4 sm:px-5 py-4 shadow-xl">
-                  {it.panel}
-                </div>
-              </div>
-            )}
-          </div>
-        );
-      })}
+      {items.map((it, i) => (
+        <Item key={it.title + ":" + i} it={it} i={i} />
+      ))}
     </div>
   );
 }
@@ -187,7 +218,6 @@ function CardGrid({
 
 function AboutPrinciples() {
   const [open, setOpen] = useState(false);
-
   const toggleAll = () => setOpen((v) => !v);
 
   const Card = ({ title, children }: { title: string; children: React.ReactNode }) => (
@@ -195,12 +225,41 @@ function AboutPrinciples() {
       type="button"
       onClick={toggleAll}
       aria-expanded={open}
-      className="text-left rounded-2xl border border-black/10 bg-white p-5 sm:p-6 shadow-sm hover:shadow-md transition-shadow"
+      className="group relative overflow-hidden text-left rounded-2xl border border-black/10 bg-white p-5 sm:p-6 shadow-sm hover:shadow-md transition-shadow"
+      style={{ transition: `box-shadow ${ANIM_MS}ms ${EASE}` }}
     >
-      <div className="flex items-start justify-between gap-3">
+      {/* Gradient layer (bottom-left ➜ top-right). Fades in on hover and when open. */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 rounded-2xl"
+        style={{
+          background:
+            "linear-gradient(to top right, var(--fynstra-blue) 0%, var(--fynstra-lavender) 55%, var(--fynstra-purple) 100%)",
+          opacity: open ? 0.9 : 0, // show while expanded
+          transition: `opacity ${ANIM_MS}ms ${EASE}`,
+        }}
+      />
+      {/* Also reveal on hover/focus */}
+      <style>{`
+        .group:hover > .gradient-reveal,
+        .group:focus-visible > .gradient-reveal { opacity: .9 }
+      `}</style>
+
+      {/* A second element with a class so hover can affect it in CSS (keeps inline timing constant) */}
+      <div
+        className="gradient-reveal pointer-events-none absolute inset-0 rounded-2xl"
+        style={{
+          background:
+            "linear-gradient(to top right, var(--fynstra-blue) 0%, var(--fynstra-lavender) 55%, var(--fynstra-purple) 100%)",
+          opacity: 0,
+          transition: `opacity ${ANIM_MS}ms ${EASE}`,
+        }}
+      />
+
+      <div className="relative flex items-start justify-between gap-3">
         <div className="text-lg sm:text-xl font-semibold text-slate-900">{title}</div>
         <svg
-          className={["h-5 w-5 text-slate-500 transition-transform", open ? "rotate-180" : ""].join(" ")}
+          className={["h-5 w-5 text-slate-600 transition-transform", open ? "rotate-180" : ""].join(" ")}
           style={{ transition: `transform ${ANIM_MS}ms ${EASE}` }}
           viewBox="0 0 24 24"
         >
@@ -209,14 +268,14 @@ function AboutPrinciples() {
       </div>
 
       <div
-        className="overflow-hidden"
+        className="relative overflow-hidden"
         style={{
           transition: `max-height ${ANIM_MS}ms ${EASE}, opacity ${ANIM_MS}ms ${EASE}`,
           maxHeight: open ? 200 : 0,
           opacity: open ? 1 : 0,
         }}
       >
-        <p className="mt-3 text-sm text-slate-600">
+        <p className="mt-3 text-sm text-slate-700">
           We keep language simple, structure tidy, and promises realistic.
         </p>
       </div>
