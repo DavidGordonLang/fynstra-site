@@ -207,7 +207,6 @@ function CardGrid({
 /* =========================
  * About principle cards (grid; expand all together)
  * =========================*/
-
 function AboutPrinciples() {
   const [open, setOpen] = useState(false);
   const toggleAll = () => setOpen((v) => !v);
@@ -226,7 +225,7 @@ function AboutPrinciples() {
       onClick={toggleAll}
       aria-expanded={open}
       data-open={open}
-      className="about-card group relative overflow-hidden text-left rounded-2xl border border-black/10 bg-white p-5 sm:p-6 shadow-sm hover:shadow-md transition-shadow"
+      className="about-card group relative overflow-hidden text-left rounded-2xl border border-black/10 bg-white p-5 sm:p-6 shadow-sm hover:shadow-md transition-shadow h-full flex flex-col"
       style={{ transition: `box-shadow ${ANIM_MS}ms ${EASE}` }}
     >
       {/* Gradient overlay — darkest bottom-left ➜ lightest top-right. */}
@@ -245,61 +244,58 @@ function AboutPrinciples() {
         .about-card[data-open="true"] .gradient-reveal { opacity: .9; }
       `}</style>
 
-      <div className="relative flex items-start justify-between gap-3">
+      {/* Header row gets a consistent height so chevrons align */}
+      <div className="relative flex items-start justify-between gap-3 min-h-[36px]">
         <div className="text-lg sm:text-xl font-semibold text-slate-900">{title}</div>
         <svg
           className={["h-5 w-5 text-slate-600 transition-transform", open ? "rotate-180" : ""].join(" ")}
           style={{ transition: `transform ${ANIM_MS}ms ${EASE}` }}
           viewBox="0 0 24 24"
         >
-          <path
-            d="M6 9l6 6 6-6"
-            stroke="currentColor"
-            strokeWidth="2"
-            fill="none"
-            strokeLinecap="round"
-          />
+          <path d="M6 9l6 6 6-6" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" />
         </svg>
       </div>
 
+      {/* Body: reserve space, align baselines; when closed, collapse cleanly */}
       <div
-        className="relative overflow-hidden"
+        className="relative overflow-hidden mt-1"
         style={{
           transition: `max-height ${ANIM_MS}ms ${EASE}, opacity ${ANIM_MS}ms ${EASE}`,
-          maxHeight: open ? 200 : 0,
+          maxHeight: open ? 220 : 0,
           opacity: open ? 1 : 0,
         }}
       >
-        <div className="mt-3 text-sm text-slate-700">{children}</div>
+        <div className="mt-3 text-sm text-slate-700 leading-relaxed">{children}</div>
       </div>
     </button>
   );
 
   return (
-    <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+    <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 items-stretch">
       <Card title="Clear">
         <p>
-          We use straightforward language to make your message easy to grasp at first glance.
-          clarity that helps your audience act quickly and with confidence.
+          We use straightforward language to make your message easy to grasp at first glance. Clarity that helps your
+          audience act quickly and with confidence.
         </p>
       </Card>
 
       <Card title="Consistent">
         <p>
-          Every piece of communication we write for you will follow the same rhythm, tone and structure.
-          Consistency builds trust and strengthens your brand voice.
+          Every piece of communication we write for you will follow the same rhythm, tone and structure. Consistency
+          builds trust and strengthens your brand voice.
         </p>
       </Card>
 
       <Card title="Credible">
         <p>
-          Our words are grounded in fact and intent.
-          Credibility turns attention into belief, belief into trust and trust into action.
+          Our words are grounded in fact and intent. Credibility turns attention into belief, belief into trust and trust
+          into action.
         </p>
       </Card>
     </div>
   );
 }
+
 /* =========================
  * App
  * =========================*/
