@@ -632,8 +632,14 @@ export default function App({
               <h2 className="text-2xl sm:text-4xl font-semibold text-slate-900">About Fynstra</h2>
               <p className="mt-3 sm:mt-4 text-slate-800">
                Businesses often struggle to sound the way they want.  That’s why we built Fynstra.
+                </p>
+              <p className="mt-3 sm:mt-4 text-slate-800">
 After years working across creative and corporate environments, we saw how often strong ideas were lost in translation. Communication is everything. Whether it’s an email campaign, a newsletter, a post on socials, or a blog sharing what your company does and why it matters. We make sure you’re heard and your message lands exactly as you intend it to.
+                </p>
+              <p className="mt-3 sm:mt-4 text-slate-800">  
 Our team brings years of experience across regulatory compliance, business process design, and financial crime prevention. From AML and KYC oversight to communication frameworks in complex, fast-moving industries. That perspective shapes how we write: precise, structured, and always true to intent.
+                  </p>
+              <p className="mt-3 sm:mt-4 text-slate-800">
 We take the time to understand your business, so we can speak from it the way it deserves. Concise, clear and always on point.
 Clarity in content.
               </p>
