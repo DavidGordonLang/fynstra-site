@@ -978,7 +978,7 @@ function Contact() {
             <div className="px-5 sm:px-6 py-4 border-b border-black/10 flex items-center justify-between">
               <div>
                 <div className="text-sm text-slate-500">Scheduling</div>
-                <div className="text-base sm:text-lg font-semibold text-slate-900">Book a 30-minute meeting</div>
+                <div className="text-base sm:text-lg font-semibold text-slate-900">Book a 20-minute meeting</div>
               </div>
               <a
                 href={CALENDLY_URL}
