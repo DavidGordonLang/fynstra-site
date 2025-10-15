@@ -920,6 +920,35 @@ function Testimonials() {
 }
 
 function Contact() {
+  const [status, setStatus] = useState<"idle" | "sending" | "success" | "error">("idle");
+  const formRef = useRef<HTMLFormElement | null>(null);
+
+  const onSubmit: React.FormEventHandler<HTMLFormElement> = (e) => {
+    e.preventDefault();
+    if (!formRef.current) return;
+
+    const fd = new FormData(formRef.current);
+    const name = String(fd.get("name") || "").trim();
+    const email = String(fd.get("email") || "").trim();
+    const message = String(fd.get("message") || "").trim();
+
+    if (!name || !email) {
+      setStatus("error");
+      return;
+    }
+
+    setStatus("sending");
+
+    // Simulate a network request (placeholder)
+    setTimeout(() => {
+      // At this point you would POST to your real endpoint
+      setStatus("success");
+      formRef.current?.reset();
+      // Auto-hide success after a few seconds
+      setTimeout(() => setStatus("idle"), 3000);
+    }, 800);
+  };
+
   return (
     <section id="contact" className="py-16 sm:py-20 lg:py-24">
       <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
@@ -939,40 +968,71 @@ function Contact() {
           </div>
 
           <div className="reveal" data-reveal>
-            <form className="rounded-2xl border border-black/10 bg-white p-5 sm:p-6 shadow-sm">
+            <form
+              ref={formRef}
+              onSubmit={onSubmit}
+              className="rounded-2xl border border-black/10 bg-white p-5 sm:p-6 shadow-sm"
+              noValidate
+            >
               <div className="grid grid-cols-1 gap-4">
                 <label className="block">
                   <span className="text-sm text-slate-600">Name</span>
                   <input
+                    name="name"
                     className="mt-1 w-full rounded-xl border border-black/10 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-300 text-slate-900"
                     placeholder="Your name"
+                    aria-invalid={status === "error" ? true : undefined}
                   />
                 </label>
+
                 <label className="block">
                   <span className="text-sm text-slate-600">Email</span>
                   <input
+                    name="email"
                     type="email"
                     className="mt-1 w-full rounded-xl border border-black/10 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-300 text-slate-900"
                     placeholder="you@company.com"
+                    aria-invalid={status === "error" ? true : undefined}
                   />
                 </label>
+
                 <label className="block">
                   <span className="text-sm text-slate-600">Project overview</span>
                   <textarea
+                    name="message"
                     rows={4}
                     className="mt-1 w-full rounded-xl border border-black/10 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-300 text-slate-900"
                     placeholder="Goals, audience, deliverables, timeline"
                   />
                 </label>
-                <button type="button" className="btn btn-pri w-full">Send (placeholder)</button>
+
+                <button
+                  type="submit"
+                  className="btn btn-pri w-full"
+                  disabled={status === "sending"}
+                >
+                  {status === "sending" ? "Sending…" : "Send (placeholder)"}
+                </button>
+
+                {/* Inline feedback */}
+                <div className="min-h-[1.25rem]" aria-live="polite">
+                  {status === "error" && (
+                    <p className="text-sm text-rose-600 mt-1">Please add your name and email.</p>
+                  )}
+                  {status === "success" && (
+                    <p className="text-sm text-emerald-600 mt-1">Thanks! We’ve received your message (placeholder).</p>
+                  )}
+                </div>
               </div>
+
               <p className="mt-3 text-xs text-slate-500">
-                This form is a front-end placeholder. Swap for a real form handler (Formspree, Resend, serverless function) when we go live.
+                This form is a front-end placeholder. Swap for a real form handler (Formspree, Resend, or a serverless function) when we go live.
               </p>
             </form>
           </div>
         </div>
 
+        {/* Calendly embed */}
         <div id="calendly" className="mt-10 sm:mt-14 reveal" data-reveal>
           <div className="rounded-2xl overflow-hidden border border-black/10 bg-white shadow-sm">
             <div className="px-5 sm:px-6 py-4 border-b border-black/10 flex items-center justify-between">
@@ -1004,6 +1064,7 @@ function Contact() {
     </section>
   );
 }
+
 
 function Footer({ logoSrc, fallbackLogo }: { logoSrc: string; fallbackLogo: string }) {
   return (
