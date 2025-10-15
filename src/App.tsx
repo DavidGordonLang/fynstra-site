@@ -721,7 +721,7 @@ Clarity in content.
         <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="reveal" data-reveal>
             <h2 className="text-2xl sm:text-4xl font-semibold text-slate-900">Services</h2>
-            <p className="mt-3 max-w-2xl text-slate-800">We’re currently focused on copywriting for early traction.</p>
+            <p className="mt-3 max-w-2xl text-slate-800"></p>
           </div>
 
           {/* Single centered service card */}
