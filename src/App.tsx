@@ -346,7 +346,7 @@ export default function App({
             ))}
           </ul>
           <p className="text-sm text-slate-600">
-            Pricing depends on research depth, voice development and revision cycles. See packages for typical ranges.
+            Pricing depends on research depth and revision cycles.
           </p>
         </div>
       ),
