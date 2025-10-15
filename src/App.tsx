@@ -583,20 +583,36 @@ export default function App({
 
         /* NEW: Hero card background that mirrors the uploaded banner */
         .hero-card-bg {
-          position: absolute; inset: 0;
-          /* Base sweep: light blue → lavender → purple */
-          background:
-            /* right-side "leaf" shape (darker purple) */
-            radial-gradient(140% 160% at 92% 60%, rgba(62, 38, 152, 0) 58%, rgba(94, 61, 196, 0.48) 59%, rgba(94, 61, 196, 0.75) 84%, rgba(94, 61, 196, 0.85) 100%),
-            linear-gradient(100deg, var(--fynstra-blue) 0%, var(--fynstra-lavender) 46%, var(--fynstra-purple) 100%);
-        }
-        /* Gentle polish to match the soft look of the image */
-        .hero-card-bg::after{
-          content:"";
-          position:absolute; inset:0;
-          background: radial-gradient(900px 900px at 20% 10%, rgba(255,255,255,.22) 0%, rgba(255,255,255,0) 60%);
-          pointer-events:none;
-        }
+  position: absolute;
+  inset: 0;
+  /* New: darker gradient concentrated bottom-right to match marked area */
+  background:
+    radial-gradient(
+      180% 180% at 90% 90%,
+      rgba(60, 30, 150, 0) 55%,
+      rgba(60, 30, 150, 0.35) 68%,
+      rgba(60, 30, 150, 0.6) 78%,
+      rgba(60, 30, 150, 0.8) 100%
+    ),
+    linear-gradient(
+      100deg,
+      var(--fynstra-blue) 0%,
+      var(--fynstra-lavender) 50%,
+      var(--fynstra-purple) 100%
+    );
+}
+
+.hero-card-bg::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    900px 900px at 20% 20%,
+    rgba(255, 255, 255, 0.25) 0%,
+    rgba(255, 255, 255, 0) 65%
+  );
+  pointer-events: none;
+}
       `}</style>
 
       {/* HEADER */}
