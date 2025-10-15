@@ -587,31 +587,32 @@ export default function App({
         }
 
         /* NEW: Hero card background that mirrors the uploaded banner */
-       .hero-card-bg {
+      .hero-card-bg {
   position: absolute;
   inset: 0;
-  /* Dark → light along the BL ➜ TR diagonal; darkest sits in bottom-left */
+  /* Keep dark in bottom-left, but add gentle highlight behind logo top-left */
   background:
-    /* soft vignette to deepen the bottom-left corner */
-    radial-gradient(140% 160% at 10% 90%, rgba(54, 34, 140, 0.35) 0%, rgba(54, 34, 140, 0) 55%),
-    /* main diagonal sweep: dark until ~60%, then lighten */
+    /* soft bright spot behind logo (top-left) */
+    radial-gradient(80% 80% at 15% 25%, rgba(255,255,255,0.45) 0%, rgba(255,255,255,0.15) 25%, rgba(255,255,255,0) 60%),
+    /* main diagonal sweep: dark bottom-left fading upward */
     linear-gradient(
       to top right,
-      rgba(84, 54, 201, 0.95) 0%,
-      rgba(124, 92, 240, 0.88) 35%,
-      rgba(168, 140, 255, 0.70) 60%,
-      rgba(200, 187, 255, 0.55) 78%,
-      rgba(207, 228, 255, 0.45) 100%
+      rgba(84,54,201,0.95) 0%,
+      rgba(124,92,240,0.88) 35%,
+      rgba(168,140,255,0.70) 60%,
+      rgba(200,187,255,0.55) 78%,
+      rgba(207,228,255,0.45) 100%
     );
 }
+
 .hero-card-bg::after {
   content: "";
   position: absolute;
   inset: 0;
-  /* subtle top-right sheen so the right side stays airy */
   background: radial-gradient(900px 900px at 85% 15%, rgba(255,255,255,0.22) 0%, rgba(255,255,255,0) 60%);
   pointer-events: none;
 }
+
       `}</style>
 
       {/* HEADER */}
