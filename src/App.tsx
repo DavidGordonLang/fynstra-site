@@ -846,7 +846,7 @@ function Hero({
               Convert with <span className="heading-gradient">clear, credible</span> copy.
             </h1>
             <p className="mt-4 sm:mt-5 text-base sm:text-lg text-slate-800 max-w-xl">
-              We help startups ship copy that reads fast and feels right — landing pages, product pages, and content that
+              We help businesses ship copy that reads fast and feels right. Landing pages, product pages and content that
               moves the work forward.
             </p>
             <div className="mt-6 sm:mt-8 flex flex-wrap gap-3">
