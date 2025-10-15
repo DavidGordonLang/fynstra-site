@@ -1028,7 +1028,7 @@ function Contact() {
               <a href="mailto:info@fynstra.co.uk" className="btn btn-ghost">Email us</a>
             </div>
             <div className="mt-8 sm:mt-10 text-sm text-slate-700">
-              Prefer a simple brief? Add bullet points about your goals, audience, deliverables, and deadline — we’ll reply with a scoped plan.
+              Prefer a simple brief? Add bullet points about your goals, audience, deliverables and deadline. We’ll reply with a scoped plan.
             </div>
           </div>
 
