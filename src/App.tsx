@@ -2,12 +2,8 @@ import React, { useEffect, useRef, useState } from "react";
 
 /**
  * Fynstra — One-page marketing site (Copywriting-first)
- * - Stronger sage background gradient
- * - About = original airy layout + expandable principle cards (all expand together)
- * - Packages back to airy grid on desktop
- * - Open animation mirrors close (same timing, same curve, simultaneous overlay/panel)
- * - Service/package auto-scrolls into view on open (no cutoff)
- * - About cards: gradient fades in on hover and persists while expanded (BL ➜ TR)
+ * - Hero: new mesh-style gradient background (soft sage → teal → lavender → purple)
+ * - All copy, layout, and logo remain unchanged
  */
 
 const brand = {
@@ -18,6 +14,8 @@ const brand = {
   ink: "#222222",
   subtext: "#555555",
   bg: "#FAFAFA",
+  sageLight: "#F3F8F4",
+  sageMid: "#E7F1EA",
 };
 
 const ANIM_MS = 420;
@@ -83,12 +81,12 @@ function CardGrid({
   openIndex,
   closingIndex,
   onToggle,
-  overlayPhase, // 'open' | 'closing' | 'idle'
+  overlayPhase,
   className = "",
   center = false,
   cols = { base: 1, md: 2, lg: 3 },
   headingStrong = true,
-  groupId, // "services" | "packages"
+  groupId,
 }: {
   items: CardItem[];
   openIndex: number | null;
@@ -110,7 +108,6 @@ function CardGrid({
 
     const dimOthers = overlayPhase === "open" && !isActiveForPanel;
 
-    // Ensure open anim doesn't pop in instantly
     const [entered, setEntered] = useState(false);
     useEffect(() => {
       if (isOpen) {
@@ -143,9 +140,9 @@ function CardGrid({
         >
           <div className="flex-1">
             <div
-              className={`font-semibold ${it.titleIsPurple ? "text-2xl" : "text-lg sm:text-xl"} ${
-                it.titleIsPurple ? "" : headingStrong ? "text-slate-900" : "text-slate-800"
-              }`}
+              className={`font-semibold ${
+                it.titleIsPurple ? "text-2xl" : "text-lg sm:text-xl"
+              } ${it.titleIsPurple ? "" : headingStrong ? "text-slate-900" : "text-slate-800"}`}
               style={it.titleIsPurple ? { color: brand.purple } : undefined}
             >
               {it.title}
@@ -259,9 +256,7 @@ function AboutPrinciples() {
           opacity: open ? 1 : 0,
         }}
       >
-        <p className="mt-3 text-sm text-slate-700">
-          We keep language simple, structure tidy, and promises realistic.
-        </p>
+        <p className="mt-3 text-sm text-slate-700">{children}</p>
       </div>
     </button>
   );
@@ -316,7 +311,7 @@ export default function App({
     document.documentElement.classList.add("scroll-smooth");
     const hero = document.getElementById("hero-bg");
     const onScroll = () => {
-      if (hero) (hero as HTMLElement).style.opacity = window.scrollY > 80 ? "0.7" : "1";
+      if (hero) (hero as HTMLElement).style.opacity = window.scrollY > 80 ? "0.78" : "1";
     };
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
@@ -375,7 +370,9 @@ export default function App({
               </li>
             ))}
           </ul>
-          <a href="#contact" className="btn btn-pri">Enquire</a>
+          <a href="#contact" className="btn btn-pri">
+            Enquire
+          </a>
         </div>
       ),
     },
@@ -394,7 +391,9 @@ export default function App({
               </li>
             ))}
           </ul>
-          <a href="#contact" className="btn btn-pri">Enquire</a>
+          <a href="#contact" className="btn btn-pri">
+            Enquire
+          </a>
         </div>
       ),
     },
@@ -417,7 +416,9 @@ export default function App({
               </li>
             ))}
           </ul>
-          <a href="#contact" className="btn btn-pri">Enquire</a>
+          <a href="#contact" className="btn btn-pri">
+            Enquire
+          </a>
         </div>
       ),
     },
@@ -440,7 +441,9 @@ export default function App({
               </li>
             ))}
           </ul>
-          <a href="#contact" className="btn btn-pri">Enquire</a>
+          <a href="#contact" className="btn btn-pri">
+            Enquire
+          </a>
         </div>
       ),
     },
@@ -461,7 +464,9 @@ export default function App({
               )
             )}
           </ul>
-          <a href="#contact" className="btn btn-pri">Enquire</a>
+          <a href="#contact" className="btn btn-pri">
+            Enquire
+          </a>
         </div>
       ),
     },
@@ -559,6 +564,13 @@ export default function App({
           --fynstra-text: ${brand.ink};
           --fynstra-subtext: ${brand.subtext};
           --fynstra-bg: ${brand.bg};
+
+          /* Mesh stops (tweak these to match your upload one-to-one) */
+          --mesh-sage: ${brand.sageLight};
+          --mesh-teal: ${brand.teal};
+          --mesh-lav: ${brand.lavender};
+          --mesh-purple: ${brand.purple};
+
           --font-primary: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
         }
         body, * { font-family: var(--font-primary); }
@@ -576,12 +588,12 @@ export default function App({
         .btn-ghost { border: 1px solid rgba(0,0,0,.1); color: #0f172a; background: transparent; }
         .btn-ghost:hover { background: rgba(0,0,0,.04); }
 
-        /* Site background — stronger soft sage gradient */
+        /* Site background — subtle, clean */
         .site-bg {
           background:
             radial-gradient(1200px 600px at 20% -10%, #EAF4ED 0%, transparent 60%),
             radial-gradient(1200px 700px at 100% 10%, #E6F1EA 0%, transparent 55%),
-            linear-gradient(180deg, #F3F8F4 0%, #E7F1EA 40%, #F7FBF8 100%);
+            linear-gradient(180deg, ${brand.sageLight} 0%, ${brand.sageMid} 40%, #F7FBF8 100%);
         }
       `}</style>
 
@@ -591,7 +603,7 @@ export default function App({
       {/* HERO */}
       <Hero logoSrc={logoSrc} fallbackLogo={fallbackLogo} bannerLeft={bannerLeft} bannerRight={bannerRight} />
 
-      {/* ABOUT — original airy layout, expandable cards on the right */}
+      {/* ABOUT */}
       <section id="about" className="py-16 sm:py-20 lg:py-24">
         <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
           <div className="grid lg:grid-cols-12 gap-6 sm:gap-10 items-start">
@@ -624,7 +636,7 @@ export default function App({
         </div>
       </section>
 
-      {/* SERVICES + PACKAGES (airy on desktop) */}
+      {/* SERVICES + PACKAGES */}
       <section id="services" className="py-16 sm:py-20 lg:py-24 relative">
         {/* Overlay */}
         {overlayMounted && (
@@ -714,16 +726,33 @@ function Header({
     <header className="sticky top-0 z-[70] backdrop-blur-sm bg-white/80 border-b border-black/5">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
         <a href="#top" className="flex items-center gap-3 group">
-          <img src={logoSrc} onError={(e) => ((e.currentTarget.src = fallbackLogo))} alt="Fynstra" className="h-10 w-10 sm:h-12 sm:w-12 object-contain" />
-          <span className="text-xl sm:text-2xl font-semibold text-slate-900 group-hover:text-slate-700 transition">Fynstra</span>
+          <img
+            src={logoSrc}
+            onError={(e) => ((e.currentTarget.src = fallbackLogo))}
+            alt="Fynstra"
+            className="h-10 w-10 sm:h-12 sm:w-12 object-contain"
+          />
+          <span className="text-xl sm:text-2xl font-semibold text-slate-900 group-hover:text-slate-700 transition">
+            Fynstra
+          </span>
         </a>
 
         <nav className="hidden md:flex items-center gap-6 text-slate-700">
-          <a href="#about" className="hover:text-slate-900">About</a>
-          <a href="#services" className="hover:text-slate-900">Services</a>
-          <a href="#testimonials" className="hover:text-slate-900">Testimonials</a>
-          <a href="#contact" className="hover:text-slate-900">Contact</a>
-          <a href="#contact" className="btn btn-pri ml-2">Book a chat</a>
+          <a href="#about" className="hover:text-slate-900">
+            About
+          </a>
+          <a href="#services" className="hover:text-slate-900">
+            Services
+          </a>
+          <a href="#testimonials" className="hover:text-slate-900">
+            Testimonials
+          </a>
+          <a href="#contact" className="hover:text-slate-900">
+            Contact
+          </a>
+          <a href="#contact" className="btn btn-pri ml-2">
+            Book a chat
+          </a>
         </nav>
 
         <button
@@ -760,11 +789,25 @@ function Header({
         }}
       >
         <div className="rounded-2xl border border-black/10 bg-white p-4 shadow-lg text-slate-900">
-          <a href="#about" onClick={() => setMobileOpen(false)} className="block px-2 py-2 rounded-lg hover:bg-slate-50">About</a>
-          <a href="#services" onClick={() => setMobileOpen(false)} className="block px-2 py-2 rounded-lg hover:bg-slate-50">Services</a>
-          <a href="#testimonials" onClick={() => setMobileOpen(false)} className="block px-2 py-2 rounded-lg hover:bg-slate-50">Testimonials</a>
-          <a href="#contact" onClick={() => setMobileOpen(false)} className="block px-2 py-2 rounded-lg hover:bg-slate-50">Contact</a>
-          <a href="#contact" onClick={() => setMobileOpen(false)} className="mt-3 btn btn-pri w-full">Book a chat</a>
+          <a href="#about" onClick={() => setMobileOpen(false)} className="block px-2 py-2 rounded-lg hover:bg-slate-50">
+            About
+          </a>
+          <a href="#services" onClick={() => setMobileOpen(false)} className="block px-2 py-2 rounded-lg hover:bg-slate-50">
+            Services
+          </a>
+          <a
+            href="#testimonials"
+            onClick={() => setMobileOpen(false)}
+            className="block px-2 py-2 rounded-lg hover:bg-slate-50"
+          >
+            Testimonials
+          </a>
+          <a href="#contact" onClick={() => setMobileOpen(false)} className="block px-2 py-2 rounded-lg hover:bg-slate-50">
+            Contact
+          </a>
+          <a href="#contact" onClick={() => setMobileOpen(false)} className="mt-3 btn btn-pri w-full">
+            Book a chat
+          </a>
         </div>
       </div>
     </header>
@@ -785,25 +828,47 @@ function Hero({
   return (
     <section id="top" className="relative overflow-hidden">
       <div className="absolute inset-0 -z-10">
+        {/* NEW HERO BACKGROUND — mesh style */}
         <div
           id="hero-bg"
-          className="absolute inset-0 transition-opacity duration-500"
+          className="absolute inset-0 transition-opacity duration-500 hero-mesh"
           style={{
-            background:
-              "linear-gradient(90deg, var(--fynstra-blue) 0%, var(--fynstra-lavender) 50%, var(--fynstra-purple) 100%)",
+            // Tweak these inline values if you want a per-section palette override
+            // Otherwise edit the --mesh-* variables in :root above
+            background: `
+              radial-gradient(35% 45% at 18% 22%, var(--mesh-sage) 0%, rgba(250,250,250,0) 72%),
+              radial-gradient(40% 48% at 82% 25%, color-mix(in oklab, var(--mesh-teal) 80%, white) 0%, rgba(250,250,250,0) 70%),
+              radial-gradient(46% 50% at 30% 78%, color-mix(in oklab, var(--mesh-lav) 85%, white) 0%, rgba(250,250,250,0) 68%),
+              radial-gradient(38% 46% at 86% 82%, color-mix(in oklab, var(--mesh-purple) 80%, white) 0%, rgba(250,250,250,0) 70%),
+              linear-gradient(180deg, #FFFFFF 0%, ${brand.sageLight} 16%, ${brand.sageMid} 52%, #FFFFFF 100%)
+            `,
+            filter: "saturate(1.02) contrast(1.02)",
           }}
         />
+        {/* Optional soft motifs (kept from your previous version) */}
         <img
           src={bannerLeft}
           alt="Brand motif"
-          className="absolute left-0 top-0 opacity-40 w-56 sm:w-72 md:w-96 -translate-x-[15%] -translate-y-[15%] blur-[1px]"
+          className="absolute left-0 top-0 opacity-30 w-56 sm:w-72 md:w-96 -translate-x-[15%] -translate-y-[15%] blur-[1px]"
         />
         <img
           src={bannerRight}
           alt="Brand motif"
-          className="absolute right-[-20%] md:right-[-10%] bottom-[-28%] md:bottom-[-20%] opacity-50 w-[28rem] sm:w-[36rem] md:w-[48rem] rotate-6 blur-[0.5px]"
+          className="absolute right-[-20%] md:right-[-10%] bottom-[-28%] md:bottom-[-20%] opacity-40 w-[28rem] sm:w-[36rem] md:w-[48rem] rotate-6 blur-[0.5px]"
         />
-        <div className="absolute inset-0 bg-gradient-to-tr from-white/60 via-white/30 to-transparent" />
+        {/* Subtle sheen + vignette to lift foreground */}
+        <div className="absolute inset-0 bg-gradient-to-tr from-white/60 via-white/30 to-transparent pointer-events-none" />
+        <div
+          className="absolute inset-0 pointer-events-none"
+          style={{
+            maskImage:
+              "radial-gradient(120% 120% at 50% 20%, rgba(0,0,0,1) 55%, rgba(0,0,0,0.8) 72%, rgba(0,0,0,0.35) 86%, rgba(0,0,0,0) 100%)",
+            WebkitMaskImage:
+              "radial-gradient(120% 120% at 50% 20%, rgba(0,0,0,1) 55%, rgba(0,0,0,0.8) 72%, rgba(0,0,0,0.35) 86%, rgba(0,0,0,0) 100%)",
+            background:
+              "radial-gradient(100px 100px at 30% 30%, rgba(255,255,255,0.4), rgba(255,255,255,0))",
+          }}
+        />
       </div>
 
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-16 sm:py-20 lg:py-32">
@@ -817,8 +882,12 @@ function Hero({
               moves the work forward.
             </p>
             <div className="mt-6 sm:mt-8 flex flex-wrap gap-3">
-              <a href="#services" className="btn btn-pri">Explore services</a>
-              <a href="#contact" className="btn btn-ghost">Get in touch</a>
+              <a href="#services" className="btn btn-pri">
+                Explore services
+              </a>
+              <a href="#contact" className="btn btn-ghost">
+                Get in touch
+              </a>
             </div>
             <div className="mt-8 sm:mt-10 flex items-center gap-4">
               <img
@@ -908,8 +977,12 @@ function Contact() {
               Two ways to connect: drop a note or book a quick intro call. We’ll keep it focused on goals, scope, and timelines.
             </p>
             <div className="mt-6 flex flex-wrap gap-3">
-              <a href="#calendly" className="btn btn-pri">Book a call</a>
-              <a href="mailto:info@fynstra.co.uk" className="btn btn-ghost">Email us</a>
+              <a href="#calendly" className="btn btn-pri">
+                Book a call
+              </a>
+              <a href="mailto:info@fynstra.co.uk" className="btn btn-ghost">
+                Email us
+              </a>
             </div>
             <div className="mt-8 sm:mt-10 text-sm text-slate-700">
               Prefer a simple brief? Add bullet points about your goals, audience, deliverables, and deadline — we’ll reply with a scoped plan.
@@ -922,7 +995,7 @@ function Contact() {
                 <label className="block">
                   <span className="text-sm text-slate-600">Name</span>
                   <input
-                    className="mt-1 w-full rounded-xl border border-black/10 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-300 text-slate-900"
+                    className="mt-1 w-full rounded-xl border border-black/10 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-300 text-slate-9 00"
                     placeholder="Your name"
                   />
                 </label>
@@ -942,7 +1015,9 @@ function Contact() {
                     placeholder="Goals, audience, deliverables, timeline"
                   />
                 </label>
-                <button type="button" className="btn btn-pri w-full">Send (placeholder)</button>
+                <button type="button" className="btn btn-pri w-full">
+                  Send (placeholder)
+                </button>
               </div>
               <p className="mt-3 text-xs text-slate-500">
                 This form is a front-end placeholder. Swap for a real form handler (Formspree, Resend, serverless function) when we go live.
@@ -959,13 +1034,13 @@ function Contact() {
                 <div className="text-sm text-slate-500">Scheduling</div>
                 <div className="text-base sm:text-lg font-semibold text-slate-900">Book a 20-minute intro</div>
               </div>
-              <a href={CALENDLY_URL} className="btn btn-pri">Open Calendly</a>
+              <a href={CALENDLY_URL} className="btn btn-pri">
+                Open Calendly
+              </a>
             </div>
             <div className="aspect-[16/9] bg-slate-50 flex items-center justify-center text-slate-500">
               <iframe title="Calendly" src={CALENDLY_URL} className="w-full h-full hidden" />
-              <div className="p-6 text-center">
-                Calendly embed goes here. Replace URL above and show the iframe when ready.
-              </div>
+              <div className="p-6 text-center">Calendly embed goes here. Replace URL above and show the iframe when ready.</div>
             </div>
           </div>
         </div>
