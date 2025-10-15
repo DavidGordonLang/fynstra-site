@@ -971,6 +971,38 @@ function Contact() {
           </div>
         </div>
 
+        <div id="calendly" className="mt-10 sm:mt-14 reveal" data-reveal>
+          <div className="rounded-2xl overflow-hidden border border-black/10 bg-white shadow-sm">
+            <div className="px-5 sm:px-6 py-4 border-b border-black/10 flex items-center justify-between">
+              <div>
+                <div className="text-sm text-slate-500">Scheduling</div>
+                <div className="text-base sm:text-lg font-semibold text-slate-900">Book a 30-minute meeting</div>
+              </div>
+              <a
+                href={CALENDLY_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btn btn-pri"
+              >
+                Open in Calendly
+              </a>
+            </div>
+
+            <div className="relative lg:aspect-[5/3] aspect-[16/9] bg-white overflow-hidden">
+              <iframe
+                title="Calendly booking"
+                src={`${CALENDLY_URL}?embed_domain=fynstra.co.uk&embed_type=Inline`}
+                className="absolute inset-0 w-full h-full border-0"
+                allow="camera; microphone; fullscreen"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
             {/* Calendly embed */}
         <div id="calendly" className="mt-10 sm:mt-14 reveal" data-reveal>
           <div className="rounded-2xl overflow-hidden border border-black/10 bg-white shadow-sm">
