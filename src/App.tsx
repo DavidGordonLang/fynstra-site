@@ -560,12 +560,17 @@ export default function App({
         }
         body, * { font-family: var(--font-primary); }
         .heading-gradient {
-          background: linear-gradient(90deg, var(--fynstra-blue) 0%, var(--fynstra-lavender) 50%, var(--fynstra-purple) 100%);
-          -webkit-background-clip: text; background-clip: text; color: transparent;
-        }
-        .reveal { opacity: 0; transform: translateY(12px); transition: opacity .6s ease, transform .6s ease; }
-        .reveal-in { opacity: 1; transform: translateY(0); }
-
+  /* Slightly deeper palette for better contrast on the sage background */
+  background: linear-gradient(
+    90deg,
+    #9FC8FF 0%,   /* deeper blue */
+    #A693FF 48%,  /* deeper lavender */
+    #6A49E8 100%  /* deeper purple */
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
         /* Buttons */
         .btn { display: inline-flex; align-items: center; justify-content: center; border-radius: 1rem; padding: .75rem 1.25rem; font-weight: 500; box-shadow: 0 1px 2px rgba(0,0,0,.06); transition: all .2s ease; }
         .btn-pri { background: var(--fynstra-purple); color: #fff; }
@@ -582,35 +587,29 @@ export default function App({
         }
 
         /* NEW: Hero card background that mirrors the uploaded banner */
-        .hero-card-bg {
+       .hero-card-bg {
   position: absolute;
   inset: 0;
-  /* New: darker gradient concentrated bottom-right to match marked area */
+  /* Dark → light along the BL ➜ TR diagonal; darkest sits in bottom-left */
   background:
-    radial-gradient(
-      180% 180% at 90% 90%,
-      rgba(60, 30, 150, 0) 55%,
-      rgba(60, 30, 150, 0.35) 68%,
-      rgba(60, 30, 150, 0.6) 78%,
-      rgba(60, 30, 150, 0.8) 100%
-    ),
+    /* soft vignette to deepen the bottom-left corner */
+    radial-gradient(140% 160% at 10% 90%, rgba(54, 34, 140, 0.35) 0%, rgba(54, 34, 140, 0) 55%),
+    /* main diagonal sweep: dark until ~60%, then lighten */
     linear-gradient(
-      100deg,
-      var(--fynstra-blue) 0%,
-      var(--fynstra-lavender) 50%,
-      var(--fynstra-purple) 100%
+      to top right,
+      rgba(84, 54, 201, 0.95) 0%,
+      rgba(124, 92, 240, 0.88) 35%,
+      rgba(168, 140, 255, 0.70) 60%,
+      rgba(200, 187, 255, 0.55) 78%,
+      rgba(207, 228, 255, 0.45) 100%
     );
 }
-
 .hero-card-bg::after {
   content: "";
   position: absolute;
   inset: 0;
-  background: radial-gradient(
-    900px 900px at 20% 20%,
-    rgba(255, 255, 255, 0.25) 0%,
-    rgba(255, 255, 255, 0) 65%
-  );
+  /* subtle top-right sheen so the right side stays airy */
+  background: radial-gradient(900px 900px at 85% 15%, rgba(255,255,255,0.22) 0%, rgba(255,255,255,0) 60%);
   pointer-events: none;
 }
       `}</style>
