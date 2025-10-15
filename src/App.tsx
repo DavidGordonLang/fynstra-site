@@ -214,7 +214,13 @@ function AboutPrinciples() {
 
   const GRAD_MS = 520; // elegant, slightly slower than panel timing
 
-  const Card = ({ title, children }: { title: string; children: React.ReactNode }) => (
+  const Card = ({
+    title,
+    children,
+  }: {
+    title: string;
+    children: React.ReactNode;
+  }) => (
     <button
       type="button"
       onClick={toggleAll}
@@ -246,7 +252,13 @@ function AboutPrinciples() {
           style={{ transition: `transform ${ANIM_MS}ms ${EASE}` }}
           viewBox="0 0 24 24"
         >
-          <path d="M6 9l6 6 6-6" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" />
+          <path
+            d="M6 9l6 6 6-6"
+            stroke="currentColor"
+            strokeWidth="2"
+            fill="none"
+            strokeLinecap="round"
+          />
         </svg>
       </div>
 
@@ -258,22 +270,36 @@ function AboutPrinciples() {
           opacity: open ? 1 : 0,
         }}
       >
-        <p className="mt-3 text-sm text-slate-700">
-          We keep language simple, structure tidy, and promises realistic.
-        </p>
+        <div className="mt-3 text-sm text-slate-700">{children}</div>
       </div>
     </button>
   );
 
   return (
     <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-      <Card title="Clear"> </Card>
-      <Card title="Consistent"> </Card>
-      <Card title="Credible"> </Card>
+      <Card title="Clear">
+        <p>
+          We use straightforward language to make your message easy to grasp at first glance —
+          clarity that helps your audience act quickly and confidently.
+        </p>
+      </Card>
+
+      <Card title="Consistent">
+        <p>
+          Every piece of communication follows the same rhythm, tone, and structure.
+          Consistency builds trust and strengthens your brand voice.
+        </p>
+      </Card>
+
+      <Card title="Credible">
+        <p>
+          Our words are grounded in fact and intent — no exaggeration, no fluff.
+          Credibility turns attention into belief and belief into action.
+        </p>
+      </Card>
     </div>
   );
 }
-
 /* =========================
  * App
  * =========================*/
