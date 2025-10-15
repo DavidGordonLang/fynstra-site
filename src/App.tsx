@@ -338,7 +338,7 @@ export default function App({
       panel: (
         <div className="text-slate-700 space-y-3">
           <ul className="space-y-2">
-            {["Web + landing pages", "About / Service pages", "Blogs, emails, proposals"].map((p) => (
+            {["Web + landing pages", "Technical Documents", "Blogs, emails, proposals"].map((p) => (
               <li key={p} className="flex gap-2 items-start">
                 <span className="mt-1 h-2 w-2 rounded-full" style={{ background: brand.purple }} />
                 {p}
