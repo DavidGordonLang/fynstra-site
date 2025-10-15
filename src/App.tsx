@@ -83,12 +83,12 @@ function CardGrid({
   openIndex,
   closingIndex,
   onToggle,
-  overlayPhase, // 'open' | 'closing' | 'idle'
+  overlayPhase,
   className = "",
   center = false,
   cols = { base: 1, md: 2, lg: 3 },
   headingStrong = true,
-  groupId, // "services" | "packages"
+  groupId,
 }: {
   items: CardItem[];
   openIndex: number | null;
@@ -110,7 +110,6 @@ function CardGrid({
 
     const dimOthers = overlayPhase === "open" && !isActiveForPanel;
 
-    // Ensure open anim doesn't pop in instantly
     const [entered, setEntered] = useState(false);
     useEffect(() => {
       if (isOpen) {
@@ -212,7 +211,7 @@ function AboutPrinciples() {
   const [open, setOpen] = useState(false);
   const toggleAll = () => setOpen((v) => !v);
 
-  const GRAD_MS = 520; // elegant, slightly slower than panel timing
+  const GRAD_MS = 520;
 
   const Card = ({ title, children }: { title: string; children: React.ReactNode }) => (
     <button
@@ -232,7 +231,6 @@ function AboutPrinciples() {
             "linear-gradient(to top right, var(--fynstra-purple) 0%, var(--fynstra-lavender) 55%, var(--fynstra-blue) 100%)",
         }}
       />
-      {/* Hover / focus / open states */}
       <style>{`
         .about-card .gradient-reveal { opacity: 0; transition: opacity ${GRAD_MS}ms ${EASE}; }
         .about-card:hover .gradient-reveal,
@@ -297,7 +295,7 @@ export default function App({
   const [closingService, setClosingService] = useState<number | null>(null);
   const [closingPackage, setClosingPackage] = useState<number | null>(null);
 
-  // Overlay phase: drives opacity, blur, and sibling dim timing
+  // Overlay phase
   const [overlayPhase, setOverlayPhase] = useState<"open" | "closing" | "idle">("idle");
   const overlayMounted = overlayPhase !== "idle";
 
@@ -322,7 +320,6 @@ export default function App({
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  // --- Auto scroll helper (keeps the opened card comfortably in view)
   const scrollCardIntoView = (group: "services" | "packages", index: number) => {
     requestAnimationFrame(() => {
       const el = document.getElementById(`card-header-${group}-${index}`);
@@ -583,6 +580,23 @@ export default function App({
             radial-gradient(1200px 700px at 100% 10%, #E6F1EA 0%, transparent 55%),
             linear-gradient(180deg, #F3F8F4 0%, #E7F1EA 40%, #F7FBF8 100%);
         }
+
+        /* NEW: Hero card background that mirrors the uploaded banner */
+        .hero-card-bg {
+          position: absolute; inset: 0;
+          /* Base sweep: light blue → lavender → purple */
+          background:
+            /* right-side "leaf" shape (darker purple) */
+            radial-gradient(140% 160% at 92% 60%, rgba(62, 38, 152, 0) 58%, rgba(94, 61, 196, 0.48) 59%, rgba(94, 61, 196, 0.75) 84%, rgba(94, 61, 196, 0.85) 100%),
+            linear-gradient(100deg, var(--fynstra-blue) 0%, var(--fynstra-lavender) 46%, var(--fynstra-purple) 100%);
+        }
+        /* Gentle polish to match the soft look of the image */
+        .hero-card-bg::after{
+          content:"";
+          position:absolute; inset:0;
+          background: radial-gradient(900px 900px at 20% 10%, rgba(255,255,255,.22) 0%, rgba(255,255,255,0) 60%);
+          pointer-events:none;
+        }
       `}</style>
 
       {/* HEADER */}
@@ -591,7 +605,7 @@ export default function App({
       {/* HERO */}
       <Hero logoSrc={logoSrc} fallbackLogo={fallbackLogo} bannerLeft={bannerLeft} bannerRight={bannerRight} />
 
-      {/* ABOUT — original airy layout, expandable cards on the right */}
+      {/* ABOUT */}
       <section id="about" className="py-16 sm:py-20 lg:py-24">
         <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
           <div className="grid lg:grid-cols-12 gap-6 sm:gap-10 items-start">
@@ -624,7 +638,7 @@ export default function App({
         </div>
       </section>
 
-      {/* SERVICES + PACKAGES (airy on desktop) */}
+      {/* SERVICES + PACKAGES */}
       <section id="services" className="py-16 sm:py-20 lg:py-24 relative">
         {/* Overlay */}
         {overlayMounted && (
@@ -663,7 +677,7 @@ export default function App({
             />
           </div>
 
-          {/* Packages — airy grid on desktop */}
+          {/* Packages */}
           <div className="mt-10 sm:mt-12">
             <CardGrid
               items={packages}
@@ -831,16 +845,13 @@ function Hero({
           </div>
 
           <div className="reveal" data-reveal>
+            {/* Card container unchanged; only the background inside is replaced */}
             <div className="relative rounded-3xl ring-1 ring-black/10 bg-white/60 backdrop-blur p-4 sm:p-6 shadow-xl">
               <div className="relative aspect-[4/3] rounded-2xl overflow-hidden">
-                <div
-                  className="absolute inset-0"
-                  style={{
-                    background: "linear-gradient(135deg, var(--fynstra-blue), var(--fynstra-purple))",
-                  }}
-                />
-                <div className="absolute -top-16 -right-16 h-56 w-56 sm:h-64 sm:w-64 rounded-full bg-white/30 blur-3xl opacity-40" />
-                <div className="absolute -bottom-20 -left-20 h-64 w-64 sm:h-72 sm:w-72 rounded-full bg-[rgba(79,180,198,0.35)] blur-3xl opacity-50" />
+                {/* NEW background that matches the uploaded banner */}
+                <div className="hero-card-bg" />
+
+                {/* Foreground content unchanged */}
                 <div className="relative z-10 h-full w-full flex flex-col items-start justify-center text-white px-6 sm:px-10">
                   <img
                     src={logoSrc}
@@ -851,13 +862,6 @@ function Hero({
                   <div className="mt-3 text-xl sm:text-3xl font-semibold tracking-tight">Clarity through content</div>
                   <div className="mt-2 sm:mt-3 text-sm sm:text-base text-white/85 font-light">Copy • Strategy • Comms</div>
                 </div>
-                <div
-                  className="pointer-events-none absolute inset-0 opacity-[0.06] mix-blend-overlay"
-                  style={{
-                    backgroundImage: "radial-gradient(circle at 1px 1px, rgba(255,255,255,.8) 1px, transparent 1px)",
-                    backgroundSize: "6px 6px",
-                  }}
-                />
               </div>
               <div className="mt-3 sm:mt-4 text-slate-700 text-sm sm:text-base">
                 Lean, modern, and fast to ship. This prototype mirrors the final structure we’ll deploy on Vercel.
@@ -985,7 +989,7 @@ function Footer({ logoSrc, fallbackLogo }: { logoSrc: string; fallbackLogo: stri
             alt="Fynstra"
             className="h-6 w-6 sm:h-7 sm:w-7 rounded-xl object-contain"
           />
-          <span className="text-slate-700 text-sm sm:text-base">© {new Date().getFullYear()} Fynstra Ltd</span>
+        <span className="text-slate-700 text-sm sm:text-base">© {new Date().getFullYear()} Fynstra Ltd</span>
         </div>
         <div className="text-slate-500 text-xs sm:text-sm">Built with React + Tailwind. Deployed on Vercel.</div>
       </div>
