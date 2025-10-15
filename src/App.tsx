@@ -41,7 +41,7 @@ const PUBLIC_LOGO = "/fynstra-logo.png";
 const fallbackLogo = svgTile(brand.lavender, brand.purple);
 const defaultBannerLeft = svgTile(brand.blue, brand.lavender);
 const defaultBannerRight = svgTile(brand.lavender, brand.purple);
-const CALENDLY_URL = "https://calendly.com/";
+const CALENDLY_URL = "https://calendly.com/fynstrabd/30min";
 
 function useScrollReveal() {
   const containerRef = useRef<HTMLDivElement | null>(null);
@@ -972,27 +972,35 @@ function Contact() {
         </div>
 
         {/* Calendly placeholder */}
-        <div id="calendly" className="mt-10 sm:mt-14 reveal" data-reveal>
-          <div className="rounded-2xl overflow-hidden border border-black/10 bg-white shadow-sm">
-            <div className="px-5 sm:px-6 py-4 border-b border-black/10 flex items-center justify-between">
-              <div>
-                <div className="text-sm text-slate-500">Scheduling</div>
-                <div className="text-base sm:text-lg font-semibold text-slate-900">Book a 20-minute intro</div>
-              </div>
-              <a href={CALENDLY_URL} className="btn btn-pri">Open Calendly</a>
-            </div>
-            <div className="aspect-[16/9] bg-slate-50 flex items-center justify-center text-slate-500">
-              <iframe title="Calendly" src={CALENDLY_URL} className="w-full h-full hidden" />
-              <div className="p-6 text-center">
-                Calendly embed goes here. Replace URL above and show the iframe when ready.
-              </div>
-            </div>
-          </div>
-        </div>
+     {/* Calendly embed */}
+<div id="calendly" className="mt-10 sm:mt-14 reveal" data-reveal>
+  <div className="rounded-2xl overflow-hidden border border-black/10 bg-white shadow-sm">
+    <div className="px-5 sm:px-6 py-4 border-b border-black/10 flex items-center justify-between">
+      <div>
+        <div className="text-sm text-slate-500">Scheduling</div>
+        <div className="text-base sm:text-lg font-semibold text-slate-900">Book a 30-minute meeting</div>
       </div>
-    </section>
-  );
-}
+      <a
+        href={CALENDLY_URL}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="btn btn-pri"
+      >
+        Open in Calendly
+      </a>
+    </div>
+
+    {/* Embedded calendar */}
+    <div className="relative lg:aspect-[5/3] aspect-[16/9] bg-white flex items-center justify-center overflow-hidden">
+      <iframe
+        title="Calendly booking"
+        src={`${CALENDLY_URL}?embed_domain=fynstra.co.uk&embed_type=Inline`}
+        className="absolute inset-0 w-full h-full border-0"
+        allow="camera; microphone; fullscreen"
+      />
+    </div>
+  </div>
+</div>
 
 function Footer({ logoSrc, fallbackLogo }: { logoSrc: string; fallbackLogo: string }) {
   return (
