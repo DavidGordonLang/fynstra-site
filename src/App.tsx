@@ -279,22 +279,22 @@ function AboutPrinciples() {
     <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
       <Card title="Clear">
         <p>
-          We use straightforward language to make your message easy to grasp at first glance —
-          clarity that helps your audience act quickly and confidently.
+          We use straightforward language to make your message easy to grasp at first glance.
+          clarity that helps your audience act quickly and with confidence.
         </p>
       </Card>
 
       <Card title="Consistent">
         <p>
-          Every piece of communication follows the same rhythm, tone, and structure.
+          Every piece of communication we write for you will follow the same rhythm, tone and structure.
           Consistency builds trust and strengthens your brand voice.
         </p>
       </Card>
 
       <Card title="Credible">
         <p>
-          Our words are grounded in fact and intent — no exaggeration, no fluff.
-          Credibility turns attention into belief and belief into action.
+          Our words are grounded in fact and intent.
+          Credibility turns attention into belief, belief into trust and trust into action.
         </p>
       </Card>
     </div>
