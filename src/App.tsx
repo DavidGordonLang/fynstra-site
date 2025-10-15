@@ -88,7 +88,7 @@ function CardGrid({
   center = false,
   cols = { base: 1, md: 2, lg: 3 },
   headingStrong = true,
-  groupId, // "services" | "packages" (used for auto-scroll targeting)
+  groupId, // "services" | "packages"
 }: {
   items: CardItem[];
   openIndex: number | null;
@@ -103,16 +103,14 @@ function CardGrid({
 }) {
   const gridCols = `grid-cols-${cols.base} md:grid-cols-${cols.md} lg:grid-cols-${cols.lg}`;
 
-  // Inner item so each card can manage its “enter” animation cleanly.
   const Item = ({ it, i }: { it: CardItem; i: number }) => {
     const isOpen = openIndex === i;
     const isClosing = closingIndex === i;
     const isActiveForPanel = isOpen || isClosing;
 
-    // Dim siblings only while overlay is actively “open”.
     const dimOthers = overlayPhase === "open" && !isActiveForPanel;
 
-    // Prevent the “instant pop” on open by giving one frame at the closed state.
+    // Ensure open anim doesn't pop in instantly
     const [entered, setEntered] = useState(false);
     useEffect(() => {
       if (isOpen) {
@@ -214,29 +212,32 @@ function AboutPrinciples() {
   const [open, setOpen] = useState(false);
   const toggleAll = () => setOpen((v) => !v);
 
+  const GRAD_MS = 520; // elegant, slightly slower than panel timing
+
   const Card = ({ title, children }: { title: string; children: React.ReactNode }) => (
     <button
       type="button"
       onClick={toggleAll}
       aria-expanded={open}
-      className="group relative overflow-hidden text-left rounded-2xl border border-black/10 bg-white p-5 sm:p-6 shadow-sm hover:shadow-md transition-shadow"
+      data-open={open}
+      className="about-card group relative overflow-hidden text-left rounded-2xl border border-black/10 bg-white p-5 sm:p-6 shadow-sm hover:shadow-md transition-shadow"
       style={{ transition: `box-shadow ${ANIM_MS}ms ${EASE}` }}
     >
-      {/* Gradient overlay — darkest bottom-left ➜ lightest top-right.
-          - Fades in on hover via CSS
-          - Stays visible while open via inline style */}
+      {/* Gradient overlay — darkest bottom-left ➜ lightest top-right. */}
       <div
+        aria-hidden
         className="gradient-reveal pointer-events-none absolute inset-0 rounded-2xl"
         style={{
           background:
-            "linear-gradient(to top right, var(--fynstra-purple) 0%, var(--fynstra-lavender) 50%, var(--fynstra-blue) 100%)",
-          opacity: open ? 0.9 : 0,
-          transition: `opacity ${ANIM_MS}ms ${EASE}`,
+            "linear-gradient(to top right, var(--fynstra-purple) 0%, var(--fynstra-lavender) 55%, var(--fynstra-blue) 100%)",
         }}
       />
+      {/* Hover / focus / open states */}
       <style>{`
-        .group:hover .gradient-reveal,
-        .group:focus-visible .gradient-reveal { opacity: .9 }
+        .about-card .gradient-reveal { opacity: 0; transition: opacity ${GRAD_MS}ms ${EASE}; }
+        .about-card:hover .gradient-reveal,
+        .about-card:focus-visible .gradient-reveal,
+        .about-card[data-open="true"] .gradient-reveal { opacity: .9; }
       `}</style>
 
       <div className="relative flex items-start justify-between gap-3">
@@ -321,9 +322,8 @@ export default function App({
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  // --- Auto scroll helper
+  // --- Auto scroll helper (keeps the opened card comfortably in view)
   const scrollCardIntoView = (group: "services" | "packages", index: number) => {
-    // Let the DOM commit this frame, then scroll the header into center.
     requestAnimationFrame(() => {
       const el = document.getElementById(`card-header-${group}-${index}`);
       el?.scrollIntoView({ behavior: "smooth", block: "center", inline: "nearest" });
