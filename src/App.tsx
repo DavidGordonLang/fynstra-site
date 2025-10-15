@@ -2,7 +2,12 @@ import React, { useEffect, useRef, useState } from "react";
 
 /**
  * Fynstra — One-page marketing site (Copywriting-first)
- * Fix: Card collapse, dim fade-up, and blur fade-out start together.
+ * Updates:
+ * - Pale sage gradient background site-wide.
+ * - About: three linked dropdown rows; clicking any toggles all together.
+ * - Enquire buttons close overlay/cards first, then smooth-scroll to #contact.
+ * - Contact input text is fully dark; improved placeholders/caret.
+ * - Keeps your spotlight overlay + card grid behaviour/timing.
  */
 
 const brand = {
@@ -13,6 +18,8 @@ const brand = {
   ink: "#222222",
   subtext: "#555555",
   bg: "#FAFAFA",
+  sage1: "#F6FBF7", // pale sage
+  sage2: "#EEF6F1", // slightly deeper sage
 };
 
 const ANIM_MS = 420;
@@ -225,6 +232,95 @@ export default function App({
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
+  /* ---------- Helpers ---------- */
+
+  const startCloseService = (idx: number) => {
+    setClosingService(idx);
+    setOpenService(null);
+    setTimeout(() => setClosingService(null), ANIM_MS);
+  };
+  const startClosePackage = (idx: number) => {
+    setClosingPackage(idx);
+    setOpenPackage(null);
+    setTimeout(() => setClosingPackage(null), ANIM_MS);
+  };
+
+  const closeAllWithOverlay = () => {
+    setOverlayPhase("closing");
+    if (openService !== null) startCloseService(openService);
+    if (openPackage !== null) startClosePackage(openPackage);
+    setTimeout(() => setOverlayPhase("idle"), ANIM_MS);
+  };
+
+  // Close + then smooth scroll to contact
+  const handleEnquireClick = () => {
+    // start close immediately
+    closeAllWithOverlay();
+    // allow state to flush, then scroll
+    requestAnimationFrame(() => {
+      const el = document.querySelector("#contact");
+      if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
+  };
+
+  /* ---------- Toggles ---------- */
+
+  const toggleService = (i: number | null) => {
+    if (i === null) {
+      if (openService !== null) closeAllWithOverlay();
+      return;
+    }
+    if (openPackage !== null) {
+      setClosingPackage(openPackage);
+      setTimeout(() => setClosingPackage(null), ANIM_MS);
+      setOpenPackage(null);
+    }
+    if (openService === null) {
+      setOverlayPhase("open");
+      setOpenService(i);
+    } else if (openService === i) {
+      closeAllWithOverlay();
+    } else {
+      const prev = openService;
+      setClosingService(prev);
+      setOpenService(null);
+      setTimeout(() => {
+        setClosingService(null);
+        setOpenService(i);
+      }, ANIM_MS);
+      if (overlayPhase === "idle") setOverlayPhase("open");
+    }
+  };
+
+  const togglePackage = (i: number | null) => {
+    if (i === null) {
+      if (openPackage !== null) closeAllWithOverlay();
+      return;
+    }
+    if (openService !== null) {
+      setClosingService(openService);
+      setTimeout(() => setClosingService(null), ANIM_MS);
+      setOpenService(null);
+    }
+    if (openPackage === null) {
+      setOverlayPhase("open");
+      setOpenPackage(i);
+    } else if (openPackage === i) {
+      closeAllWithOverlay();
+    } else {
+      const prev = openPackage;
+      setClosingPackage(prev);
+      setOpenPackage(null);
+      setTimeout(() => {
+        setClosingPackage(null);
+        setOpenPackage(i);
+      }, ANIM_MS);
+      if (overlayPhase === "idle") setOverlayPhase("open");
+    }
+  };
+
+  /* ---------- Data ---------- */
+
   // Services (copywriting only)
   const services: CardItem[] = [
     {
@@ -270,7 +366,9 @@ export default function App({
               </li>
             ))}
           </ul>
-          <a href="#contact" className="btn btn-pri">Enquire</a>
+          <button type="button" className="btn btn-pri" onClick={handleEnquireClick}>
+            Enquire
+          </button>
         </div>
       ),
     },
@@ -289,7 +387,9 @@ export default function App({
               </li>
             ))}
           </ul>
-          <a href="#contact" className="btn btn-pri">Enquire</a>
+          <button type="button" className="btn btn-pri" onClick={handleEnquireClick}>
+            Enquire
+          </button>
         </div>
       ),
     },
@@ -312,7 +412,9 @@ export default function App({
               </li>
             ))}
           </ul>
-          <a href="#contact" className="btn btn-pri">Enquire</a>
+          <button type="button" className="btn btn-pri" onClick={handleEnquireClick}>
+            Enquire
+          </button>
         </div>
       ),
     },
@@ -335,7 +437,9 @@ export default function App({
               </li>
             ))}
           </ul>
-          <a href="#contact" className="btn btn-pri">Enquire</a>
+          <button type="button" className="btn btn-pri" onClick={handleEnquireClick}>
+            Enquire
+          </button>
         </div>
       ),
     },
@@ -356,97 +460,22 @@ export default function App({
               )
             )}
           </ul>
-          <a href="#contact" className="btn btn-pri">Enquire</a>
+          <button type="button" className="btn btn-pri" onClick={handleEnquireClick}>
+            Enquire
+          </button>
         </div>
       ),
     },
   ];
 
-  /* ---------- Close helpers ---------- */
-
-  const startCloseService = (idx: number) => {
-    setClosingService(idx);
-    setOpenService(null);
-    // closing anim finishes after ANIM_MS
-    setTimeout(() => setClosingService(null), ANIM_MS);
-  };
-  const startClosePackage = (idx: number) => {
-    setClosingPackage(idx);
-    setOpenPackage(null);
-    setTimeout(() => setClosingPackage(null), ANIM_MS);
-  };
-
-  const closeAllWithOverlay = () => {
-    // Start overlay fade/blur-out NOW
-    setOverlayPhase("closing");
-    if (openService !== null) startCloseService(openService);
-    if (openPackage !== null) startClosePackage(openPackage);
-    // Unmount overlay after fade completes
-    setTimeout(() => setOverlayPhase("idle"), ANIM_MS);
-  };
-
-  /* ---------- Toggle handlers ---------- */
-
-  const toggleService = (i: number | null) => {
-    if (i === null) {
-      if (openService !== null) closeAllWithOverlay();
-      return;
-    }
-    // Switching from packages -> services: keep overlay 'open'
-    if (openPackage !== null) {
-      setClosingPackage(openPackage);
-      setTimeout(() => setClosingPackage(null), ANIM_MS);
-      setOpenPackage(null);
-    }
-    if (openService === null) {
-      setOverlayPhase("open");
-      setOpenService(i);
-    } else if (openService === i) {
-      closeAllWithOverlay();
-    } else {
-      // switch within services: keep overlay 'open'
-      const prev = openService;
-      setClosingService(prev);
-      setOpenService(null);
-      setTimeout(() => {
-        setClosingService(null);
-        setOpenService(i);
-      }, ANIM_MS);
-      if (overlayPhase === "idle") setOverlayPhase("open");
-    }
-  };
-
-  const togglePackage = (i: number | null) => {
-    if (i === null) {
-      if (openPackage !== null) closeAllWithOverlay();
-      return;
-    }
-    // Switching from services -> packages: keep overlay 'open'
-    if (openService !== null) {
-      setClosingService(openService);
-      setTimeout(() => setClosingService(null), ANIM_MS);
-      setOpenService(null);
-    }
-    if (openPackage === null) {
-      setOverlayPhase("open");
-      setOpenPackage(i);
-    } else if (openPackage === i) {
-      closeAllWithOverlay();
-    } else {
-      // switch within packages: keep overlay 'open'
-      const prev = openPackage;
-      setClosingPackage(prev);
-      setOpenPackage(null);
-      setTimeout(() => {
-        setClosingPackage(null);
-        setOpenPackage(i);
-      }, ANIM_MS);
-      if (overlayPhase === "idle") setOverlayPhase("open");
-    }
-  };
-
   return (
-    <div ref={containerRef} className="text-slate-100 bg-white selection:bg-indigo-200/60">
+    <div
+      ref={containerRef}
+      className="text-slate-100 selection:bg-indigo-200/60"
+      style={{
+        background: `linear-gradient(180deg, ${brand.sage1} 0%, ${brand.sage2} 100%)`,
+      }}
+    >
       {/* Global styles */}
       <style>{`
         :root {
@@ -471,6 +500,11 @@ export default function App({
         .btn-pri:hover { filter: brightness(.95); }
         .btn-ghost { border: 1px solid rgba(0,0,0,.1); color: #0f172a; background: transparent; }
         .btn-ghost:hover { background: rgba(0,0,0,.04); }
+
+        /* Collapsible used in About rows */
+        .collapsible { overflow: hidden; transition: max-height ${ANIM_MS}ms ${EASE}, opacity ${ANIM_MS}ms ${EASE}, transform ${ANIM_MS}ms ${EASE}; }
+        .collapsible--closed { max-height: 0; opacity: 0; transform: translateY(-4px); }
+        .collapsible--open { max-height: 320px; opacity: 1; transform: translateY(0); }
       `}</style>
 
       {/* HEADER */}
@@ -479,11 +513,11 @@ export default function App({
       {/* HERO */}
       <Hero logoSrc={logoSrc} fallbackLogo={fallbackLogo} bannerLeft={bannerLeft} bannerRight={bannerRight} />
 
-      {/* ABOUT */}
+      {/* ABOUT (linked dropdown rows) */}
       <About />
 
       {/* SERVICES + PACKAGES */}
-      <section id="services" className="py-16 sm:py-20 lg:py-24 bg-slate-50 relative">
+      <section id="services" className="py-16 sm:py-20 lg:py-24 relative">
         {/* Overlay (mounted whenever phase != idle). Opacity + blur animate in both directions. */}
         {overlayMounted && (
           <button
@@ -730,35 +764,63 @@ function Hero({
   );
 }
 
+/* ---------- ABOUT: linked dropdown rows ---------- */
 function About() {
+  const [open, setOpen] = useState(false); // one state for all three rows
+
+  const rows = [
+    {
+      title: "Clear",
+      body: "We keep language simple, structure tidy, and promises realistic.",
+    },
+    {
+      title: "Consistent",
+      body: "Voice, tone and message stay aligned across pages and channels.",
+    },
+    {
+      title: "Credible",
+      body: "Evidence-led copy that earns trust without overselling.",
+    },
+  ];
+
   return (
-    <section id="about" className="py-16 sm:py-20 lg:py-24 bg-white">
+    <section id="about" className="py-16 sm:py-20 lg:py-24">
       <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
-        <div className="grid lg:grid-cols-12 gap-6 sm:gap-10 items-start">
-          <div className="lg:col-span-5 reveal" data-reveal>
-            <h2 className="text-2xl sm:text-4xl font-semibold text-slate-900">About Fynstra</h2>
-            <p className="mt-3 sm:mt-4 text-slate-700">
-              We pair sharp language with sensible structure. From web copy to content systems, our work turns ambiguity
-              into action. Clear artifacts, faster decisions, better outcomes.
-            </p>
-            <ul className="mt-5 sm:mt-6 space-y-3 text-slate-700">
-              <li className="flex items-start gap-3"><span className="mt-1 h-2.5 w-2.5 rounded-full" style={{ background: brand.purple }}></span> Crisp copy and messaging frameworks</li>
-              <li className="flex items-start gap-3"><span className="mt-1 h-2.5 w-2.5 rounded-full" style={{ background: brand.purple }}></span> Practical guidance: structure, tone, voice</li>
-              <li className="flex items-start gap-3"><span className="mt-1 h-2.5 w-2.5 rounded-full" style={{ background: brand.purple }}></span> Lightweight process that respects your time</li>
-            </ul>
-          </div>
-          <div className="lg:col-span-7 reveal" data-reveal>
-            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              {["Clear", "Consistent", "Credible"].map((k) => (
-                <div key={k} className="rounded-2xl border border-black/10 bg-white p-5 sm:p-6 shadow-sm">
-                  <div className="text-lg sm:text-xl font-semibold text-slate-900">{k}</div>
-                  <p className="mt-2 sm:mt-3 text-sm text-slate-600">
-                    We keep language simple, structure tidy, and promises realistic.
-                  </p>
-                </div>
-              ))}
+        <div className="reveal" data-reveal>
+          <h2 className="text-2xl sm:text-4xl font-semibold text-slate-900">About Fynstra</h2>
+          <p className="mt-3 sm:mt-4 text-slate-700 max-w-3xl">
+            We pair sharp language with sensible structure. From web copy to content systems, our work turns ambiguity
+            into action. Clear artifacts, faster decisions, better outcomes.
+          </p>
+        </div>
+
+        {/* Three linked rows */}
+        <div className="mt-6 sm:mt-8 space-y-3">
+          {rows.map((r, i) => (
+            <div key={r.title} className="rounded-2xl border border-black/10 bg-white shadow-sm overflow-hidden">
+              <button
+                type="button"
+                className="w-full text-left px-5 py-4 flex items-center justify-between"
+                aria-expanded={open}
+                aria-controls={`about-panel-${i}`}
+                onClick={() => setOpen((v) => !v)}
+              >
+                <span className="text-lg sm:text-xl font-semibold text-slate-900">{r.title}</span>
+                <span
+                  className={`transition-transform ${open ? "rotate-180" : ""}`}
+                  style={{ transition: `transform ${ANIM_MS}ms ${EASE}` }}
+                >
+                  ▾
+                </span>
+              </button>
+              <div
+                id={`about-panel-${i}`}
+                className={`px-5 pb-5 collapsible ${open ? "collapsible--open" : "collapsible--closed"}`}
+              >
+                <p className="text-slate-700">{r.body}</p>
+              </div>
             </div>
-          </div>
+          ))}
         </div>
       </div>
     </section>
@@ -767,7 +829,7 @@ function About() {
 
 function Testimonials() {
   return (
-    <section id="testimonials" className="py-16 sm:py-20 lg:py-24 bg-white">
+    <section id="testimonials" className="py-16 sm:py-20 lg:py-24">
       <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
         <div className="reveal" data-reveal>
           <h2 className="text-2xl sm:text-4xl font-semibold text-slate-900">Kind words</h2>
@@ -794,7 +856,7 @@ function Testimonials() {
 
 function Contact() {
   return (
-    <section id="contact" className="py-16 sm:py-20 lg:py-24 bg-slate-50">
+    <section id="contact" className="py-16 sm:py-20 lg:py-24">
       <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-10 items-start">
           <div className="reveal" data-reveal>
@@ -817,7 +879,9 @@ function Contact() {
                 <label className="block">
                   <span className="text-sm text-slate-600">Name</span>
                   <input
-                    className="mt-1 w-full rounded-xl border border-black/10 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-300"
+                    className="mt-1 w-full rounded-xl border border-black/10 px-3 py-2
+                               bg-white text-slate-900 placeholder:text-slate-400 caret-indigo-500
+                               focus:outline-none focus:ring-2 focus:ring-indigo-300"
                     placeholder="Your name"
                   />
                 </label>
@@ -825,7 +889,9 @@ function Contact() {
                   <span className="text-sm text-slate-600">Email</span>
                   <input
                     type="email"
-                    className="mt-1 w-full rounded-xl border border-black/10 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-300"
+                    className="mt-1 w-full rounded-xl border border-black/10 px-3 py-2
+                               bg-white text-slate-900 placeholder:text-slate-400 caret-indigo-500
+                               focus:outline-none focus:ring-2 focus:ring-indigo-300"
                     placeholder="you@company.com"
                   />
                 </label>
@@ -833,7 +899,9 @@ function Contact() {
                   <span className="text-sm text-slate-600">Project overview</span>
                   <textarea
                     rows={4}
-                    className="mt-1 w-full rounded-xl border border-black/10 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-300"
+                    className="mt-1 w-full rounded-xl border border-black/10 px-3 py-2
+                               bg-white text-slate-900 placeholder:text-slate-400 caret-indigo-500
+                               focus:outline-none focus:ring-2 focus:ring-indigo-300"
                     placeholder="Goals, audience, deliverables, timeline"
                   />
                 </label>
