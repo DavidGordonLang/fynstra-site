@@ -882,7 +882,7 @@ function Hero({
                 </div>
               </div>
               <div className="mt-3 sm:mt-4 text-slate-700 text-sm sm:text-base">
-                Lean, modern, and fast to ship. This prototype mirrors the final structure we’ll deploy on Vercel.
+                With a genuine interest in your buisness, we'll make sure your message lands with your intent.
               </div>
             </div>
           </div>
