@@ -274,7 +274,7 @@ function AboutPrinciples() {
     <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 items-stretch">
       <Card title="Clear">
         <p>
-          We use straightforward language to make your message easy to grasp at first glance. Clarity that helps your
+          We use straightforward language to make your message easy to grasp at first glance. Clarity helps your
           audience act quickly and with confidence.
         </p>
       </Card>
