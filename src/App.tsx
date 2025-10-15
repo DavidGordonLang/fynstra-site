@@ -6,8 +6,8 @@ import React, { useEffect, useRef, useState } from "react";
  * - About = original airy layout + expandable principle cards (all expand together)
  * - Packages back to airy grid on desktop
  * - Open animation mirrors close (same timing, same curve, simultaneous overlay/panel)
- * - NEW: Service card open anim fixed (mirrors close, no “instant” pop)
- * - NEW: About cards get gradient that fades in on hover and stays when expanded
+ * - Service/package auto-scrolls into view on open (no cutoff)
+ * - About cards: gradient fades in on hover and persists while expanded (BL ➜ TR)
  */
 
 const brand = {
@@ -63,7 +63,6 @@ function useScrollReveal() {
     els.forEach((el) => io.observe(el));
     return () => io.disconnect();
   }, []);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   return containerRef;
 }
 
@@ -89,6 +88,7 @@ function CardGrid({
   center = false,
   cols = { base: 1, md: 2, lg: 3 },
   headingStrong = true,
+  groupId, // "services" | "packages" (used for auto-scroll targeting)
 }: {
   items: CardItem[];
   openIndex: number | null;
@@ -99,25 +99,20 @@ function CardGrid({
   center?: boolean;
   cols?: { base: number; md: number; lg: number };
   headingStrong?: boolean;
+  groupId: "services" | "packages";
 }) {
   const gridCols = `grid-cols-${cols.base} md:grid-cols-${cols.md} lg:grid-cols-${cols.lg}`;
 
   // Inner item so each card can manage its “enter” animation cleanly.
-  const Item = ({
-    it,
-    i,
-  }: {
-    it: CardItem;
-    i: number;
-  }) => {
+  const Item = ({ it, i }: { it: CardItem; i: number }) => {
     const isOpen = openIndex === i;
     const isClosing = closingIndex === i;
     const isActiveForPanel = isOpen || isClosing;
 
-    // Fade/dim siblings only while an overlay is actively open.
+    // Dim siblings only while overlay is actively “open”.
     const dimOthers = overlayPhase === "open" && !isActiveForPanel;
 
-    // NEW: ensure open anim isn’t instant — give the browser one frame at opacity 0.
+    // Prevent the “instant pop” on open by giving one frame at the closed state.
     const [entered, setEntered] = useState(false);
     useEffect(() => {
       if (isOpen) {
@@ -131,7 +126,6 @@ function CardGrid({
 
     return (
       <div
-        key={it.title + i}
         className={[
           "relative rounded-2xl border bg-white shadow-sm transition-opacity",
           "border-indigo-200",
@@ -142,9 +136,10 @@ function CardGrid({
       >
         {/* Header */}
         <button
+          id={`card-header-${groupId}-${i}`}
           type="button"
           aria-expanded={isOpen}
-          aria-controls={`panel-${i}`}
+          aria-controls={`panel-${groupId}-${i}`}
           onClick={() => onToggle(isOpen ? null : i)}
           className="w-full text-left px-4 sm:px-5 py-3 sm:py-4 flex items-start gap-3"
         >
@@ -175,7 +170,7 @@ function CardGrid({
         {/* Floating expandable panel (kept mounted while closing) */}
         {isActiveForPanel && (
           <div
-            id={`panel-${i}`}
+            id={`panel-${groupId}-${i}`}
             className={[
               "absolute left-0 right-0 z-[65] will-change-[transform,opacity]",
               "transform-gpu",
@@ -184,7 +179,6 @@ function CardGrid({
             ].join(" ")}
             style={{
               transition: `opacity ${ANIM_MS}ms ${EASE}, transform ${ANIM_MS}ms ${EASE}`,
-              // The key to mirror open/close: during open we show the first frame at 0, then animate to 1.
               opacity: isOpen ? (entered ? 1 : 0) : 0,
               transform: isOpen
                 ? entered
@@ -228,33 +222,22 @@ function AboutPrinciples() {
       className="group relative overflow-hidden text-left rounded-2xl border border-black/10 bg-white p-5 sm:p-6 shadow-sm hover:shadow-md transition-shadow"
       style={{ transition: `box-shadow ${ANIM_MS}ms ${EASE}` }}
     >
-      {/* Gradient layer (bottom-left ➜ top-right). Fades in on hover and when open. */}
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-0 rounded-2xl"
-        style={{
-          background:
-            "linear-gradient(to top right, var(--fynstra-blue) 0%, var(--fynstra-lavender) 55%, var(--fynstra-purple) 100%)",
-          opacity: open ? 0.9 : 0, // show while expanded
-          transition: `opacity ${ANIM_MS}ms ${EASE}`,
-        }}
-      />
-      {/* Also reveal on hover/focus */}
-      <style>{`
-        .group:hover > .gradient-reveal,
-        .group:focus-visible > .gradient-reveal { opacity: .9 }
-      `}</style>
-
-      {/* A second element with a class so hover can affect it in CSS (keeps inline timing constant) */}
+      {/* Gradient overlay — darkest bottom-left ➜ lightest top-right.
+          - Fades in on hover via CSS
+          - Stays visible while open via inline style */}
       <div
         className="gradient-reveal pointer-events-none absolute inset-0 rounded-2xl"
         style={{
           background:
-            "linear-gradient(to top right, var(--fynstra-blue) 0%, var(--fynstra-lavender) 55%, var(--fynstra-purple) 100%)",
-          opacity: 0,
+            "linear-gradient(to top right, var(--fynstra-purple) 0%, var(--fynstra-lavender) 50%, var(--fynstra-blue) 100%)",
+          opacity: open ? 0.9 : 0,
           transition: `opacity ${ANIM_MS}ms ${EASE}`,
         }}
       />
+      <style>{`
+        .group:hover .gradient-reveal,
+        .group:focus-visible .gradient-reveal { opacity: .9 }
+      `}</style>
 
       <div className="relative flex items-start justify-between gap-3">
         <div className="text-lg sm:text-xl font-semibold text-slate-900">{title}</div>
@@ -319,7 +302,7 @@ export default function App({
 
   const [mobileOpen, setMobileOpen] = useState(false);
 
-  // lock scroll when cards or menu are open
+  // Lock scroll when cards or menu are open
   useEffect(() => {
     const lock = overlayPhase !== "idle" || mobileOpen;
     document.body.style.overflow = lock ? "hidden" : "";
@@ -337,6 +320,15 @@ export default function App({
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
+
+  // --- Auto scroll helper
+  const scrollCardIntoView = (group: "services" | "packages", index: number) => {
+    // Let the DOM commit this frame, then scroll the header into center.
+    requestAnimationFrame(() => {
+      const el = document.getElementById(`card-header-${group}-${index}`);
+      el?.scrollIntoView({ behavior: "smooth", block: "center", inline: "nearest" });
+    });
+  };
 
   // Services (copywriting only)
   const services: CardItem[] = [
@@ -489,14 +481,13 @@ export default function App({
   };
 
   const closeAllWithOverlay = () => {
-    // Start overlay fade/blur-out NOW (mirrors opening)
     setOverlayPhase("closing");
     if (openService !== null) startCloseService(openService);
     if (openPackage !== null) startClosePackage(openPackage);
     setTimeout(() => setOverlayPhase("idle"), ANIM_MS);
   };
 
-  /* ---------- Toggle handlers ---------- */
+  /* ---------- Toggle handlers (with auto scroll) ---------- */
 
   const toggleService = (i: number | null) => {
     if (i === null) {
@@ -509,9 +500,9 @@ export default function App({
       setOpenPackage(null);
     }
     if (openService === null) {
-      // start overlay + panel open at the same time (mirrors close)
       setOverlayPhase("open");
       setOpenService(i);
+      scrollCardIntoView("services", i);
     } else if (openService === i) {
       closeAllWithOverlay();
     } else {
@@ -521,6 +512,7 @@ export default function App({
       setTimeout(() => {
         setClosingService(null);
         setOpenService(i);
+        scrollCardIntoView("services", i);
       }, ANIM_MS);
       if (overlayPhase === "idle") setOverlayPhase("open");
     }
@@ -539,6 +531,7 @@ export default function App({
     if (openPackage === null) {
       setOverlayPhase("open");
       setOpenPackage(i);
+      scrollCardIntoView("packages", i);
     } else if (openPackage === i) {
       closeAllWithOverlay();
     } else {
@@ -548,16 +541,14 @@ export default function App({
       setTimeout(() => {
         setClosingPackage(null);
         setOpenPackage(i);
+        scrollCardIntoView("packages", i);
       }, ANIM_MS);
       if (overlayPhase === "idle") setOverlayPhase("open");
     }
   };
 
   return (
-    <div
-      ref={containerRef}
-      className="text-slate-100 site-bg selection:bg-indigo-200/60 min-h-screen"
-    >
+    <div ref={containerRef} className="text-slate-100 site-bg selection:bg-indigo-200/60 min-h-screen">
       {/* Global styles */}
       <style>{`
         :root {
@@ -668,6 +659,7 @@ export default function App({
               center
               cols={{ base: 1, md: 1, lg: 1 }}
               headingStrong
+              groupId="services"
             />
           </div>
 
@@ -681,6 +673,7 @@ export default function App({
               overlayPhase={overlayPhase}
               headingStrong={false}
               cols={{ base: 1, md: 2, lg: 3 }}
+              groupId="packages"
             />
           </div>
 
@@ -843,8 +836,7 @@ function Hero({
                 <div
                   className="absolute inset-0"
                   style={{
-                    background:
-                      "linear-gradient(135deg, var(--fynstra-blue), var(--fynstra-purple))",
+                    background: "linear-gradient(135deg, var(--fynstra-blue), var(--fynstra-purple))",
                   }}
                 />
                 <div className="absolute -top-16 -right-16 h-56 w-56 sm:h-64 sm:w-64 rounded-full bg-white/30 blur-3xl opacity-40" />
@@ -856,18 +848,13 @@ function Hero({
                     alt="Fynstra"
                     className="h-16 w-16 sm:h-20 sm:w-20 rounded-2xl object-contain shadow-md ring-1 ring-white/40"
                   />
-                  <div className="mt-3 text-xl sm:text-3xl font-semibold tracking-tight">
-                    Clarity through content
-                  </div>
-                  <div className="mt-2 sm:mt-3 text-sm sm:text-base text-white/85 font-light">
-                    Copy • Strategy • Comms
-                  </div>
+                  <div className="mt-3 text-xl sm:text-3xl font-semibold tracking-tight">Clarity through content</div>
+                  <div className="mt-2 sm:mt-3 text-sm sm:text-base text-white/85 font-light">Copy • Strategy • Comms</div>
                 </div>
                 <div
                   className="pointer-events-none absolute inset-0 opacity-[0.06] mix-blend-overlay"
                   style={{
-                    backgroundImage:
-                      "radial-gradient(circle at 1px 1px, rgba(255,255,255,.8) 1px, transparent 1px)",
+                    backgroundImage: "radial-gradient(circle at 1px 1px, rgba(255,255,255,.8) 1px, transparent 1px)",
                     backgroundSize: "6px 6px",
                   }}
                 />
@@ -1000,9 +987,7 @@ function Footer({ logoSrc, fallbackLogo }: { logoSrc: string; fallbackLogo: stri
           />
           <span className="text-slate-700 text-sm sm:text-base">© {new Date().getFullYear()} Fynstra Ltd</span>
         </div>
-        <div className="text-slate-500 text-xs sm:text-sm">
-          Built with React + Tailwind. Deployed on Vercel.
-        </div>
+        <div className="text-slate-500 text-xs sm:text-sm">Built with React + Tailwind. Deployed on Vercel.</div>
       </div>
     </footer>
   );
