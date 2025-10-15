@@ -2,12 +2,10 @@ import React, { useEffect, useRef, useState } from "react";
 
 /**
  * Fynstra — One-page marketing site (Copywriting-first)
- * Updates:
- * - Pale sage gradient background site-wide.
- * - About: three linked dropdown rows; clicking any toggles all together.
- * - Enquire buttons close overlay/cards first, then smooth-scroll to #contact.
- * - Contact input text is fully dark; improved placeholders/caret.
- * - Keeps your spotlight overlay + card grid behaviour/timing.
+ * - Stronger sage background gradient
+ * - About = original airy layout + expandable principle cards (all expand together)
+ * - Packages back to airy grid on desktop
+ * - Open animation mirrors close (same timing, same curve, simultaneous overlay/panel)
  */
 
 const brand = {
@@ -18,8 +16,6 @@ const brand = {
   ink: "#222222",
   subtext: "#555555",
   bg: "#FAFAFA",
-  sage1: "#F6FBF7", // pale sage
-  sage2: "#EEF6F1", // slightly deeper sage
 };
 
 const ANIM_MS = 420;
@@ -69,7 +65,7 @@ function useScrollReveal() {
 }
 
 /* =========================
- * Expandable Card Grid
+ * Expandable Card Grid (services/packages)
  * =========================*/
 
 type CardItem = {
@@ -186,6 +182,57 @@ function CardGrid({
 }
 
 /* =========================
+ * About principle cards (grid; expand all together)
+ * =========================*/
+
+function AboutPrinciples() {
+  const [open, setOpen] = useState(false);
+
+  const toggleAll = () => setOpen((v) => !v);
+
+  const Card = ({ title, children }: { title: string; children: React.ReactNode }) => (
+    <button
+      type="button"
+      onClick={toggleAll}
+      aria-expanded={open}
+      className="text-left rounded-2xl border border-black/10 bg-white p-5 sm:p-6 shadow-sm hover:shadow-md transition-shadow"
+    >
+      <div className="flex items-start justify-between gap-3">
+        <div className="text-lg sm:text-xl font-semibold text-slate-900">{title}</div>
+        <svg
+          className={["h-5 w-5 text-slate-500 transition-transform", open ? "rotate-180" : ""].join(" ")}
+          style={{ transition: `transform ${ANIM_MS}ms ${EASE}` }}
+          viewBox="0 0 24 24"
+        >
+          <path d="M6 9l6 6 6-6" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" />
+        </svg>
+      </div>
+
+      <div
+        className="overflow-hidden"
+        style={{
+          transition: `max-height ${ANIM_MS}ms ${EASE}, opacity ${ANIM_MS}ms ${EASE}`,
+          maxHeight: open ? 200 : 0,
+          opacity: open ? 1 : 0,
+        }}
+      >
+        <p className="mt-3 text-sm text-slate-600">
+          We keep language simple, structure tidy, and promises realistic.
+        </p>
+      </div>
+    </button>
+  );
+
+  return (
+    <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+      <Card title="Clear"> </Card>
+      <Card title="Consistent"> </Card>
+      <Card title="Credible"> </Card>
+    </div>
+  );
+}
+
+/* =========================
  * App
  * =========================*/
 
@@ -232,95 +279,6 @@ export default function App({
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  /* ---------- Helpers ---------- */
-
-  const startCloseService = (idx: number) => {
-    setClosingService(idx);
-    setOpenService(null);
-    setTimeout(() => setClosingService(null), ANIM_MS);
-  };
-  const startClosePackage = (idx: number) => {
-    setClosingPackage(idx);
-    setOpenPackage(null);
-    setTimeout(() => setClosingPackage(null), ANIM_MS);
-  };
-
-  const closeAllWithOverlay = () => {
-    setOverlayPhase("closing");
-    if (openService !== null) startCloseService(openService);
-    if (openPackage !== null) startClosePackage(openPackage);
-    setTimeout(() => setOverlayPhase("idle"), ANIM_MS);
-  };
-
-  // Close + then smooth scroll to contact
-  const handleEnquireClick = () => {
-    // start close immediately
-    closeAllWithOverlay();
-    // allow state to flush, then scroll
-    requestAnimationFrame(() => {
-      const el = document.querySelector("#contact");
-      if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
-    });
-  };
-
-  /* ---------- Toggles ---------- */
-
-  const toggleService = (i: number | null) => {
-    if (i === null) {
-      if (openService !== null) closeAllWithOverlay();
-      return;
-    }
-    if (openPackage !== null) {
-      setClosingPackage(openPackage);
-      setTimeout(() => setClosingPackage(null), ANIM_MS);
-      setOpenPackage(null);
-    }
-    if (openService === null) {
-      setOverlayPhase("open");
-      setOpenService(i);
-    } else if (openService === i) {
-      closeAllWithOverlay();
-    } else {
-      const prev = openService;
-      setClosingService(prev);
-      setOpenService(null);
-      setTimeout(() => {
-        setClosingService(null);
-        setOpenService(i);
-      }, ANIM_MS);
-      if (overlayPhase === "idle") setOverlayPhase("open");
-    }
-  };
-
-  const togglePackage = (i: number | null) => {
-    if (i === null) {
-      if (openPackage !== null) closeAllWithOverlay();
-      return;
-    }
-    if (openService !== null) {
-      setClosingService(openService);
-      setTimeout(() => setClosingService(null), ANIM_MS);
-      setOpenService(null);
-    }
-    if (openPackage === null) {
-      setOverlayPhase("open");
-      setOpenPackage(i);
-    } else if (openPackage === i) {
-      closeAllWithOverlay();
-    } else {
-      const prev = openPackage;
-      setClosingPackage(prev);
-      setOpenPackage(null);
-      setTimeout(() => {
-        setClosingPackage(null);
-        setOpenPackage(i);
-      }, ANIM_MS);
-      if (overlayPhase === "idle") setOverlayPhase("open");
-    }
-  };
-
-  /* ---------- Data ---------- */
-
   // Services (copywriting only)
   const services: CardItem[] = [
     {
@@ -366,9 +324,7 @@ export default function App({
               </li>
             ))}
           </ul>
-          <button type="button" className="btn btn-pri" onClick={handleEnquireClick}>
-            Enquire
-          </button>
+          <a href="#contact" className="btn btn-pri">Enquire</a>
         </div>
       ),
     },
@@ -387,9 +343,7 @@ export default function App({
               </li>
             ))}
           </ul>
-          <button type="button" className="btn btn-pri" onClick={handleEnquireClick}>
-            Enquire
-          </button>
+          <a href="#contact" className="btn btn-pri">Enquire</a>
         </div>
       ),
     },
@@ -412,9 +366,7 @@ export default function App({
               </li>
             ))}
           </ul>
-          <button type="button" className="btn btn-pri" onClick={handleEnquireClick}>
-            Enquire
-          </button>
+          <a href="#contact" className="btn btn-pri">Enquire</a>
         </div>
       ),
     },
@@ -437,9 +389,7 @@ export default function App({
               </li>
             ))}
           </ul>
-          <button type="button" className="btn btn-pri" onClick={handleEnquireClick}>
-            Enquire
-          </button>
+          <a href="#contact" className="btn btn-pri">Enquire</a>
         </div>
       ),
     },
@@ -460,21 +410,94 @@ export default function App({
               )
             )}
           </ul>
-          <button type="button" className="btn btn-pri" onClick={handleEnquireClick}>
-            Enquire
-          </button>
+          <a href="#contact" className="btn btn-pri">Enquire</a>
         </div>
       ),
     },
   ];
 
+  /* ---------- Close helpers ---------- */
+
+  const startCloseService = (idx: number) => {
+    setClosingService(idx);
+    setOpenService(null);
+    setTimeout(() => setClosingService(null), ANIM_MS);
+  };
+  const startClosePackage = (idx: number) => {
+    setClosingPackage(idx);
+    setOpenPackage(null);
+    setTimeout(() => setClosingPackage(null), ANIM_MS);
+  };
+
+  const closeAllWithOverlay = () => {
+    // Start overlay fade/blur-out NOW (mirrors opening)
+    setOverlayPhase("closing");
+    if (openService !== null) startCloseService(openService);
+    if (openPackage !== null) startClosePackage(openPackage);
+    setTimeout(() => setOverlayPhase("idle"), ANIM_MS);
+  };
+
+  /* ---------- Toggle handlers ---------- */
+
+  const toggleService = (i: number | null) => {
+    if (i === null) {
+      if (openService !== null) closeAllWithOverlay();
+      return;
+    }
+    if (openPackage !== null) {
+      setClosingPackage(openPackage);
+      setTimeout(() => setClosingPackage(null), ANIM_MS);
+      setOpenPackage(null);
+    }
+    if (openService === null) {
+      // start overlay + panel open at the same time (mirrors close)
+      setOverlayPhase("open");
+      setOpenService(i);
+    } else if (openService === i) {
+      closeAllWithOverlay();
+    } else {
+      const prev = openService;
+      setClosingService(prev);
+      setOpenService(null);
+      setTimeout(() => {
+        setClosingService(null);
+        setOpenService(i);
+      }, ANIM_MS);
+      if (overlayPhase === "idle") setOverlayPhase("open");
+    }
+  };
+
+  const togglePackage = (i: number | null) => {
+    if (i === null) {
+      if (openPackage !== null) closeAllWithOverlay();
+      return;
+    }
+    if (openService !== null) {
+      setClosingService(openService);
+      setTimeout(() => setClosingService(null), ANIM_MS);
+      setOpenService(null);
+    }
+    if (openPackage === null) {
+      setOverlayPhase("open");
+      setOpenPackage(i);
+    } else if (openPackage === i) {
+      closeAllWithOverlay();
+    } else {
+      const prev = openPackage;
+      setClosingPackage(prev);
+      setOpenPackage(null);
+      setTimeout(() => {
+        setClosingPackage(null);
+        setOpenPackage(i);
+      }, ANIM_MS);
+      if (overlayPhase === "idle") setOverlayPhase("open");
+    }
+  };
+
   return (
     <div
       ref={containerRef}
-      className="text-slate-100 selection:bg-indigo-200/60"
-      style={{
-        background: `linear-gradient(180deg, ${brand.sage1} 0%, ${brand.sage2} 100%)`,
-      }}
+      className="text-slate-100 site-bg selection:bg-indigo-200/60 min-h-screen"
     >
       {/* Global styles */}
       <style>{`
@@ -495,16 +518,21 @@ export default function App({
         }
         .reveal { opacity: 0; transform: translateY(12px); transition: opacity .6s ease, transform .6s ease; }
         .reveal-in { opacity: 1; transform: translateY(0); }
+
+        /* Buttons */
         .btn { display: inline-flex; align-items: center; justify-content: center; border-radius: 1rem; padding: .75rem 1.25rem; font-weight: 500; box-shadow: 0 1px 2px rgba(0,0,0,.06); transition: all .2s ease; }
         .btn-pri { background: var(--fynstra-purple); color: #fff; }
         .btn-pri:hover { filter: brightness(.95); }
         .btn-ghost { border: 1px solid rgba(0,0,0,.1); color: #0f172a; background: transparent; }
         .btn-ghost:hover { background: rgba(0,0,0,.04); }
 
-        /* Collapsible used in About rows */
-        .collapsible { overflow: hidden; transition: max-height ${ANIM_MS}ms ${EASE}, opacity ${ANIM_MS}ms ${EASE}, transform ${ANIM_MS}ms ${EASE}; }
-        .collapsible--closed { max-height: 0; opacity: 0; transform: translateY(-4px); }
-        .collapsible--open { max-height: 320px; opacity: 1; transform: translateY(0); }
+        /* Site background — stronger soft sage gradient */
+        .site-bg {
+          background:
+            radial-gradient(1200px 600px at 20% -10%, #EAF4ED 0%, transparent 60%),
+            radial-gradient(1200px 700px at 100% 10%, #E6F1EA 0%, transparent 55%),
+            linear-gradient(180deg, #F3F8F4 0%, #E7F1EA 40%, #F7FBF8 100%);
+        }
       `}</style>
 
       {/* HEADER */}
@@ -513,12 +541,42 @@ export default function App({
       {/* HERO */}
       <Hero logoSrc={logoSrc} fallbackLogo={fallbackLogo} bannerLeft={bannerLeft} bannerRight={bannerRight} />
 
-      {/* ABOUT (linked dropdown rows) */}
-      <About />
+      {/* ABOUT — original airy layout, expandable cards on the right */}
+      <section id="about" className="py-16 sm:py-20 lg:py-24">
+        <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
+          <div className="grid lg:grid-cols-12 gap-6 sm:gap-10 items-start">
+            <div className="lg:col-span-5 reveal" data-reveal>
+              <h2 className="text-2xl sm:text-4xl font-semibold text-slate-900">About Fynstra</h2>
+              <p className="mt-3 sm:mt-4 text-slate-800">
+                We pair sharp language with sensible structure. From web copy to content systems, our work turns ambiguity
+                into action. Clear artifacts, faster decisions, better outcomes.
+              </p>
+              <ul className="mt-5 sm:mt-6 space-y-3 text-slate-800">
+                <li className="flex items-start gap-3">
+                  <span className="mt-1 h-2.5 w-2.5 rounded-full" style={{ background: brand.purple }}></span>
+                  Crisp copy and messaging frameworks
+                </li>
+                <li className="flex items-start gap-3">
+                  <span className="mt-1 h-2.5 w-2.5 rounded-full" style={{ background: brand.purple }}></span>
+                  Practical guidance: structure, tone, voice
+                </li>
+                <li className="flex items-start gap-3">
+                  <span className="mt-1 h-2.5 w-2.5 rounded-full" style={{ background: brand.purple }}></span>
+                  Lightweight process that respects your time
+                </li>
+              </ul>
+            </div>
 
-      {/* SERVICES + PACKAGES */}
+            <div className="lg:col-span-7 reveal" data-reveal>
+              <AboutPrinciples />
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* SERVICES + PACKAGES (airy on desktop) */}
       <section id="services" className="py-16 sm:py-20 lg:py-24 relative">
-        {/* Overlay (mounted whenever phase != idle). Opacity + blur animate in both directions. */}
+        {/* Overlay */}
         {overlayMounted && (
           <button
             aria-label="Close expanded card"
@@ -537,7 +595,7 @@ export default function App({
         <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="reveal" data-reveal>
             <h2 className="text-2xl sm:text-4xl font-semibold text-slate-900">Services</h2>
-            <p className="mt-3 max-w-2xl text-slate-700">We’re currently focused on copywriting for early traction.</p>
+            <p className="mt-3 max-w-2xl text-slate-800">We’re currently focused on copywriting for early traction.</p>
           </div>
 
           {/* Single centered service card */}
@@ -554,7 +612,7 @@ export default function App({
             />
           </div>
 
-          {/* Packages */}
+          {/* Packages — airy grid on desktop */}
           <div className="mt-10 sm:mt-12">
             <CardGrid
               items={packages}
@@ -567,7 +625,9 @@ export default function App({
             />
           </div>
 
-          <p className="mt-6 text-sm text-slate-500">Ranges are indicative; we’ll confirm scope and a fixed quote after a short brief.</p>
+          <p className="mt-6 text-sm text-slate-600">
+            Ranges are indicative; we’ll confirm scope and a fixed quote after a short brief.
+          </p>
         </div>
       </section>
 
@@ -599,7 +659,7 @@ function Header({
   setMobileOpen: (v: boolean) => void;
 }) {
   return (
-    <header className="sticky top-0 z-[70] backdrop-blur-sm bg-white/70 border-b border-black/5">
+    <header className="sticky top-0 z-[70] backdrop-blur-sm bg-white/80 border-b border-black/5">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
         <a href="#top" className="flex items-center gap-3 group">
           <img src={logoSrc} onError={(e) => ((e.currentTarget.src = fallbackLogo))} alt="Fynstra" className="h-10 w-10 sm:h-12 sm:w-12 object-contain" />
@@ -700,7 +760,7 @@ function Hero({
             <h1 className="text-[2rem] sm:text-5xl lg:text-6xl font-semibold text-slate-900 leading-tight">
               Convert with <span className="heading-gradient">clear, credible</span> copy.
             </h1>
-            <p className="mt-4 sm:mt-5 text-base sm:text-lg text-slate-700 max-w-xl">
+            <p className="mt-4 sm:mt-5 text-base sm:text-lg text-slate-800 max-w-xl">
               We help startups ship copy that reads fast and feels right — landing pages, product pages, and content that
               moves the work forward.
             </p>
@@ -764,76 +824,13 @@ function Hero({
   );
 }
 
-/* ---------- ABOUT: linked dropdown rows ---------- */
-function About() {
-  const [open, setOpen] = useState(false); // one state for all three rows
-
-  const rows = [
-    {
-      title: "Clear",
-      body: "We keep language simple, structure tidy, and promises realistic.",
-    },
-    {
-      title: "Consistent",
-      body: "Voice, tone and message stay aligned across pages and channels.",
-    },
-    {
-      title: "Credible",
-      body: "Evidence-led copy that earns trust without overselling.",
-    },
-  ];
-
-  return (
-    <section id="about" className="py-16 sm:py-20 lg:py-24">
-      <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
-        <div className="reveal" data-reveal>
-          <h2 className="text-2xl sm:text-4xl font-semibold text-slate-900">About Fynstra</h2>
-          <p className="mt-3 sm:mt-4 text-slate-700 max-w-3xl">
-            We pair sharp language with sensible structure. From web copy to content systems, our work turns ambiguity
-            into action. Clear artifacts, faster decisions, better outcomes.
-          </p>
-        </div>
-
-        {/* Three linked rows */}
-        <div className="mt-6 sm:mt-8 space-y-3">
-          {rows.map((r, i) => (
-            <div key={r.title} className="rounded-2xl border border-black/10 bg-white shadow-sm overflow-hidden">
-              <button
-                type="button"
-                className="w-full text-left px-5 py-4 flex items-center justify-between"
-                aria-expanded={open}
-                aria-controls={`about-panel-${i}`}
-                onClick={() => setOpen((v) => !v)}
-              >
-                <span className="text-lg sm:text-xl font-semibold text-slate-900">{r.title}</span>
-                <span
-                  className={`transition-transform ${open ? "rotate-180" : ""}`}
-                  style={{ transition: `transform ${ANIM_MS}ms ${EASE}` }}
-                >
-                  ▾
-                </span>
-              </button>
-              <div
-                id={`about-panel-${i}`}
-                className={`px-5 pb-5 collapsible ${open ? "collapsible--open" : "collapsible--closed"}`}
-              >
-                <p className="text-slate-700">{r.body}</p>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-}
-
 function Testimonials() {
   return (
     <section id="testimonials" className="py-16 sm:py-20 lg:py-24">
       <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
         <div className="reveal" data-reveal>
           <h2 className="text-2xl sm:text-4xl font-semibold text-slate-900">Kind words</h2>
-          <p className="mt-3 text-slate-700 max-w-2xl">
+          <p className="mt-3 text-slate-800 max-w-2xl">
             Placeholders until we add real quotes. Keep it concise and outcome-focused.
           </p>
         </div>
@@ -841,7 +838,7 @@ function Testimonials() {
           {[1, 2, 3].map((i) => (
             <figure key={i} className="reveal" data-reveal>
               <div className="rounded-2xl border border-black/10 bg-slate-50 p-5 sm:p-6 h-full">
-                <blockquote className="text-slate-700">
+                <blockquote className="text-slate-800">
                   “Fynstra made our message clearer and our rollout smoother. The copy just worked.”
                 </blockquote>
                 <figcaption className="mt-4 text-sm text-slate-500">Client name • Role, Company</figcaption>
@@ -861,14 +858,14 @@ function Contact() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-10 items-start">
           <div className="reveal" data-reveal>
             <h2 className="text-2xl sm:text-4xl font-semibold text-slate-900">Let’s talk</h2>
-            <p className="mt-3 text-slate-700 max-w-xl">
+            <p className="mt-3 text-slate-800 max-w-xl">
               Two ways to connect: drop a note or book a quick intro call. We’ll keep it focused on goals, scope, and timelines.
             </p>
             <div className="mt-6 flex flex-wrap gap-3">
               <a href="#calendly" className="btn btn-pri">Book a call</a>
               <a href="mailto:info@fynstra.co.uk" className="btn btn-ghost">Email us</a>
             </div>
-            <div className="mt-8 sm:mt-10 text-sm text-slate-600">
+            <div className="mt-8 sm:mt-10 text-sm text-slate-700">
               Prefer a simple brief? Add bullet points about your goals, audience, deliverables, and deadline — we’ll reply with a scoped plan.
             </div>
           </div>
@@ -879,9 +876,7 @@ function Contact() {
                 <label className="block">
                   <span className="text-sm text-slate-600">Name</span>
                   <input
-                    className="mt-1 w-full rounded-xl border border-black/10 px-3 py-2
-                               bg-white text-slate-900 placeholder:text-slate-400 caret-indigo-500
-                               focus:outline-none focus:ring-2 focus:ring-indigo-300"
+                    className="mt-1 w-full rounded-xl border border-black/10 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-300 text-slate-900"
                     placeholder="Your name"
                   />
                 </label>
@@ -889,9 +884,7 @@ function Contact() {
                   <span className="text-sm text-slate-600">Email</span>
                   <input
                     type="email"
-                    className="mt-1 w-full rounded-xl border border-black/10 px-3 py-2
-                               bg-white text-slate-900 placeholder:text-slate-400 caret-indigo-500
-                               focus:outline-none focus:ring-2 focus:ring-indigo-300"
+                    className="mt-1 w-full rounded-xl border border-black/10 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-300 text-slate-900"
                     placeholder="you@company.com"
                   />
                 </label>
@@ -899,9 +892,7 @@ function Contact() {
                   <span className="text-sm text-slate-600">Project overview</span>
                   <textarea
                     rows={4}
-                    className="mt-1 w-full rounded-xl border border-black/10 px-3 py-2
-                               bg-white text-slate-900 placeholder:text-slate-400 caret-indigo-500
-                               focus:outline-none focus:ring-2 focus:ring-indigo-300"
+                    className="mt-1 w-full rounded-xl border border-black/10 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-300 text-slate-900"
                     placeholder="Goals, audience, deliverables, timeline"
                   />
                 </label>
@@ -939,7 +930,7 @@ function Contact() {
 
 function Footer({ logoSrc, fallbackLogo }: { logoSrc: string; fallbackLogo: string }) {
   return (
-    <footer className="py-8 sm:py-10 bg-white border-t border-black/5">
+    <footer className="py-8 sm:py-10 border-t border-black/5">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-3 sm:gap-4">
         <div className="flex items-center gap-3">
           <img
