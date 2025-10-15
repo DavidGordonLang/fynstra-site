@@ -110,6 +110,7 @@ function CardGrid({
 
     const dimOthers = overlayPhase === "open" && !isActiveForPanel;
 
+    // Ensure open anim doesn't pop in instantly
     const [entered, setEntered] = useState(false);
     useEffect(() => {
       if (isOpen) {
@@ -211,7 +212,7 @@ function AboutPrinciples() {
   const [open, setOpen] = useState(false);
   const toggleAll = () => setOpen((v) => !v);
 
-  const GRAD_MS = 520;
+  const GRAD_MS = 520; // elegant, slightly slower than panel timing
 
   const Card = ({ title, children }: { title: string; children: React.ReactNode }) => (
     <button
@@ -295,7 +296,7 @@ export default function App({
   const [closingService, setClosingService] = useState<number | null>(null);
   const [closingPackage, setClosingPackage] = useState<number | null>(null);
 
-  // Overlay phase
+  // Overlay phase: drives opacity, blur, and sibling dim timing
   const [overlayPhase, setOverlayPhase] = useState<"open" | "closing" | "idle">("idle");
   const overlayMounted = overlayPhase !== "idle";
 
@@ -320,6 +321,7 @@ export default function App({
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
+  // --- Auto scroll helper (keeps the opened card comfortably in view)
   const scrollCardIntoView = (group: "services" | "packages", index: number) => {
     requestAnimationFrame(() => {
       const el = document.getElementById(`card-header-${group}-${index}`);
@@ -559,18 +561,20 @@ export default function App({
           --font-primary: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
         }
         body, * { font-family: var(--font-primary); }
+
+        /* Darker highlight for "clear, credible" */
         .heading-gradient {
-  /* Slightly deeper palette for better contrast on the sage background */
-  background: linear-gradient(
-    90deg,
-    #9FC8FF 0%,   /* deeper blue */
-    #A693FF 48%,  /* deeper lavender */
-    #6A49E8 100%  /* deeper purple */
-  );
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-}
+          background: linear-gradient(
+            90deg,
+            #9FC8FF 0%,
+            #A693FF 48%,
+            #6A49E8 100%
+          );
+          -webkit-background-clip: text;
+          background-clip: text;
+          color: transparent;
+        }
+
         /* Buttons */
         .btn { display: inline-flex; align-items: center; justify-content: center; border-radius: 1rem; padding: .75rem 1.25rem; font-weight: 500; box-shadow: 0 1px 2px rgba(0,0,0,.06); transition: all .2s ease; }
         .btn-pri { background: var(--fynstra-purple); color: #fff; }
@@ -586,33 +590,32 @@ export default function App({
             linear-gradient(180deg, #F3F8F4 0%, #E7F1EA 40%, #F7FBF8 100%);
         }
 
-        /* NEW: Hero card background that mirrors the uploaded banner */
-      .hero-card-bg {
-  position: absolute;
-  inset: 0;
-  /* Keep dark in bottom-left, but add gentle highlight behind logo top-left */
-  background:
-    /* soft bright spot behind logo (top-left) */
-    radial-gradient(80% 80% at 15% 25%, rgba(255,255,255,0.45) 0%, rgba(255,255,255,0.15) 25%, rgba(255,255,255,0) 60%),
-    /* main diagonal sweep: dark bottom-left fading upward */
-    linear-gradient(
-      to top right,
-      rgba(84,54,201,0.95) 0%,
-      rgba(124,92,240,0.88) 35%,
-      rgba(168,140,255,0.70) 60%,
-      rgba(200,187,255,0.55) 78%,
-      rgba(207,228,255,0.45) 100%
-    );
-}
+        /* Hero card background: dark bottom-left, lighter toward top-right, with a soft logo lift top-left */
+        .hero-card-bg {
+          position: absolute;
+          inset: 0;
+          background:
+            radial-gradient(80% 80% at 15% 25%, rgba(255,255,255,0.45) 0%, rgba(255,255,255,0.15) 25%, rgba(255,255,255,0) 60%),
+            linear-gradient(
+              to top right,
+              rgba(84,54,201,0.95) 0%,
+              rgba(124,92,240,0.88) 35%,
+              rgba(168,140,255,0.70) 60%,
+              rgba(200,187,255,0.55) 78%,
+              rgba(207,228,255,0.45) 100%
+            );
+        }
+        .hero-card-bg::after {
+          content: "";
+          position: absolute;
+          inset: 0;
+          background: radial-gradient(900px 900px at 85% 15%, rgba(255,255,255,0.22) 0%, rgba(255,255,255,0) 60%);
+          pointer-events: none;
+        }
 
-.hero-card-bg::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: radial-gradient(900px 900px at 85% 15%, rgba(255,255,255,0.22) 0%, rgba(255,255,255,0) 60%);
-  pointer-events: none;
-}
-
+        /* Reveal */
+        .reveal { opacity: 0; transform: translateY(12px); transition: opacity .6s ease, transform .6s ease; }
+        .reveal-in { opacity: 1; transform: translateY(0); }
       `}</style>
 
       {/* HEADER */}
@@ -864,10 +867,9 @@ function Hero({
             {/* Card container unchanged; only the background inside is replaced */}
             <div className="relative rounded-3xl ring-1 ring-black/10 bg-white/60 backdrop-blur p-4 sm:p-6 shadow-xl">
               <div className="relative aspect-[4/3] rounded-2xl overflow-hidden">
-                {/* NEW background that matches the uploaded banner */}
+                {/* Background matching the updated direction */}
                 <div className="hero-card-bg" />
-
-                {/* Foreground content unchanged */}
+                {/* Foreground content */}
                 <div className="relative z-10 h-full w-full flex flex-col items-start justify-center text-white px-6 sm:px-10">
                   <img
                     src={logoSrc}
@@ -1003,40 +1005,6 @@ function Contact() {
   );
 }
 
-            {/* Calendly embed */}
-        <div id="calendly" className="mt-10 sm:mt-14 reveal" data-reveal>
-          <div className="rounded-2xl overflow-hidden border border-black/10 bg-white shadow-sm">
-            <div className="px-5 sm:px-6 py-4 border-b border-black/10 flex items-center justify-between">
-              <div>
-                <div className="text-sm text-slate-500">Scheduling</div>
-                <div className="text-base sm:text-lg font-semibold text-slate-900">Book a 30-minute meeting</div>
-              </div>
-              <a
-                href={CALENDLY_URL}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="btn btn-pri"
-              >
-                Open in Calendly
-              </a>
-            </div>
-
-            {/* Embedded calendar */}
-            <div className="relative lg:aspect-[5/3] aspect-[16/9] bg-white overflow-hidden">
-              <iframe
-                title="Calendly booking"
-                src={`${CALENDLY_URL}?embed_domain=fynstra.co.uk&embed_type=Inline`}
-                className="absolute inset-0 w-full h-full border-0"
-                allow="camera; microphone; fullscreen"
-              />
-            </div>
-          </div>
-        </div>
-      </div>{/* /.max-w-6xl */}
-    </section>{/* /#contact */}
-  );
-}
-
 function Footer({ logoSrc, fallbackLogo }: { logoSrc: string; fallbackLogo: string }) {
   return (
     <footer className="py-8 sm:py-10 border-t border-black/5">
@@ -1048,7 +1016,7 @@ function Footer({ logoSrc, fallbackLogo }: { logoSrc: string; fallbackLogo: stri
             alt="Fynstra"
             className="h-6 w-6 sm:h-7 sm:w-7 rounded-xl object-contain"
           />
-        <span className="text-slate-700 text-sm sm:text-base">© {new Date().getFullYear()} Fynstra Ltd</span>
+          <span className="text-slate-700 text-sm sm:text-base">© {new Date().getFullYear()} Fynstra Ltd</span>
         </div>
         <div className="text-slate-500 text-xs sm:text-sm">Built with React + Tailwind. Deployed on Vercel.</div>
       </div>
