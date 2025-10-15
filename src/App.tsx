@@ -631,8 +631,11 @@ export default function App({
             <div className="lg:col-span-5 reveal" data-reveal>
               <h2 className="text-2xl sm:text-4xl font-semibold text-slate-900">About Fynstra</h2>
               <p className="mt-3 sm:mt-4 text-slate-800">
-                We pair sharp language with sensible structure. From web copy to content systems, our work turns ambiguity
-                into action. Clear artifacts, faster decisions, better outcomes.
+               Businesses often struggle to sound the way they want.  That’s why we built Fynstra.
+After years working across creative and corporate environments, we saw how often strong ideas were lost in translation. Communication is everything. Whether it’s an email campaign, a newsletter, a post on socials, or a blog sharing what your company does and why it matters. We make sure you’re heard and your message lands exactly as you intend it to.
+Our team brings years of experience across regulatory compliance, business process design, and financial crime prevention. From AML and KYC oversight to communication frameworks in complex, fast-moving industries. That perspective shapes how we write: precise, structured, and always true to intent.
+We take the time to understand your business, so we can speak from it the way it deserves. Concise, clear and always on point.
+Clarity in content.
               </p>
               <ul className="mt-5 sm:mt-6 space-y-3 text-slate-800">
                 <li className="flex items-start gap-3">
