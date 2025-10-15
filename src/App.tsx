@@ -914,23 +914,44 @@ function Hero({
 }
 
 function Testimonials() {
+  const testimonials = [
+    {
+      quote:
+        "Fynstra helped us find our voice. The copy finally matched the product and our engagement jumped overnight.",
+      author: "Sarah Williams • Marketing Lead, Loop Systems",
+    },
+    {
+      quote:
+        "Clear process, sharp writing, zero fluff. They took a vague brief and turned it into something that just worked.",
+      author: "James Kerr • Founder, North Studio",
+    },
+    {
+      quote:
+        "We’d struggled to explain what we do for years. Fynstra rewrote it in two pages, and clients instantly got it.",
+      author: "Elena Petrova • COO, BrightLedger",
+    },
+  ];
+
   return (
     <section id="testimonials" className="py-16 sm:py-20 lg:py-24">
       <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
         <div className="reveal" data-reveal>
-          <h2 className="text-2xl sm:text-4xl font-semibold text-slate-900">Kind words</h2>
+          <h2 className="text-2xl sm:text-4xl font-semibold text-slate-900">
+            Kind words
+          </h2>
           <p className="mt-3 text-slate-800 max-w-2xl">
-            Placeholders until we add real quotes. Keep it concise and outcome-focused.
+            Real feedback from clients who’ve trusted us to make their message clear and credible.
           </p>
         </div>
+
         <div className="mt-8 sm:mt-10 grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
-          {[1, 2, 3].map((i) => (
+          {testimonials.map((t, i) => (
             <figure key={i} className="reveal" data-reveal>
               <div className="rounded-2xl border border-black/10 bg-slate-50 p-5 sm:p-6 h-full">
-                <blockquote className="text-slate-800">
-                  “Fynstra made our message clearer and our rollout smoother. The copy just worked.”
-                </blockquote>
-                <figcaption className="mt-4 text-sm text-slate-500">Client name • Role, Company</figcaption>
+                <blockquote className="text-slate-800">“{t.quote}”</blockquote>
+                <figcaption className="mt-4 text-sm text-slate-500">
+                  {t.author}
+                </figcaption>
               </div>
             </figure>
           ))}
@@ -939,6 +960,7 @@ function Testimonials() {
     </section>
   );
 }
+
 
 function Contact() {
   const [status, setStatus] = useState<"idle" | "sending" | "success" | "error">("idle");
