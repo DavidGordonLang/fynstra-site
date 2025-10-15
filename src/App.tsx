@@ -643,20 +643,6 @@ Our team brings years of experience across regulatory compliance, business proce
 We take the time to understand your business, so we can speak from it the way it deserves. Concise, clear and always on point.
 Clarity in content.
               </p>
-              <ul className="mt-5 sm:mt-6 space-y-3 text-slate-800">
-                <li className="flex items-start gap-3">
-                  <span className="mt-1 h-2.5 w-2.5 rounded-full" style={{ background: brand.purple }}></span>
-                  Crisp copy and messaging frameworks
-                </li>
-                <li className="flex items-start gap-3">
-                  <span className="mt-1 h-2.5 w-2.5 rounded-full" style={{ background: brand.purple }}></span>
-                  Practical guidance: structure, tone, voice
-                </li>
-                <li className="flex items-start gap-3">
-                  <span className="mt-1 h-2.5 w-2.5 rounded-full" style={{ background: brand.purple }}></span>
-                  Lightweight process that respects your time
-                </li>
-              </ul>
             </div>
 
             <div className="lg:col-span-7 reveal" data-reveal>
