@@ -1021,7 +1021,7 @@ function Contact() {
           <div className="reveal" data-reveal>
             <h2 className="text-2xl sm:text-4xl font-semibold text-slate-900">Let’s talk</h2>
             <p className="mt-3 text-slate-800 max-w-xl">
-              Two ways to connect: drop a note or book a quick intro call. We’ll keep it focused on goals, scope, and timelines.
+              Two ways to connect: drop a note or book a quick intro call. We’ll keep it focused on goals, scope and timelines.
             </p>
             <div className="mt-6 flex flex-wrap gap-3">
               <a href="#calendly" className="btn btn-pri">Book a call</a>
