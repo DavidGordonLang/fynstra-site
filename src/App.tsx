@@ -754,7 +754,7 @@ Clarity in content.
           </div>
 
           <p className="mt-6 text-sm text-slate-600">
-            Ranges are indicative; we’ll confirm scope and a fixed quote after a short brief.
+            
           </p>
         </div>
       </section>
