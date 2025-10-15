@@ -353,118 +353,144 @@ export default function App({
     },
   ];
 
-  // Packages
-  const packages: CardItem[] = [
-    {
-      title: "Budget",
-      titleIsPurple: true,
-      subtitle: "Short-form social copy (3–5 captions).",
-      panel: (
-        <div className="text-slate-700 space-y-3">
-          <div className="text-slate-900 font-medium">£80 – £120</div>
-          <ul className="space-y-2">
-            {[
-              "Quick kickoff prompt + tone guide",
-              "One revision round",
-              "Delivery in editable doc + ready-to-paste set",
-            ].map((p) => (
-              <li key={p} className="flex items-start gap-2">
-                <span className="mt-1 h-2 w-2 rounded-full" style={{ background: brand.purple }} />
-                {p}
-              </li>
-            ))}
-          </ul>
-          <a href="#contact" className="btn btn-pri">Enquire</a>
-        </div>
-      ),
-    },
-    {
-      title: "Starter",
-      titleIsPurple: true,
-      subtitle: "Web or blog copy up to 500 words.",
-      panel: (
-        <div className="text-slate-700 space-y-3">
-          <div className="text-slate-900 font-medium">£200 – £300</div>
-          <ul className="space-y-2">
-            {["Light research + outline", "Two revision rounds", "SEO basics (title, meta, H-structure)"].map((p) => (
-              <li key={p} className="flex items-start gap-2">
-                <span className="mt-1 h-2 w-2 rounded-full" style={{ background: brand.purple }} />
-                {p}
-              </li>
-            ))}
-          </ul>
-          <a href="#contact" className="btn btn-pri">Enquire</a>
-        </div>
-      ),
-    },
-    {
-      title: "Growth",
-      titleIsPurple: true,
-      subtitle: "In-depth article or full page (~1 000 words).",
-      panel: (
-        <div className="text-slate-700 space-y-3">
-          <div className="text-slate-900 font-medium">£400 – £600</div>
-          <ul className="space-y-2">
-            {[
-              "Interview(s) or source pack review",
-              "Messaging alignment + voice calibration",
-              "Two revision rounds + visuals guidance",
-            ].map((p) => (
-              <li key={p} className="flex items-start gap-2">
-                <span className="mt-1 h-2 w-2 rounded-full" style={{ background: brand.purple }} />
-                {p}
-              </li>
-            ))}
-          </ul>
-          <a href="#contact" className="btn btn-pri">Enquire</a>
-        </div>
-      ),
-    },
-    {
-      title: "Launch",
-      titleIsPurple: true,
-      subtitle: "Multi-page site or campaign set (~2 000 words).",
-      panel: (
-        <div className="text-slate-700 space-y-3">
-          <div className="text-slate-900 font-medium">£700 – £1 000</div>
-          <ul className="space-y-2">
-            {[
-              "Homepage + 2–3 key pages or equivalent set",
-              "Messaging framework + editorial notes",
-              "Two rounds across the set",
-            ].map((p) => (
-              <li key={p} className="flex items-start gap-2">
-                <span className="mt-1 h-2 w-2 rounded-full" style={{ background: brand.purple }} />
-                {p}
-              </li>
-            ))}
-          </ul>
-          <a href="#contact" className="btn btn-pri">Enquire</a>
-        </div>
-      ),
-    },
-    {
-      title: "Retainer",
-      titleIsPurple: true,
-      subtitle: "Regular content (~4 000 words/month).",
-      panel: (
-        <div className="text-slate-700 space-y-3">
-          <div className="text-slate-900 font-medium">£1 200 – £1 400 / month</div>
-          <ul className="space-y-2">
-            {["Monthly planning call + backlog", "Priority turnaround windows", "Carry-over up to 20% one month"].map(
-              (p) => (
-                <li key={p} className="flex items-start gap-2">
-                  <span className="mt-1 h-2 w-2 rounded-full" style={{ background: brand.purple }} />
-                  {p}
-                </li>
-              )
-            )}
-          </ul>
-          <a href="#contact" className="btn btn-pri">Enquire</a>
-        </div>
-      ),
-    },
-  ];
+// Packages
+const packages: CardItem[] = [
+  {
+    title: "Budget",
+    titleIsPurple: true,
+    subtitle: "Short-form social copy (3–5 captions).",
+    panel: (
+      <div className="text-slate-700 space-y-3">
+        <ul className="space-y-2">
+          {[
+            "Quick kickoff prompt + tone guide",
+            "One revision round",
+            "Delivery in editable doc + ready-to-paste set",
+          ].map((p) => (
+            <li key={p} className="flex items-start gap-2">
+              <span
+                className="mt-1 h-2 w-2 rounded-full"
+                style={{ background: brand.purple }}
+              />
+              {p}
+            </li>
+          ))}
+        </ul>
+        <a href="#contact" className="btn btn-pri">
+          Enquire
+        </a>
+      </div>
+    ),
+  },
+  {
+    title: "Starter",
+    titleIsPurple: true,
+    subtitle: "Web or blog copy up to 500 words.",
+    panel: (
+      <div className="text-slate-700 space-y-3">
+        <ul className="space-y-2">
+          {[
+            "Light research + outline",
+            "Two revision rounds",
+            "SEO basics (title, meta, H-structure)",
+          ].map((p) => (
+            <li key={p} className="flex items-start gap-2">
+              <span
+                className="mt-1 h-2 w-2 rounded-full"
+                style={{ background: brand.purple }}
+              />
+              {p}
+            </li>
+          ))}
+        </ul>
+        <a href="#contact" className="btn btn-pri">
+          Enquire
+        </a>
+      </div>
+    ),
+  },
+  {
+    title: "Growth",
+    titleIsPurple: true,
+    subtitle: "In-depth article or full page (~1 000 words).",
+    panel: (
+      <div className="text-slate-700 space-y-3">
+        <ul className="space-y-2">
+          {[
+            "Interview(s) or source pack review",
+            "Messaging alignment + voice calibration",
+            "Two revision rounds + visuals guidance",
+          ].map((p) => (
+            <li key={p} className="flex items-start gap-2">
+              <span
+                className="mt-1 h-2 w-2 rounded-full"
+                style={{ background: brand.purple }}
+              />
+              {p}
+            </li>
+          ))}
+        </ul>
+        <a href="#contact" className="btn btn-pri">
+          Enquire
+        </a>
+      </div>
+    ),
+  },
+  {
+    title: "Launch",
+    titleIsPurple: true,
+    subtitle: "Multi-page site or campaign set (~2 000 words).",
+    panel: (
+      <div className="text-slate-700 space-y-3">
+        <ul className="space-y-2">
+          {[
+            "Homepage + 2–3 key pages or equivalent set",
+            "Messaging framework + editorial notes",
+            "Two rounds across the set",
+          ].map((p) => (
+            <li key={p} className="flex items-start gap-2">
+              <span
+                className="mt-1 h-2 w-2 rounded-full"
+                style={{ background: brand.purple }}
+              />
+              {p}
+            </li>
+          ))}
+        </ul>
+        <a href="#contact" className="btn btn-pri">
+          Enquire
+        </a>
+      </div>
+    ),
+  },
+  {
+    title: "Retainer",
+    titleIsPurple: true,
+    subtitle: "Regular content (~4 000 words/month).",
+    panel: (
+      <div className="text-slate-700 space-y-3">
+        <ul className="space-y-2">
+          {[
+            "Monthly planning call + backlog",
+            "Priority turnaround windows",
+            "Carry-over up to 20% one month",
+          ].map((p) => (
+            <li key={p} className="flex items-start gap-2">
+              <span
+                className="mt-1 h-2 w-2 rounded-full"
+                style={{ background: brand.purple }}
+              />
+              {p}
+            </li>
+          ))}
+        </ul>
+        <a href="#contact" className="btn btn-pri">
+          Enquire
+        </a>
+      </div>
+    ),
+  },
+];
 
   /* ---------- Close helpers ---------- */
 
