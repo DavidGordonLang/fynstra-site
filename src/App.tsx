@@ -803,7 +803,7 @@ function Header({
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
         <a href="#top" className="flex items-center gap-3 group">
           <img src={logoSrc} onError={(e) => ((e.currentTarget.src = fallbackLogo))} alt="Fynstra" className="h-10 w-10 sm:h-12 sm:w-12 object-contain" />
-          <span className="font-alkatra text-xl sm:text-2xl font-semibold text-slate-900 group-hover:text-slate-700 transition">Fynstra</span>
+          <span className="font-alkatra text-xl sm:text-3xl font-semibold text-slate-900 group-hover:text-slate-700 transition">Fynstra</span>
         </a>
 
         <nav className="hidden md:flex items-center gap-6 text-slate-700">
