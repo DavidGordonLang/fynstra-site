@@ -208,9 +208,8 @@ function CardGrid({
  * About principle cards (accordion; one open at a time)
  * =========================*/
 function AboutPrinciples() {
-  // null = none open, otherwise index of the open card
   const [openIndex, setOpenIndex] = useState<number | null>(null);
-  const GRAD_MS = 520; // elegant, slightly slower than panel timing
+  const GRAD_MS = 520;
 
   const Card = ({
     title,
@@ -230,10 +229,9 @@ function AboutPrinciples() {
         onClick={toggle}
         aria-expanded={isOpen}
         data-open={isOpen}
-        className="about-card group relative overflow-hidden text-left rounded-2xl border border-black/10 bg-white p-5 sm:p-6 shadow-sm hover:shadow-md transition-shadow h-full flex flex-col"
+        className="about-card group relative overflow-hidden text-left rounded-2xl border border-black/10 bg-white p-5 sm:p-6 shadow-sm hover:shadow-md transition-shadow flex flex-col"  // <-- no h-full
         style={{ transition: `box-shadow ${ANIM_MS}ms ${EASE}` }}
       >
-        {/* Gradient overlay — darkest bottom-left ➜ lightest top-right. */}
         <div
           aria-hidden
           className="gradient-reveal pointer-events-none absolute inset-0 rounded-2xl"
@@ -249,7 +247,6 @@ function AboutPrinciples() {
           .about-card[data-open="true"] .gradient-reveal { opacity: .9; }
         `}</style>
 
-        {/* Header row gets a consistent height so chevrons align */}
         <div className="relative flex items-start justify-between gap-3 min-h-[36px]">
           <div className="text-lg sm:text-xl font-semibold text-slate-900">{title}</div>
           <svg
@@ -261,7 +258,6 @@ function AboutPrinciples() {
           </svg>
         </div>
 
-        {/* Body */}
         <div
           className="relative overflow-hidden mt-1"
           style={{
@@ -277,7 +273,7 @@ function AboutPrinciples() {
   };
 
   return (
-    <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 items-stretch">
+    <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 items-start"> {/* <-- items-start */}
       <Card i={0} title="Clear">
         <p>
           We use straightforward language to make your message easy to grasp at first glance. Clarity helps your
@@ -294,14 +290,13 @@ function AboutPrinciples() {
 
       <Card i={2} title="Credible">
         <p>
-          Our words are grounded in fact and intent. Credibility turns attention into belief, belief into trust and
-          trust into action.
+          Our words are grounded in fact and intent. Credibility turns attention into belief, belief into trust and trust
+          into action.
         </p>
       </Card>
     </div>
   );
 }
-
 
 /* =========================
  * App
