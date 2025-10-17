@@ -205,96 +205,103 @@ function CardGrid({
 }
 
 /* =========================
- * About principle cards (grid; expand all together)
+ * About principle cards (accordion; one open at a time)
  * =========================*/
 function AboutPrinciples() {
-  const [open, setOpen] = useState(false);
-  const toggleAll = () => setOpen((v) => !v);
-
+  // null = none open, otherwise index of the open card
+  const [openIndex, setOpenIndex] = useState<number | null>(null);
   const GRAD_MS = 520; // elegant, slightly slower than panel timing
 
   const Card = ({
     title,
     children,
+    i,
   }: {
     title: string;
     children: React.ReactNode;
-  }) => (
-    <button
-      type="button"
-      onClick={toggleAll}
-      aria-expanded={open}
-      data-open={open}
-      className="about-card group relative overflow-hidden text-left rounded-2xl border border-black/10 bg-white p-5 sm:p-6 shadow-sm hover:shadow-md transition-shadow h-full flex flex-col"
-      style={{ transition: `box-shadow ${ANIM_MS}ms ${EASE}` }}
-    >
-      {/* Gradient overlay — darkest bottom-left ➜ lightest top-right. */}
-      <div
-        aria-hidden
-        className="gradient-reveal pointer-events-none absolute inset-0 rounded-2xl"
-        style={{
-          background:
-            "linear-gradient(to top right, var(--fynstra-purple) 0%, var(--fynstra-lavender) 55%, var(--fynstra-blue) 100%)",
-        }}
-      />
-      <style>{`
-        .about-card .gradient-reveal { opacity: 0; transition: opacity ${GRAD_MS}ms ${EASE}; }
-        .about-card:hover .gradient-reveal,
-        .about-card:focus-visible .gradient-reveal,
-        .about-card[data-open="true"] .gradient-reveal { opacity: .9; }
-      `}</style>
+    i: number;
+  }) => {
+    const isOpen = openIndex === i;
+    const toggle = () => setOpenIndex(isOpen ? null : i);
 
-      {/* Header row gets a consistent height so chevrons align */}
-      <div className="relative flex items-start justify-between gap-3 min-h-[36px]">
-        <div className="text-lg sm:text-xl font-semibold text-slate-900">{title}</div>
-        <svg
-          className={["h-5 w-5 text-slate-600 transition-transform", open ? "rotate-180" : ""].join(" ")}
-          style={{ transition: `transform ${ANIM_MS}ms ${EASE}` }}
-          viewBox="0 0 24 24"
-        >
-          <path d="M6 9l6 6 6-6" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" />
-        </svg>
-      </div>
-
-      {/* Body: reserve space, align baselines; when closed, collapse cleanly */}
-      <div
-        className="relative overflow-hidden mt-1"
-        style={{
-          transition: `max-height ${ANIM_MS}ms ${EASE}, opacity ${ANIM_MS}ms ${EASE}`,
-          maxHeight: open ? 220 : 0,
-          opacity: open ? 1 : 0,
-        }}
+    return (
+      <button
+        type="button"
+        onClick={toggle}
+        aria-expanded={isOpen}
+        data-open={isOpen}
+        className="about-card group relative overflow-hidden text-left rounded-2xl border border-black/10 bg-white p-5 sm:p-6 shadow-sm hover:shadow-md transition-shadow h-full flex flex-col"
+        style={{ transition: `box-shadow ${ANIM_MS}ms ${EASE}` }}
       >
-        <div className="mt-3 text-sm text-slate-700 leading-relaxed">{children}</div>
-      </div>
-    </button>
-  );
+        {/* Gradient overlay — darkest bottom-left ➜ lightest top-right. */}
+        <div
+          aria-hidden
+          className="gradient-reveal pointer-events-none absolute inset-0 rounded-2xl"
+          style={{
+            background:
+              "linear-gradient(to top right, var(--fynstra-purple) 0%, var(--fynstra-lavender) 55%, var(--fynstra-blue) 100%)",
+          }}
+        />
+        <style>{`
+          .about-card .gradient-reveal { opacity: 0; transition: opacity ${GRAD_MS}ms ${EASE}; }
+          .about-card:hover .gradient-reveal,
+          .about-card:focus-visible .gradient-reveal,
+          .about-card[data-open="true"] .gradient-reveal { opacity: .9; }
+        `}</style>
+
+        {/* Header row gets a consistent height so chevrons align */}
+        <div className="relative flex items-start justify-between gap-3 min-h-[36px]">
+          <div className="text-lg sm:text-xl font-semibold text-slate-900">{title}</div>
+          <svg
+            className={["h-5 w-5 text-slate-600 transition-transform", isOpen ? "rotate-180" : ""].join(" ")}
+            style={{ transition: `transform ${ANIM_MS}ms ${EASE}` }}
+            viewBox="0 0 24 24"
+          >
+            <path d="M6 9l6 6 6-6" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" />
+          </svg>
+        </div>
+
+        {/* Body */}
+        <div
+          className="relative overflow-hidden mt-1"
+          style={{
+            transition: `max-height ${ANIM_MS}ms ${EASE}, opacity ${ANIM_MS}ms ${EASE}`,
+            maxHeight: isOpen ? 220 : 0,
+            opacity: isOpen ? 1 : 0,
+          }}
+        >
+          <div className="mt-3 text-sm text-slate-700 leading-relaxed">{children}</div>
+        </div>
+      </button>
+    );
+  };
 
   return (
     <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 items-stretch">
-      <Card title="Clear">
+      <Card i={0} title="Clear">
         <p>
           We use straightforward language to make your message easy to grasp at first glance. Clarity helps your
           audience act quickly and with confidence.
         </p>
       </Card>
 
-      <Card title="Consistent">
+      <Card i={1} title="Consistent">
         <p>
           Every piece of communication we write for you will follow the same rhythm, tone and structure. Consistency
           builds trust and strengthens your brand voice.
         </p>
       </Card>
 
-      <Card title="Credible">
+      <Card i={2} title="Credible">
         <p>
-          Our words are grounded in fact and intent. Credibility turns attention into belief, belief into trust and trust
-          into action.
+          Our words are grounded in fact and intent. Credibility turns attention into belief, belief into trust and
+          trust into action.
         </p>
       </Card>
     </div>
   );
 }
+
 
 /* =========================
  * App
