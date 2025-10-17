@@ -985,10 +985,12 @@ function Testimonials() {
 
 
 function Contact() {
+  const FORMSPREE_ENDPOINT = "https://formspree.io/f/xblzwzpk";
   const [status, setStatus] = useState<"idle" | "sending" | "success" | "error">("idle");
+  const [errorMsg, setErrorMsg] = useState<string>("");
   const formRef = useRef<HTMLFormElement | null>(null);
 
-  const onSubmit: React.FormEventHandler<HTMLFormElement> = (e) => {
+  const onSubmit: React.FormEventHandler<HTMLFormElement> = async (e) => {
     e.preventDefault();
     if (!formRef.current) return;
 
@@ -996,28 +998,54 @@ function Contact() {
     const name = String(fd.get("name") || "").trim();
     const email = String(fd.get("email") || "").trim();
     const message = String(fd.get("message") || "").trim();
-
-    if (!name || !email) {
+    if (!name || !email || !message) {
+      setErrorMsg("Please add your name, email and a short message.");
       setStatus("error");
       return;
     }
 
-    setStatus("sending");
+    try {
+      setStatus("sending");
+      setErrorMsg("");
 
-    // Simulate a network request (placeholder)
-    setTimeout(() => {
-      // At this point you would POST to your real endpoint
-      setStatus("success");
-      formRef.current?.reset();
-      // Auto-hide success after a few seconds
-      setTimeout(() => setStatus("idle"), 3000);
-    }, 800);
+      // Honeypot check (basic spam guard)
+      if (String(fd.get("_gotcha") || "").length > 0) {
+        setStatus("success"); // silently pass
+        formRef.current.reset();
+        return;
+      }
+
+      // Submit to Formspree (AJAX). Accept header is enough; browser sets multipart boundary.
+      const res = await fetch(FORMSPREE_ENDPOINT, {
+        method: "POST",
+        headers: { Accept: "application/json" },
+        body: fd,
+      });
+
+      if (res.ok) {
+        setStatus("success");
+        formRef.current.reset();
+        // auto-clear message after a few seconds
+        setTimeout(() => setStatus("idle"), 3500);
+      } else {
+        const data = await res.json().catch(() => ({}));
+        setErrorMsg(
+          (data?.errors && data.errors[0]?.message) ||
+            "Something went wrong sending your message. Please try again."
+        );
+        setStatus("error");
+      }
+    } catch {
+      setErrorMsg("Network error. Please try again.");
+      setStatus("error");
+    }
   };
 
   return (
     <section id="contact" className="py-16 sm:py-20 lg:py-24">
       <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-10 items-start">
+          {/* Left copy */}
           <div className="reveal" data-reveal>
             <h2 className="text-2xl sm:text-4xl font-semibold text-slate-900">Let’s talk</h2>
             <p className="mt-3 text-slate-800 max-w-xl">
@@ -1032,18 +1060,26 @@ function Contact() {
             </div>
           </div>
 
+          {/* Right: Formspree form */}
           <div className="reveal" data-reveal>
             <form
               ref={formRef}
               onSubmit={onSubmit}
+              action={FORMSPREE_ENDPOINT} // graceful fallback if JS is disabled
+              method="POST"
               className="rounded-2xl border border-black/10 bg-white p-5 sm:p-6 shadow-sm"
               noValidate
             >
+              {/* hidden helpers */}
+              <input type="hidden" name="_subject" value="Fynstra website contact" />
+              <input type="text" name="_gotcha" className="hidden" tabIndex={-1} autoComplete="off" />
+
               <div className="grid grid-cols-1 gap-4">
                 <label className="block">
                   <span className="text-sm text-slate-600">Name</span>
                   <input
                     name="name"
+                    required
                     className="mt-1 w-full rounded-xl border border-black/10 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-300 text-slate-900"
                     placeholder="Your name"
                     aria-invalid={status === "error" ? true : undefined}
@@ -1055,6 +1091,7 @@ function Contact() {
                   <input
                     name="email"
                     type="email"
+                    required
                     className="mt-1 w-full rounded-xl border border-black/10 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-300 text-slate-900"
                     placeholder="you@company.com"
                     aria-invalid={status === "error" ? true : undefined}
@@ -1066,6 +1103,7 @@ function Contact() {
                   <textarea
                     name="message"
                     rows={4}
+                    required
                     className="mt-1 w-full rounded-xl border border-black/10 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-300 text-slate-900"
                     placeholder="Goals, audience, deliverables, timeline"
                   />
@@ -1076,22 +1114,25 @@ function Contact() {
                   className="btn btn-pri w-full"
                   disabled={status === "sending"}
                 >
-                  {status === "sending" ? "Sending…" : "Send (placeholder)"}
+                  {status === "sending" ? "Sending…" : "Send message"}
                 </button>
 
                 {/* Inline feedback */}
                 <div className="min-h-[1.25rem]" aria-live="polite">
                   {status === "error" && (
-                    <p className="text-sm text-rose-600 mt-1">Please add your name and email.</p>
+                    <p className="text-sm text-rose-600 mt-1">{errorMsg}</p>
                   )}
                   {status === "success" && (
-                    <p className="text-sm text-emerald-600 mt-1">Thanks! We’ve received your message (placeholder).</p>
+                    <p className="text-sm text-emerald-600 mt-1">
+                      Thanks! Your message has been sent.
+                    </p>
                   )}
                 </div>
               </div>
 
               <p className="mt-3 text-xs text-slate-500">
-                This form is a front-end placeholder. Swap for a real form handler (Formspree, Resend, or a serverless function) when we go live.
+                We’ll reply from <span className="font-medium">info@fynstra.co.uk</span>. By submitting, you consent to us
+                storing this info to respond to your enquiry.
               </p>
             </form>
           </div>
