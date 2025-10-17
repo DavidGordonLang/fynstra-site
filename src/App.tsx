@@ -953,8 +953,8 @@ function Testimonials() {
   const testimonials = [
     {
       quote:
-        "Fynstra helped us find our voice. The copy finally matched the product and our engagement jumped overnight.",
-      author: "Sarah Williams • Marketing Lead, Loop Systems",
+        "I recently outsourced Fynstra to support one of my financial service clients with thought leadership blogs, and they were a dream to work with. Communication was effortless, they immediately understood the brand voice we were trying to convey, and the content they produced was outstanding with minimal (if any) edits. Highly recommend",
+      author: "Jasmine Panayides • Founder, HR Writing Services",
     },
     {
       quote:
