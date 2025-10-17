@@ -598,6 +598,14 @@ const packages: CardItem[] = [
     <div ref={containerRef} className="text-slate-100 site-bg selection:bg-indigo-200/60 min-h-screen">
       {/* Global styles */}
       <style>{`
+      /* === Alkatra font (self-hosted) === */
+@font-face {
+  font-family: "Alkatra";
+  src: url("/fonts/Alkatra/Alkatra-VariableFont_wght.ttf") format("truetype");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
         :root {
           --fynstra-blue: ${brand.blue};
           --fynstra-lavender: ${brand.lavender};
