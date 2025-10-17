@@ -952,18 +952,15 @@ function Hero({
 function Testimonials() {
   const testimonials = [
     {
-      quote:
-        "I recently outsourced Fynstra to support one of my financial service clients with thought leadership blogs, and they were a dream to work with. Communication was effortless, they immediately understood the brand voice we were trying to convey, and the content they produced was outstanding with minimal (if any) edits. Highly recommend",
+      quote: `I recently outsourced Fynstra to support one of my financial service clients with thought leadership blogs, and they were a dream to work with. Communication was effortless, they immediately understood the brand voice we were trying to convey, and the content they produced was outstanding with minimal (if any) edits. Highly recommend.`,
       author: "Jasmine Panayides • Founder, HR Writing Services",
     },
     {
-      quote:
-        "Clear process, sharp writing, zero fluff. They took a vague brief and turned it into something that just worked.",
+      quote: `Clear process, sharp writing, zero fluff. They took a vague brief and turned it into something that just worked.`,
       author: "James Kerr • Founder, North Studio",
     },
     {
-      quote:
-        "We’d struggled to explain what we do for years. Fynstra rewrote it in two pages, and clients instantly got it.",
+      quote: `We’d struggled to explain what we do for years. Fynstra rewrote it in two pages, and clients instantly got it.`,
       author: "Elena Petrova • COO, BrightLedger",
     },
   ];
@@ -972,9 +969,7 @@ function Testimonials() {
     <section id="testimonials" className="py-16 sm:py-20 lg:py-24">
       <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
         <div className="reveal" data-reveal>
-          <h2 className="text-2xl sm:text-4xl font-semibold text-slate-900">
-            Kind words
-          </h2>
+          <h2 className="text-2xl sm:text-4xl font-semibold text-slate-900">Kind words</h2>
           <p className="mt-3 text-slate-800 max-w-2xl">
             Real feedback from clients who’ve trusted us to make their message clear and credible.
           </p>
@@ -985,9 +980,7 @@ function Testimonials() {
             <figure key={i} className="reveal" data-reveal>
               <div className="rounded-2xl border border-black/10 bg-slate-50 p-5 sm:p-6 h-full">
                 <blockquote className="text-slate-800">“{t.quote}”</blockquote>
-                <figcaption className="mt-4 text-sm text-slate-500">
-                  {t.author}
-                </figcaption>
+                <figcaption className="mt-4 text-sm text-slate-500">{t.author}</figcaption>
               </div>
             </figure>
           ))}
@@ -996,6 +989,7 @@ function Testimonials() {
     </section>
   );
 }
+
 
 
 function Contact() {
