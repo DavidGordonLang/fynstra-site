@@ -204,7 +204,7 @@ function CardGrid({
   );
 }
 
-/* =========================
+/* ========================
  * About principle cards (accordion; one open at a time)
  * =========================*/
 function AboutPrinciples() {
