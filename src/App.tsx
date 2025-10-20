@@ -206,10 +206,12 @@ function CardGrid({
 }
 
 /* ========================
- * About principle cards (accordion; one open at a time)
+ * About principle cards (accordion; all closed by default)
  * ========================*/
 function AboutPrinciples() {
-  const [openIndex, setOpenIndex] = useState<number | null>(0); // Start with first open (optional UX)
+  // Start with NO card open
+  const [openIndex, setOpenIndex] = useState<number | null>(null);
+
   const GRAD_MS = 520;
 
   const Card = ({
@@ -249,7 +251,7 @@ function AboutPrinciples() {
           .about-card[data-open="true"] .gradient-reveal { opacity: .9; }
         `}</style>
 
-        {/* Header row */}
+        {/* Header */}
         <div className="relative flex items-start justify-between gap-3 min-h-[36px]">
           <div className="text-lg sm:text-xl font-semibold text-slate-900">{title}</div>
           <svg
@@ -279,9 +281,7 @@ function AboutPrinciples() {
   return (
     <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 items-start">
       <Card i={0} title="Clear">
-        {/* PURPOSE first */}
         <p className="mb-3">Clarity helps your audience act quickly and with confidence.</p>
-        {/* WHAT WE DO */}
         <p>We use straightforward language to make your message easy to grasp at first glance.</p>
       </Card>
 
@@ -297,6 +297,7 @@ function AboutPrinciples() {
     </div>
   );
 }
+
 
 /* =========================
  * App
