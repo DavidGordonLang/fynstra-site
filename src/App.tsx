@@ -276,8 +276,9 @@ function AboutPrinciples() {
     <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 items-start"> {/* <-- items-start */}
       <Card i={0} title="Clear">
         <p>
-          We use straightforward language to make your message easy to grasp at first glance. Clarity helps your
-          audience act quickly and with confidence.
+         Clarity helps your audience act quickly and with confidence. 
+          <p>
+          We use straightforward language to make your message easy to grasp at first glance. 
         </p>
       </Card>
 
