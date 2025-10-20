@@ -206,9 +206,10 @@ function CardGrid({
 
 /* ========================
  * About principle cards (accordion; one open at a time)
- * =========================*/
+ * ========================*/
 function AboutPrinciples() {
-  const [openIndex, setOpenIndex] = useState<number | null>(null);
+  const [openIndex, setOpenIndex] = useState<number | null>(0); // start with first open if you like
+
   const GRAD_MS = 520;
 
   const Card = ({
@@ -229,9 +230,10 @@ function AboutPrinciples() {
         onClick={toggle}
         aria-expanded={isOpen}
         data-open={isOpen}
-        className="about-card group relative overflow-hidden text-left rounded-2xl border border-black/10 bg-white p-5 sm:p-6 shadow-sm hover:shadow-md transition-shadow flex flex-col"  // <-- no h-full
+        className="about-card group relative overflow-hidden text-left rounded-2xl border border-black/10 bg-white p-5 sm:p-6 shadow-sm hover:shadow-md transition-shadow"
         style={{ transition: `box-shadow ${ANIM_MS}ms ${EASE}` }}
       >
+        {/* Gradient overlay */}
         <div
           aria-hidden
           className="gradient-reveal pointer-events-none absolute inset-0 rounded-2xl"
@@ -247,6 +249,7 @@ function AboutPrinciples() {
           .about-card[data-open="true"] .gradient-reveal { opacity: .9; }
         `}</style>
 
+        {/* Header row */}
         <div className="relative flex items-start justify-between gap-3 min-h-[36px]">
           <div className="text-lg sm:text-xl font-semibold text-slate-900">{title}</div>
           <svg
@@ -258,11 +261,12 @@ function AboutPrinciples() {
           </svg>
         </div>
 
+        {/* Body */}
         <div
           className="relative overflow-hidden mt-1"
           style={{
             transition: `max-height ${ANIM_MS}ms ${EASE}, opacity ${ANIM_MS}ms ${EASE}`,
-            maxHeight: isOpen ? 220 : 0,
+            maxHeight: isOpen ? 280 : 0,
             opacity: isOpen ? 1 : 0,
           }}
         >
@@ -273,35 +277,39 @@ function AboutPrinciples() {
   };
 
   return (
-    <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 items-start"> {/* <-- items-start */}
+    <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 items-start">
       <Card i={0} title="Clear">
+        {/* PURPOSE first */}
+        <p className="mb-3">
+          Clarity helps your audience act quickly and with confidence.
+        </p>
+        {/* WHAT WE DO */}
         <p>
-          <p>
-         Clarity helps your audience act quickly and with confidence. 
-          <p>
-          We use straightforward language to make your message easy to grasp at first glance. 
+          We use straightforward language to make your message easy to grasp at first glance.
         </p>
       </Card>
 
       <Card i={1} title="Consistent">
-        <p>
+        <p className="mb-3">
           Consistency builds trust and strengthens your brand voice.
-          <p>
-          Every piece of communication we write for you will follow the same rhythm, tone and structure. 
+        </p>
+        <p>
+          Every piece of communication we write for you follows the same rhythm, tone and structure.
         </p>
       </Card>
 
       <Card i={2} title="Credible">
+        <p className="mb-3">
+          Credibility turns attention into belief, belief into trust and trust into action.
+        </p>
         <p>
-          Credibility turns attention into belief, belief into trust and trust
-          into action. 
-          <p>
-          Our words are grounded in fact and intent. 
+          Our words are grounded in fact and intent.
         </p>
       </Card>
     </div>
   );
 }
+
 
 /* =========================
  * App
