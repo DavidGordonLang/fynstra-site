@@ -285,15 +285,16 @@ function AboutPrinciples() {
 
       <Card i={1} title="Consistent">
         <p>
-          Every piece of communication we write for you will follow the same rhythm, tone and structure. Consistency
-          builds trust and strengthens your brand voice.
+          Consistency builds trust and strengthens your brand voice.
+          Every piece of communication we write for you will follow the same rhythm, tone and structure. 
         </p>
       </Card>
 
       <Card i={2} title="Credible">
         <p>
-          Our words are grounded in fact and intent. Credibility turns attention into belief, belief into trust and trust
-          into action.
+          Credibility turns attention into belief, belief into trust and trust
+          into action. 
+          Our words are grounded in fact and intent. 
         </p>
       </Card>
     </div>
