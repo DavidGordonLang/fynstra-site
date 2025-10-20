@@ -3,11 +3,12 @@ import React, { useEffect, useRef, useState } from "react";
 /**
  * Fynstra — One-page marketing site (Copywriting-first)
  * - Stronger sage background gradient
- * - About = original airy layout + expandable principle cards (all expand together)
- * - Packages back to airy grid on desktop
- * - Open animation mirrors close (same timing, same curve, simultaneous overlay/panel)
- * - Service/package auto-scrolls into view on open (no cutoff)
+ * - About = airy layout + accordion principle cards (one open at a time)
+ * - Packages = airy grid on desktop
+ * - Overlay + panel open/close animation sync
+ * - Service/package auto-scrolls into view on open
  * - About cards: gradient fades in on hover and persists while expanded (BL ➜ TR)
+ * - BUGFIX: Close any open panel + overlay on nav/hash/anchor changes
  */
 
 const brand = {
@@ -208,8 +209,7 @@ function CardGrid({
  * About principle cards (accordion; one open at a time)
  * ========================*/
 function AboutPrinciples() {
-  const [openIndex, setOpenIndex] = useState<number | null>(0); // start with first open if you like
-
+  const [openIndex, setOpenIndex] = useState<number | null>(0); // Start with first open (optional UX)
   const GRAD_MS = 520;
 
   const Card = ({
@@ -280,36 +280,23 @@ function AboutPrinciples() {
     <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 items-start">
       <Card i={0} title="Clear">
         {/* PURPOSE first */}
-        <p className="mb-3">
-          Clarity helps your audience act quickly and with confidence.
-        </p>
+        <p className="mb-3">Clarity helps your audience act quickly and with confidence.</p>
         {/* WHAT WE DO */}
-        <p>
-          We use straightforward language to make your message easy to grasp at first glance.
-        </p>
+        <p>We use straightforward language to make your message easy to grasp at first glance.</p>
       </Card>
 
       <Card i={1} title="Consistent">
-        <p className="mb-3">
-          Consistency builds trust and strengthens your brand voice.
-        </p>
-        <p>
-          Every piece of communication we write for you follows the same rhythm, tone and structure.
-        </p>
+        <p className="mb-3">Consistency builds trust and strengthens your brand voice.</p>
+        <p>Every piece of communication we write for you follows the same rhythm, tone and structure.</p>
       </Card>
 
       <Card i={2} title="Credible">
-        <p className="mb-3">
-          Credibility turns attention into belief, belief into trust and trust into action.
-        </p>
-        <p>
-          Our words are grounded in fact and intent.
-        </p>
+        <p className="mb-3">Credibility turns attention into belief, belief into trust and trust into action.</p>
+        <p>Our words are grounded in fact and intent.</p>
       </Card>
     </div>
   );
 }
-
 
 /* =========================
  * App
@@ -382,152 +369,129 @@ export default function App({
               </li>
             ))}
           </ul>
-          <p className="text-sm text-slate-600">
-            Pricing depends on research depth and revision cycles.
-          </p>
+          <p className="text-sm text-slate-600">Pricing depends on research depth and revision cycles.</p>
         </div>
       ),
     },
   ];
 
-// Packages
-const packages: CardItem[] = [
-  {
-    title: "Budget",
-    titleIsPurple: true,
-    subtitle: "Short-form social copy (3–5 captions).",
-    panel: (
-      <div className="text-slate-700 space-y-3">
-        <ul className="space-y-2">
-          {[
-            "Quick kickoff prompt + tone guide",
-            "One revision round",
-            "Delivery in editable doc + ready-to-paste set",
-          ].map((p) => (
-            <li key={p} className="flex items-start gap-2">
-              <span
-                className="mt-1 h-2 w-2 rounded-full"
-                style={{ background: brand.purple }}
-              />
-              {p}
-            </li>
-          ))}
-        </ul>
-        <a href="#contact" className="btn btn-pri">
-          Enquire
-        </a>
-      </div>
-    ),
-  },
-  {
-    title: "Starter",
-    titleIsPurple: true,
-    subtitle: "Web or blog copy up to 500 words.",
-    panel: (
-      <div className="text-slate-700 space-y-3">
-        <ul className="space-y-2">
-          {[
-            "Light research + outline",
-            "Two revision rounds",
-            "SEO basics (title, meta, H-structure)",
-          ].map((p) => (
-            <li key={p} className="flex items-start gap-2">
-              <span
-                className="mt-1 h-2 w-2 rounded-full"
-                style={{ background: brand.purple }}
-              />
-              {p}
-            </li>
-          ))}
-        </ul>
-        <a href="#contact" className="btn btn-pri">
-          Enquire
-        </a>
-      </div>
-    ),
-  },
-  {
-    title: "Growth",
-    titleIsPurple: true,
-    subtitle: "In-depth article or full page (~1 000 words).",
-    panel: (
-      <div className="text-slate-700 space-y-3">
-        <ul className="space-y-2">
-          {[
-            "Interview(s) or source pack review",
-            "Messaging alignment + voice calibration",
-            "Two revision rounds + visuals guidance",
-          ].map((p) => (
-            <li key={p} className="flex items-start gap-2">
-              <span
-                className="mt-1 h-2 w-2 rounded-full"
-                style={{ background: brand.purple }}
-              />
-              {p}
-            </li>
-          ))}
-        </ul>
-        <a href="#contact" className="btn btn-pri">
-          Enquire
-        </a>
-      </div>
-    ),
-  },
-  {
-    title: "Launch",
-    titleIsPurple: true,
-    subtitle: "Multi-page site or campaign set (~2 000 words).",
-    panel: (
-      <div className="text-slate-700 space-y-3">
-        <ul className="space-y-2">
-          {[
-            "Homepage + 2–3 key pages or equivalent set",
-            "Messaging framework + editorial notes",
-            "Two rounds across the set",
-          ].map((p) => (
-            <li key={p} className="flex items-start gap-2">
-              <span
-                className="mt-1 h-2 w-2 rounded-full"
-                style={{ background: brand.purple }}
-              />
-              {p}
-            </li>
-          ))}
-        </ul>
-        <a href="#contact" className="btn btn-pri">
-          Enquire
-        </a>
-      </div>
-    ),
-  },
-  {
-    title: "Retainer",
-    titleIsPurple: true,
-    subtitle: "Regular content (~4 000 words/month).",
-    panel: (
-      <div className="text-slate-700 space-y-3">
-        <ul className="space-y-2">
-          {[
-            "Monthly planning call + backlog",
-            "Priority turnaround windows",
-            "Carry-over up to 20% one month",
-          ].map((p) => (
-            <li key={p} className="flex items-start gap-2">
-              <span
-                className="mt-1 h-2 w-2 rounded-full"
-                style={{ background: brand.purple }}
-              />
-              {p}
-            </li>
-          ))}
-        </ul>
-        <a href="#contact" className="btn btn-pri">
-          Enquire
-        </a>
-      </div>
-    ),
-  },
-];
+  // Packages
+  const packages: CardItem[] = [
+    {
+      title: "Budget",
+      titleIsPurple: true,
+      subtitle: "Short-form social copy (3–5 captions).",
+      panel: (
+        <div className="text-slate-700 space-y-3">
+          <ul className="space-y-2">
+            {[
+              "Quick kickoff prompt + tone guide",
+              "One revision round",
+              "Delivery in editable doc + ready-to-paste set",
+            ].map((p) => (
+              <li key={p} className="flex items-start gap-2">
+                <span className="mt-1 h-2 w-2 rounded-full" style={{ background: brand.purple }} />
+                {p}
+              </li>
+            ))}
+          </ul>
+          <a href="#contact" className="btn btn-pri">
+            Enquire
+          </a>
+        </div>
+      ),
+    },
+    {
+      title: "Starter",
+      titleIsPurple: true,
+      subtitle: "Web or blog copy up to 500 words.",
+      panel: (
+        <div className="text-slate-700 space-y-3">
+          <ul className="space-y-2">
+            {["Light research + outline", "Two revision rounds", "SEO basics (title, meta, H-structure)"].map((p) => (
+              <li key={p} className="flex items-start gap-2">
+                <span className="mt-1 h-2 w-2 rounded-full" style={{ background: brand.purple }} />
+                {p}
+              </li>
+            ))}
+          </ul>
+          <a href="#contact" className="btn btn-pri">
+            Enquire
+          </a>
+        </div>
+      ),
+    },
+    {
+      title: "Growth",
+      titleIsPurple: true,
+      subtitle: "In-depth article or full page (~1 000 words).",
+      panel: (
+        <div className="text-slate-700 space-y-3">
+          <ul className="space-y-2">
+            {[
+              "Interview(s) or source pack review",
+              "Messaging alignment + voice calibration",
+              "Two revision rounds + visuals guidance",
+            ].map((p) => (
+              <li key={p} className="flex items-start gap-2">
+                <span className="mt-1 h-2 w-2 rounded-full" style={{ background: brand.purple }} />
+                {p}
+              </li>
+            ))}
+          </ul>
+          <a href="#contact" className="btn btn-pri">
+            Enquire
+          </a>
+        </div>
+      ),
+    },
+    {
+      title: "Launch",
+      titleIsPurple: true,
+      subtitle: "Multi-page site or campaign set (~2 000 words).",
+      panel: (
+        <div className="text-slate-700 space-y-3">
+          <ul className="space-y-2">
+            {[
+              "Homepage + 2–3 key pages or equivalent set",
+              "Messaging framework + editorial notes",
+              "Two rounds across the set",
+            ].map((p) => (
+              <li key={p} className="flex items-start gap-2">
+                <span className="mt-1 h-2 w-2 rounded-full" style={{ background: brand.purple }} />
+                {p}
+              </li>
+            ))}
+          </ul>
+          <a href="#contact" className="btn btn-pri">
+            Enquire
+          </a>
+        </div>
+      ),
+    },
+    {
+      title: "Retainer",
+      titleIsPurple: true,
+      subtitle: "Regular content (~4 000 words/month).",
+      panel: (
+        <div className="text-slate-700 space-y-3">
+          <ul className="space-y-2">
+            {["Monthly planning call + backlog", "Priority turnaround windows", "Carry-over up to 20% one month"].map(
+              (p) => (
+                <li key={p} className="flex items-start gap-2">
+                  <span className="mt-1 h-2 w-2 rounded-full" style={{ background: brand.purple }} />
+                  {p}
+                </li>
+              )
+            )}
+          </ul>
+          <a href="#contact" className="btn btn-pri">
+            Enquire
+          </a>
+        </div>
+      ),
+    },
+  ];
 
   /* ---------- Close helpers ---------- */
 
@@ -548,6 +512,40 @@ const packages: CardItem[] = [
     if (openPackage !== null) startClosePackage(openPackage);
     setTimeout(() => setOverlayPhase("idle"), ANIM_MS);
   };
+
+  // Instant closer for navigation / hash changes
+  const closeInstant = React.useCallback(() => {
+    setOpenService(null);
+    setOpenPackage(null);
+    setClosingService(null);
+    setClosingPackage(null);
+    setOverlayPhase("idle");
+  }, []);
+
+  /* ---------- Global listeners to prevent stuck overlay ---------- */
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") closeInstant();
+    };
+    const onHashOrHistory = () => closeInstant();
+    const onDocClick = (e: MouseEvent) => {
+      const t = e.target as HTMLElement | null;
+      const a = t?.closest?.("a[href^='#']") as HTMLAnchorElement | null;
+      if (a) closeInstant();
+    };
+
+    window.addEventListener("keydown", onKey);
+    window.addEventListener("hashchange", onHashOrHistory);
+    window.addEventListener("popstate", onHashOrHistory);
+    document.addEventListener("click", onDocClick);
+
+    return () => {
+      window.removeEventListener("keydown", onKey);
+      window.removeEventListener("hashchange", onHashOrHistory);
+      window.removeEventListener("popstate", onHashOrHistory);
+      document.removeEventListener("click", onDocClick);
+    };
+  }, [closeInstant]);
 
   /* ---------- Toggle handlers (with auto scroll) ---------- */
 
@@ -665,7 +663,7 @@ const packages: CardItem[] = [
             linear-gradient(180deg, #F3F8F4 0%, #E7F1EA 40%, #F7FBF8 100%);
         }
 
-        /* Hero card background: dark bottom-left, lighter toward top-right, with a soft logo lift top-left */
+        /* Hero card background */
         .hero-card-bg {
           position: absolute;
           inset: 0;
@@ -694,7 +692,13 @@ const packages: CardItem[] = [
       `}</style>
 
       {/* HEADER */}
-      <Header logoSrc={logoSrc} fallbackLogo={fallbackLogo} mobileOpen={mobileOpen} setMobileOpen={setMobileOpen} />
+      <Header
+        logoSrc={logoSrc}
+        fallbackLogo={fallbackLogo}
+        mobileOpen={mobileOpen}
+        setMobileOpen={setMobileOpen}
+        onNavigateClose={closeInstant}
+      />
 
       {/* HERO */}
       <Hero logoSrc={logoSrc} fallbackLogo={fallbackLogo} bannerLeft={bannerLeft} bannerRight={bannerRight} />
@@ -706,17 +710,22 @@ const packages: CardItem[] = [
             <div className="lg:col-span-5 reveal" data-reveal>
               <h2 className="text-2xl sm:text-4xl font-semibold text-slate-900">About Fynstra</h2>
               <p className="mt-3 sm:mt-4 text-slate-800">
-               Businesses often struggle to sound the way they want.  That’s why we built Fynstra.
-                </p>
+                Businesses often struggle to sound the way they want. That’s why we built Fynstra.
+              </p>
               <p className="mt-3 sm:mt-4 text-slate-800">
-After years working across creative and corporate environments, we saw how often strong ideas were lost in translation. Communication is everything. Whether it’s an email campaign, a newsletter, a post on socials, or a blog sharing what your company does and why it matters. We make sure you’re heard and your message lands exactly as you intend it to.
-                </p>
-              <p className="mt-3 sm:mt-4 text-slate-800">  
-Our team brings years of experience across regulatory compliance, business process design, and financial crime prevention. From AML and KYC oversight to communication frameworks in complex, fast-moving industries. That perspective shapes how we write: precise, structured, and always true to intent.
-                  </p>
+                After years working across creative and corporate environments, we saw how often strong ideas were lost
+                in translation. Communication is everything. Whether it’s an email campaign, a newsletter, a post on
+                socials, or a blog sharing what your company does and why it matters. We make sure you’re heard and
+                your message lands exactly as you intend it to.
+              </p>
               <p className="mt-3 sm:mt-4 text-slate-800">
-We take the time to understand your business, so we can speak from it the way it deserves. Concise, clear and always on point.
-Clarity in content.
+                Our team brings years of experience across regulatory compliance, business process design, and financial
+                crime prevention. From AML and KYC oversight to communication frameworks in complex, fast-moving
+                industries. That perspective shapes how we write: precise, structured, and always true to intent.
+              </p>
+              <p className="mt-3 sm:mt-4 text-slate-800">
+                We take the time to understand your business, so we can speak from it the way it deserves. Concise,
+                clear and always on point. Clarity in content.
               </p>
             </div>
 
@@ -780,9 +789,7 @@ Clarity in content.
             />
           </div>
 
-          <p className="mt-6 text-sm text-slate-600">
-            
-          </p>
+          <p className="mt-6 text-sm text-slate-600"></p>
         </div>
       </section>
 
@@ -807,26 +814,45 @@ function Header({
   fallbackLogo,
   mobileOpen,
   setMobileOpen,
+  onNavigateClose,
 }: {
   logoSrc: string;
   fallbackLogo: string;
   mobileOpen: boolean;
   setMobileOpen: (v: boolean) => void;
+  onNavigateClose: () => void;
 }) {
   return (
     <header className="sticky top-0 z-[70] backdrop-blur-sm bg-white/80 border-b border-black/5">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-        <a href="#top" className="flex items-center gap-3 group">
-          <img src={logoSrc} onError={(e) => ((e.currentTarget.src = fallbackLogo))} alt="Fynstra" className="h-10 w-10 sm:h-12 sm:w-12 object-contain" />
-          <span className="font-alkatra text-xl sm:text-3xl font-semibold text-slate-900 group-hover:text-slate-700 transition">Fynstra</span>
+        <a href="#top" className="flex items-center gap-3 group" onClick={onNavigateClose}>
+          <img
+            src={logoSrc}
+            onError={(e) => ((e.currentTarget.src = fallbackLogo))}
+            alt="Fynstra"
+            className="h-10 w-10 sm:h-12 sm:w-12 object-contain"
+          />
+          <span className="font-alkatra text-xl sm:text-3xl font-semibold text-slate-900 group-hover:text-slate-700 transition">
+            Fynstra
+          </span>
         </a>
 
         <nav className="hidden md:flex items-center gap-6 text-slate-700">
-          <a href="#about" className="hover:text-slate-900">About</a>
-          <a href="#services" className="hover:text-slate-900">Services</a>
-          <a href="#testimonials" className="hover:text-slate-900">Testimonials</a>
-          <a href="#contact" className="hover:text-slate-900">Contact</a>
-          <a href="#contact" className="btn btn-pri ml-2">Book a chat</a>
+          <a href="#about" className="hover:text-slate-900" onClick={onNavigateClose}>
+            About
+          </a>
+          <a href="#services" className="hover:text-slate-900" onClick={onNavigateClose}>
+            Services
+          </a>
+          <a href="#testimonials" className="hover:text-slate-900" onClick={onNavigateClose}>
+            Testimonials
+          </a>
+          <a href="#contact" className="hover:text-slate-900" onClick={onNavigateClose}>
+            Contact
+          </a>
+          <a href="#contact" className="btn btn-pri ml-2" onClick={onNavigateClose}>
+            Book a chat
+          </a>
         </nav>
 
         <button
@@ -863,11 +889,56 @@ function Header({
         }}
       >
         <div className="rounded-2xl border border-black/10 bg-white p-4 shadow-lg text-slate-900">
-          <a href="#about" onClick={() => setMobileOpen(false)} className="block px-2 py-2 rounded-lg hover:bg-slate-50">About</a>
-          <a href="#services" onClick={() => setMobileOpen(false)} className="block px-2 py-2 rounded-lg hover:bg-slate-50">Services</a>
-          <a href="#testimonials" onClick={() => setMobileOpen(false)} className="block px-2 py-2 rounded-lg hover:bg-slate-50">Testimonials</a>
-          <a href="#contact" onClick={() => setMobileOpen(false)} className="block px-2 py-2 rounded-lg hover:bg-slate-50">Contact</a>
-          <a href="#contact" onClick={() => setMobileOpen(false)} className="mt-3 btn btn-pri w-full">Book a chat</a>
+          <a
+            href="#about"
+            onClick={() => {
+              onNavigateClose();
+              setMobileOpen(false);
+            }}
+            className="block px-2 py-2 rounded-lg hover:bg-slate-50"
+          >
+            About
+          </a>
+          <a
+            href="#services"
+            onClick={() => {
+              onNavigateClose();
+              setMobileOpen(false);
+            }}
+            className="block px-2 py-2 rounded-lg hover:bg-slate-50"
+          >
+            Services
+          </a>
+          <a
+            href="#testimonials"
+            onClick={() => {
+              onNavigateClose();
+              setMobileOpen(false);
+            }}
+            className="block px-2 py-2 rounded-lg hover:bg-slate-50"
+          >
+            Testimonials
+          </a>
+          <a
+            href="#contact"
+            onClick={() => {
+              onNavigateClose();
+              setMobileOpen(false);
+            }}
+            className="block px-2 py-2 rounded-lg hover:bg-slate-50"
+          >
+            Contact
+          </a>
+          <a
+            href="#contact"
+            onClick={() => {
+              onNavigateClose();
+              setMobileOpen(false);
+            }}
+            className="mt-3 btn btn-pri w-full"
+          >
+            Book a chat
+          </a>
         </div>
       </div>
     </header>
@@ -892,8 +963,7 @@ function Hero({
           id="hero-bg"
           className="absolute inset-0 transition-opacity duration-500"
           style={{
-            background:
-              "linear-gradient(90deg, var(--fynstra-blue) 0%, var(--fynstra-lavender) 50%, var(--fynstra-purple) 100%)",
+            background: "linear-gradient(90deg, var(--fynstra-blue) 0%, var(--fynstra-lavender) 50%, var(--fynstra-purple) 100%)",
           }}
         />
         <img
@@ -916,12 +986,16 @@ function Hero({
               Convert with <span className="heading-gradient">clear, credible</span> copy.
             </h1>
             <p className="mt-4 sm:mt-5 text-base sm:text-lg text-slate-800 max-w-xl">
-              We help businesses create copy that reads fast and feels right. Landing pages, product pages and content that
-              moves the work forward.
+              We help businesses create copy that reads fast and feels right. Landing pages, product pages and content
+              that moves the work forward.
             </p>
             <div className="mt-6 sm:mt-8 flex flex-wrap gap-3">
-              <a href="#services" className="btn btn-pri">Explore services</a>
-              <a href="#contact" className="btn btn-ghost">Get in touch</a>
+              <a href="#services" className="btn btn-pri">
+                Explore services
+              </a>
+              <a href="#contact" className="btn btn-ghost">
+                Get in touch
+              </a>
             </div>
             <div className="mt-8 sm:mt-10 flex items-center gap-4">
               <img
@@ -965,15 +1039,18 @@ function Hero({
 function Testimonials() {
   const testimonials = [
     {
-      quote: `I recently outsourced Fynstra to support one of my financial service clients with thought leadership blogs, and they were a dream to work with. Communication was effortless, they immediately understood the brand voice we were trying to convey, and the content they produced was outstanding with minimal (if any) edits. Highly recommend.`,
+      quote:
+        "I recently outsourced Fynstra to support one of my financial service clients with thought leadership blogs, and they were a dream to work with. Communication was effortless, they immediately understood the brand voice we were trying to convey, and the content they produced was outstanding with minimal (if any) edits. Highly recommend.",
       author: "Jasmine Panayides • Founder, HR Writing Services",
     },
     {
-      quote: `We hired Fynstra to help us with a social media campaign. We set the idea and they wrote the posts for us. They researched our target client base to ensure the tone matched who we we trying to attract. Excellent to work with.`,
+      quote:
+        "We hired Fynstra to help us with a social media campaign. We set the idea and they wrote the posts for us. They researched our target client base to ensure the tone matched who we we trying to attract. Excellent to work with.",
       author: "Steven Warnock • Manager, Cave Wall Studios",
     },
     {
-      quote: `Fynstra reached out to us directly with a few suggestions on how to improve our website. After a quick discussion, we were all on the same page about what had to be done. We couldn't be happier with the rewrite. Fewer words that seem to say more.`,
+      quote:
+        "Fynstra reached out to us directly with a few suggestions on how to improve our website. After a quick discussion, we were all on the same page about what had to be done. We couldn't be happier with the rewrite. Fewer words that seem to say more.",
       author: "Fiona Blair • Office Manager, Neptis Group",
     },
   ];
@@ -1002,8 +1079,6 @@ function Testimonials() {
     </section>
   );
 }
-
-
 
 function Contact() {
   const FORMSPREE_ENDPOINT = "https://formspree.io/f/xblzwzpk";
@@ -1036,7 +1111,7 @@ function Contact() {
         return;
       }
 
-      // Submit to Formspree (AJAX). Accept header is enough; browser sets multipart boundary.
+      // Submit to Formspree (AJAX)
       const res = await fetch(FORMSPREE_ENDPOINT, {
         method: "POST",
         headers: { Accept: "application/json" },
@@ -1046,7 +1121,7 @@ function Contact() {
       if (res.ok) {
         setStatus("success");
         formRef.current.reset();
-        // auto-clear message after a few seconds
+        // auto-clear message
         setTimeout(() => setStatus("idle"), 3500);
       } else {
         const data = await res.json().catch(() => ({}));
@@ -1070,14 +1145,20 @@ function Contact() {
           <div className="reveal" data-reveal>
             <h2 className="text-2xl sm:text-4xl font-semibold text-slate-900">Let’s talk</h2>
             <p className="mt-3 text-slate-800 max-w-xl">
-              Two ways to connect: drop a note or book a quick intro call. We’ll keep it focused on goals, scope and timelines.
+              Two ways to connect: drop a note or book a quick intro call. We’ll keep it focused on goals, scope and
+              timelines.
             </p>
             <div className="mt-6 flex flex-wrap gap-3">
-              <a href="#calendly" className="btn btn-pri">Book a call</a>
-              <a href="mailto:info@fynstra.co.uk" className="btn btn-ghost">Email us</a>
+              <a href="#calendly" className="btn btn-pri">
+                Book a call
+              </a>
+              <a href="mailto:info@fynstra.co.uk" className="btn btn-ghost">
+                Email us
+              </a>
             </div>
             <div className="mt-8 sm:mt-10 text-sm text-slate-700">
-              Prefer a simple brief? Add bullet points about your goals, audience, deliverables and deadline. We’ll reply with a scoped plan.
+              Prefer a simple brief? Add bullet points about your goals, audience, deliverables and deadline. We’ll
+              reply with a scoped plan.
             </div>
           </div>
 
@@ -1086,7 +1167,7 @@ function Contact() {
             <form
               ref={formRef}
               onSubmit={onSubmit}
-              action={FORMSPREE_ENDPOINT} // graceful fallback if JS is disabled
+              action={FORMSPREE_ENDPOINT}
               method="POST"
               className="rounded-2xl border border-black/10 bg-white p-5 sm:p-6 shadow-sm"
               noValidate
@@ -1130,30 +1211,22 @@ function Contact() {
                   />
                 </label>
 
-                <button
-                  type="submit"
-                  className="btn btn-pri w-full"
-                  disabled={status === "sending"}
-                >
+                <button type="submit" className="btn btn-pri w-full" disabled={status === "sending"}>
                   {status === "sending" ? "Sending…" : "Send message"}
                 </button>
 
                 {/* Inline feedback */}
                 <div className="min-h-[1.25rem]" aria-live="polite">
-                  {status === "error" && (
-                    <p className="text-sm text-rose-600 mt-1">{errorMsg}</p>
-                  )}
+                  {status === "error" && <p className="text-sm text-rose-600 mt-1">{errorMsg}</p>}
                   {status === "success" && (
-                    <p className="text-sm text-emerald-600 mt-1">
-                      Thanks! Your message has been sent.
-                    </p>
+                    <p className="text-sm text-emerald-600 mt-1">Thanks! Your message has been sent.</p>
                   )}
                 </div>
               </div>
 
               <p className="mt-3 text-xs text-slate-500">
-                We’ll reply from <span className="font-medium">info@fynstra.co.uk</span>. By submitting, you consent to us
-                storing this info to respond to your enquiry.
+                We’ll reply from <span className="font-medium">info@fynstra.co.uk</span>. By submitting, you consent to
+                us storing this info to respond to your enquiry.
               </p>
             </form>
           </div>
@@ -1167,12 +1240,7 @@ function Contact() {
                 <div className="text-sm text-slate-500">Scheduling</div>
                 <div className="text-base sm:text-lg font-semibold text-slate-900">Book a 20-minute meeting</div>
               </div>
-              <a
-                href={CALENDLY_URL}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="btn btn-pri"
-              >
+              <a href={CALENDLY_URL} target="_blank" rel="noopener noreferrer" className="btn btn-pri">
                 Open in Calendly
               </a>
             </div>
@@ -1191,7 +1259,6 @@ function Contact() {
     </section>
   );
 }
-
 
 function Footer({ logoSrc, fallbackLogo }: { logoSrc: string; fallbackLogo: string }) {
   return (
