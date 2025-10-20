@@ -716,7 +716,7 @@ export default function App({
                 After years working across creative and corporate environments, we saw how often strong ideas were lost
                 in translation. Communication is everything. Whether it’s an email campaign, a newsletter, a post on
                 socials, or a blog sharing what your company does and why it matters. We make sure you’re heard and
-                your message lands exactly as you intend it to.
+                your message lands exactly as you intended.
               </p>
               <p className="mt-3 sm:mt-4 text-slate-800">
                 Our team brings years of experience across regulatory compliance, business process design, and financial
