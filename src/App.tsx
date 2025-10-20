@@ -956,12 +956,12 @@ function Testimonials() {
       author: "Jasmine Panayides • Founder, HR Writing Services",
     },
     {
-      quote: `Clear process, sharp writing, zero fluff. They took a vague brief and turned it into something that just worked.`,
-      author: "James Kerr • Founder, North Studio",
+      quote: `We hired Fynstra to help us with a social media campaign. We setbthe idea and they wrote the posts for us. Theybresearched or target clients and ensured the tone matched whatvwe we trying to attract. Excellent to work with.`,
+      author: "Steven Warnock • Manager, Cave Wall Studios",
     },
     {
-      quote: `We’d struggled to explain what we do for years. Fynstra rewrote it in two pages, and clients instantly got it.`,
-      author: "Elena Petrova • COO, BrightLedger",
+      quote: `Fynstra reached out to us directly with a few suggestions on how to improve our website. After a quick discussion, we were all on the same page aboutbwhatbhad to be done. We couldnt be happier with the rewrite. Fewer words that seem to say more.`,
+      author: "Fiona Blair • Office Manager, Neptis Group",
     },
   ];
 
