@@ -286,6 +286,7 @@ function AboutPrinciples() {
       <Card i={1} title="Consistent">
         <p>
           Consistency builds trust and strengthens your brand voice.
+          <p>
           Every piece of communication we write for you will follow the same rhythm, tone and structure. 
         </p>
       </Card>
@@ -294,6 +295,7 @@ function AboutPrinciples() {
         <p>
           Credibility turns attention into belief, belief into trust and trust
           into action. 
+          <p>
           Our words are grounded in fact and intent. 
         </p>
       </Card>
@@ -942,7 +944,7 @@ function Hero({
                 </div>
               </div>
               <div className="mt-3 sm:mt-4 text-slate-700 text-sm sm:text-base">
-                With a genuine interest in your buisness, we'll make sure the message lands with your intent.
+                With a genuine interest in your business, we'll make sure the message lands with your intent.
               </div>
             </div>
           </div>
