@@ -956,11 +956,11 @@ function Testimonials() {
       author: "Jasmine Panayides • Founder, HR Writing Services",
     },
     {
-      quote: `We hired Fynstra to help us with a social media campaign. We setbthe idea and they wrote the posts for us. Theybresearched or target clients and ensured the tone matched whatvwe we trying to attract. Excellent to work with.`,
+      quote: `We hired Fynstra to help us with a social media campaign. We set the idea and they wrote the posts for us. They researched our target client base to ensure the tone matched who we we trying to attract. Excellent to work with.`,
       author: "Steven Warnock • Manager, Cave Wall Studios",
     },
     {
-      quote: `Fynstra reached out to us directly with a few suggestions on how to improve our website. After a quick discussion, we were all on the same page aboutbwhatbhad to be done. We couldnt be happier with the rewrite. Fewer words that seem to say more.`,
+      quote: `Fynstra reached out to us directly with a few suggestions on how to improve our website. After a quick discussion, we were all on the same page about what had to be done. We couldn't be happier with the rewrite. Fewer words that seem to say more.`,
       author: "Fiona Blair • Office Manager, Neptis Group",
     },
   ];
