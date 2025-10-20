@@ -725,7 +725,7 @@ export default function App({
                 industries. That perspective shapes how we write: precise, structured, and always true to intent.
               </p>
               <p className="mt-3 sm:mt-4 text-slate-800">
-                We take the time to understand your business, so we can speak from it the way it deserves. Concise,
+                We get to know your business, so we can speak for it with real understanding. Concise,
                 clear and always on point. Clarity in content.
               </p>
             </div>
