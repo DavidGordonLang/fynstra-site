@@ -67,7 +67,7 @@ export const strengths: Strength[] = [
     title: "Specialist content and communication",
     shortTitle: "Communication",
     summary:
-      "Website messaging, thought leadership, technical explainers, case studies, founder-led content, newsletters and campaign content.",
+      "Website messaging, thought leadership, technical explainers, case studies and campaign content.",
     items: [
       "Website and service-page messaging",
       "Thought leadership and technical explainers",
@@ -80,7 +80,7 @@ export const strengths: Strength[] = [
     title: "Compliance, quality and documentation",
     shortTitle: "Compliance & Documentation",
     summary:
-      "AML and KYC content, SOPs, checklists, QA support, training materials, internal guidance and compliance-facing explainers.",
+      "AML and KYC content, SOPs, checklists, QA support, training materials and internal guidance.",
     items: [
       "AML, KYC and onboarding content",
       "SOPs, checklists and internal guidance",
@@ -93,7 +93,7 @@ export const strengths: Strength[] = [
     title: "Operations, workflow and practical tools",
     shortTitle: "Operations & Tools",
     summary:
-      "Process mapping, workflow reviews, document-intake reviews, MI, backlog visibility, handoff improvement and practical AI review where the problem is clear.",
+      "Process mapping, workflow reviews, MI, backlog visibility and practical tool review where the problem is clear.",
     items: [
       "Workflow and handoff reviews",
       "Document-intake and backlog visibility",
@@ -121,49 +121,43 @@ export const whoWeHelp = {
     "Document-heavy professional services",
     "Quality, rework or operational-pressure teams",
   ],
-  fitSignals: [
-    "Your subject matter is valuable but hard to explain.",
-    "Customers or internal teams keep asking for the same clarification.",
-    "Guidance exists, but it is inconsistent or hard to use.",
-    "A workflow has visible friction, rework or unclear ownership.",
-  ],
 };
 
 export const offers: Offer[] = [
   {
     title: "Specialist content package",
     summary:
-      "A practical content package for businesses that need clearer positioning, thought leadership, technical explainers and LinkedIn or campaign support.",
-    signal: "Positioning, explainers and campaign support",
+      "Clearer positioning, thought leadership, technical explainers and LinkedIn or campaign support.",
+    signal: "Positioning and explainers",
   },
   {
     title: "Fintech and compliance content support",
     summary:
-      "Articles, explainers, guidance and review support for businesses writing about AML, KYC, onboarding, fraud, compliance or financial-crime topics.",
-    signal: "AML, KYC, onboarding and fraud topics",
+      "Articles, explainers, guidance and review support for AML, KYC, onboarding, fraud and compliance topics.",
+    signal: "AML, KYC and fraud topics",
   },
   {
     title: "Financial-crime quality support",
     summary:
-      "QA reviews, SOPs, checklists, coaching materials and practical improvement support for AML, KYC or compliance operations.",
-    signal: "QA, SOPs, checklists and coaching materials",
+      "QA reviews, SOPs, checklists, coaching materials and practical improvement support.",
+    signal: "QA, SOPs and checklists",
   },
   {
     title: "Workflow friction review",
     summary:
-      "A focused review of one workflow to identify delays, handoff issues, rework, visibility gaps and practical improvement options.",
-    signal: "One workflow, clear friction, practical options",
+      "A focused review of one workflow to identify delays, rework, visibility gaps and practical options.",
+    signal: "One workflow, practical options",
   },
   {
     title: "Website messaging refresh",
     summary:
-      "Clearer homepage, service-page and about-page messaging for businesses that know what they do but struggle to explain it clearly.",
-    signal: "Homepage, service pages and about-page clarity",
+      "Clearer homepage, service-page and about-page messaging for businesses that need sharper explanation.",
+    signal: "Homepage and service-page clarity",
   },
   {
     title: "Practical AI workflow review",
     summary:
-      "A contained review of where AI, automation or simpler process changes could reduce manual work safely.",
+      "A contained review of whether AI, automation or simpler process changes could reduce manual work safely.",
     signal: "Only where the problem is clear",
   },
 ];

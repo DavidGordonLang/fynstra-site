@@ -17,6 +17,7 @@ import {
   type Strength,
 } from "./content/siteContent";
 
+// Formspree handles email delivery; the recipient inbox is configured in Formspree, not in this repo.
 const FORMSPREE_ENDPOINT = "https://formspree.io/f/xblzwzpk";
 
 type Route = NavItem & {
@@ -35,9 +36,8 @@ const routes: Route[] = [
   {
     ...navItems[1],
     eyebrow: "Three connected strengths",
-    title: "Support for the places where communication, quality and workflow meet.",
-    description:
-      "Fynstra is deliberately small and specialist. We help with content, documentation and operational structure when the work needs subject knowledge and practical delivery.",
+    title: "Communication, documentation and workflow support for complex work.",
+    description: "Three connected areas, scoped around the problem rather than a fixed service menu.",
   },
   {
     ...navItems[2],
@@ -49,8 +49,7 @@ const routes: Route[] = [
     ...navItems[3],
     eyebrow: "About Fynstra",
     title: "A small specialist team for complex work.",
-    description:
-      "Fynstra is currently being tested as a focused 90-day collaboration between David, Barbora and Jasmine.",
+    description: "A focused 90-day collaboration between David, Barbora and Jasmine.",
   },
   {
     ...navItems[4],
@@ -295,12 +294,8 @@ function HomePage({ navigate }: { navigate: (path: string) => void }) {
         <div className="mx-auto grid max-w-7xl gap-12 px-4 pb-16 pt-12 sm:px-6 sm:pb-20 sm:pt-16 lg:grid-cols-[0.94fr_1.06fr] lg:items-center lg:px-8 lg:pb-24 lg:pt-20">
           <div className="max-w-2xl" data-reveal>
             <p className="eyebrow">{hero.eyebrow}</p>
-            <h1 className="mt-5 text-[2.7rem] font-semibold leading-[0.98] tracking-normal text-[var(--ink)] sm:text-6xl lg:text-7xl">
-              {hero.title}
-            </h1>
-            <p className="mt-6 max-w-xl text-lg leading-8 text-[var(--muted)] sm:text-xl">
-              {hero.body}
-            </p>
+            <h1 className="hero-title">{hero.title}</h1>
+            <p className="hero-copy">{hero.body}</p>
             <p className="mt-5 max-w-xl text-base leading-7 text-[var(--muted-2)]">
               {hero.context}
             </p>
@@ -326,10 +321,13 @@ function HomePage({ navigate }: { navigate: (path: string) => void }) {
             <p className="eyebrow">Where Fynstra helps</p>
             <h2 className="section-title mt-4">{problem.title}</h2>
           </div>
-          <div className="space-y-5 text-lg leading-8 text-[var(--muted)]" data-reveal>
-            {problem.paragraphs.map((paragraph) => (
-              <p key={paragraph}>{paragraph}</p>
-            ))}
+          <div className="problem-copy" data-reveal>
+            <p>{problem.paragraphs[0]}</p>
+            <ul>
+              {problem.paragraphs.slice(1).map((paragraph) => (
+                <li key={paragraph}>{paragraph}</li>
+              ))}
+            </ul>
           </div>
         </div>
       </Section>
@@ -337,8 +335,7 @@ function HomePage({ navigate }: { navigate: (path: string) => void }) {
       <Section tinted>
         <SectionIntro
           eyebrow="What we connect"
-          title="Communication, documentation and workflow are usually part of the same problem."
-          body="The work can start in one place and quickly touch another. Fynstra is shaped around that reality."
+          title="Three connected areas. One practical view of the work."
         />
         <StrengthGrid />
       </Section>
@@ -348,9 +345,6 @@ function HomePage({ navigate }: { navigate: (path: string) => void }) {
           <div data-reveal>
             <p className="eyebrow">Featured offers</p>
             <h2 className="section-title mt-4">Focused pieces of work, scoped before they start.</h2>
-            <p className="mt-5 max-w-xl text-[var(--muted)]">
-              Each offer is designed to produce a usable output rather than a vague strategy deck.
-            </p>
             <button type="button" className="button button-secondary mt-7" onClick={() => navigate("/what-we-do")}>
               See all offers
             </button>
@@ -384,7 +378,6 @@ function WhatWeDoPage({ route, navigate }: { route: Route; navigate: (path: stri
         <SectionIntro
           eyebrow="Featured offers"
           title="Practical offers for clearer messages, stronger documentation and smoother work."
-          body="These are starting points, not a forced menu. The scope should follow the problem."
         />
         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3" data-reveal>
           {offers.map((offer) => (
@@ -433,22 +426,6 @@ function WhoWeHelpPage({ route, navigate }: { route: Route; navigate: (path: str
         </div>
       </Section>
 
-      <Section>
-        <SectionIntro
-          eyebrow="Signals"
-          title="The need usually shows up before the brief is neatly named."
-          body="These are the kinds of patterns that tend to make Fynstra useful."
-        />
-        <div className="grid gap-4 md:grid-cols-2" data-reveal>
-          {whoWeHelp.fitSignals.map((signal, index) => (
-            <div key={signal} className="signal-card">
-              <span className="signal-index">{String(index + 1).padStart(2, "0")}</span>
-              <p>{signal}</p>
-            </div>
-          ))}
-        </div>
-      </Section>
-
       <ContactCta navigate={navigate} />
     </>
   );
@@ -476,7 +453,6 @@ function AboutPage({ route, navigate }: { route: Route; navigate: (path: string)
         <SectionIntro
           eyebrow="The team"
           title="Different strengths, deliberately connected."
-          body="Each project has a clear owner, with the right support added when the client problem needs it."
         />
         <div className="grid gap-4 lg:grid-cols-3" data-reveal>
           {team.map((member) => (
@@ -484,7 +460,6 @@ function AboutPage({ route, navigate }: { route: Route; navigate: (path: string)
               <div className="team-initial">{member.name.slice(0, 1)}</div>
               <h3>{member.name}</h3>
               <p className="mt-3 text-[var(--ink)]">{member.lead}</p>
-              <p className="mt-5 text-sm leading-6 text-[var(--muted)]">{member.detail}</p>
             </article>
           ))}
         </div>
@@ -513,9 +488,7 @@ function PageHero({ route, compact = false }: { route: Route; compact?: boolean 
       <div className="mx-auto max-w-7xl px-4 py-14 sm:px-6 sm:py-20 lg:px-8">
         <div className="max-w-4xl" data-reveal>
           <p className="eyebrow">{route.eyebrow}</p>
-          <h1 className="mt-5 text-4xl font-semibold leading-tight text-[var(--ink)] sm:text-5xl lg:text-6xl">
-            {route.title}
-          </h1>
+          <h1 className="page-title">{route.title}</h1>
           <p className="mt-6 max-w-3xl text-lg leading-8 text-[var(--muted)] sm:text-xl">
             {route.description}
           </p>
@@ -541,12 +514,12 @@ function Section({
   );
 }
 
-function SectionIntro({ eyebrow, title, body }: { eyebrow: string; title: string; body: string }) {
+function SectionIntro({ eyebrow, title, body }: { eyebrow: string; title: string; body?: string }) {
   return (
     <div className="mb-10 max-w-3xl" data-reveal>
       <p className="eyebrow">{eyebrow}</p>
       <h2 className="section-title mt-4">{title}</h2>
-      <p className="mt-5 text-lg leading-8 text-[var(--muted)]">{body}</p>
+      {body && <p className="section-intro-copy">{body}</p>}
     </div>
   );
 }
@@ -598,7 +571,6 @@ function HowWeWorkSection() {
       <SectionIntro
         eyebrow="How we work"
         title="Simple scope, clear ownership and practical outputs."
-        body="The process is intentionally straightforward, because the work itself is often complex enough."
       />
       <div className="workflow-list" data-reveal>
         {howWeWork.map((step, index) => (
@@ -618,7 +590,7 @@ function ContactCta({ navigate }: { navigate: (path: string) => void }) {
       <div className="mx-auto grid max-w-7xl gap-8 px-4 py-14 sm:px-6 lg:grid-cols-[1fr_auto] lg:items-center lg:px-8">
         <div data-reveal>
           <p className="eyebrow">Start small</p>
-          <h2 className="mt-4 max-w-3xl text-3xl font-semibold leading-tight text-[var(--ink)] sm:text-4xl">
+          <h2 className="cta-title">
             A short conversation is enough to see whether there is a useful fit.
           </h2>
         </div>
@@ -692,17 +664,20 @@ function ContactBlock() {
       <aside className="contact-aside" data-reveal>
         <p className="eyebrow">Contact</p>
         <h2>{contact.title}</h2>
-        <p>{contact.guidance}</p>
+        <p>{contact.body}</p>
         <div className="contact-methods">
-          <a href={`mailto:${company.email}`}>{company.email}</a>
-          <a href={company.calendlyUrl} target="_blank" rel="noreferrer">
+          <a href={`mailto:${company.email}`} className="contact-method">
+            <span>Email</span>
+            {company.email}
+          </a>
+          <a href={company.calendlyUrl} target="_blank" rel="noreferrer" className="contact-method">
+            <span>Calendly</span>
             Open Calendly
           </a>
         </div>
       </aside>
 
-      <div className="space-y-5" data-reveal>
-        <form ref={formRef} onSubmit={onSubmit} action={FORMSPREE_ENDPOINT} method="POST" className="contact-form">
+      <form ref={formRef} onSubmit={onSubmit} action={FORMSPREE_ENDPOINT} method="POST" className="contact-form" data-reveal>
           <input type="hidden" name="_subject" value="Fynstra website enquiry" />
           <input type="text" name="_gotcha" className="hidden" tabIndex={-1} autoComplete="off" />
 
@@ -751,27 +726,7 @@ function ContactBlock() {
             {status === "success" && <p className="form-success">Thanks. Your message has been sent.</p>}
             {status === "error" && <p className="form-error">{errorMessage}</p>}
           </div>
-        </form>
-
-        <div className="calendly-panel">
-          <div className="calendly-header">
-            <div>
-              <span>Scheduling</span>
-              <h3>{company.callLabel}</h3>
-            </div>
-            <a href={company.calendlyUrl} target="_blank" rel="noreferrer" className="button button-secondary">
-              Open Calendly
-            </a>
-          </div>
-          <div className="calendly-frame">
-            <iframe
-              title="Fynstra Calendly booking"
-              src={`${company.calendlyUrl}?embed_domain=fynstra.co.uk&embed_type=Inline`}
-              allow="camera; microphone; fullscreen"
-            />
-          </div>
-        </div>
-      </div>
+      </form>
     </div>
   );
 }
@@ -805,7 +760,7 @@ function ConnectedWorkMap() {
         <div className="map-caption map-caption-right">Clearer work</div>
 
         <div className="fragment-layer depth-back">
-          {workMapFragments.slice(0, 5).map((fragment, index) => (
+          {workMapFragments.slice(0, 4).map((fragment, index) => (
             <span key={fragment} className={`work-fragment fragment-${index + 1}`}>
               {fragment}
             </span>
@@ -841,28 +796,31 @@ function ConnectedWorkMap() {
           </ul>
         </div>
 
-        <div className="fragment-layer depth-front">
-          {workMapFragments.slice(5).map((fragment, index) => (
-            <span key={fragment} className={`work-fragment fragment-${index + 6}`}>
-              {fragment}
-            </span>
-          ))}
-        </div>
+        <div className="map-outcome-line">Clearer connected work</div>
       </div>
 
-      <div className="work-map-mobile" aria-label="Simplified Connected Work Map">
+      <div className="work-map-mobile" aria-label="Mobile Connected Work Map">
+        <div className="mobile-map-caption">Messy inputs</div>
         <div className="mobile-inputs">
           <span>duplicated requests</span>
           <span>unclear guidance</span>
           <span>handoff delays</span>
         </div>
-        <div className="mobile-path" />
+        <svg className="mobile-lines" viewBox="0 0 320 150" aria-hidden="true">
+          <path className="mobile-line mobile-line-a" d="M76 12 C74 46, 124 54, 158 74" />
+          <path className="mobile-line mobile-line-b" d="M244 12 C240 42, 202 56, 164 76" />
+          <path className="mobile-line mobile-line-c" d="M150 24 C132 48, 143 62, 160 80" />
+          <path className="mobile-line mobile-line-d" d="M160 82 C160 104, 160 124, 160 146" />
+        </svg>
         <div className="mobile-nodes">
           {strengths.map((strength) => (
-            <span key={strength.shortTitle}>{strength.shortTitle}</span>
+            <span key={strength.shortTitle} className={`mobile-node mobile-node-${strength.accent}`}>
+              <i />
+              {strength.shortTitle}
+            </span>
           ))}
         </div>
-        <div className="mobile-outcome">Clearer work</div>
+        <div className="mobile-outcome">Organised outputs</div>
       </div>
     </div>
   );
