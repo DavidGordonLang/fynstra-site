@@ -4,6 +4,7 @@ yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
+vite-dev*.log
 
 # Runtime data
 .pids
@@ -19,6 +20,7 @@ dist/
 .vite/
 .cache/
 coverage/
+*.tsbuildinfo
 
 # Editor junk
 .DS_Store
