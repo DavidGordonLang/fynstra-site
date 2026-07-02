@@ -539,8 +539,53 @@ function StrengthDetail({ strength, index }: { strength: Strength; index: number
         <h2>{strength.title}</h2>
         <p>{strength.summary}</p>
       </div>
-      <span className="detail-rule" aria-hidden="true" />
+      <ServiceMiniature index={index} accent={strength.accent} />
     </article>
+  );
+}
+
+function ServiceMiniature({ index, accent }: { index: number; accent: Strength["accent"] }) {
+  return (
+    <div className={`service-miniature service-miniature-${accent}`} aria-hidden="true">
+      {index === 0 && (
+        <div className="miniature-content">
+          <span className="mini-line mini-line-title" />
+          <span className="mini-line mini-line-long" />
+          <span className="mini-line mini-line-mid" />
+          <span className="mini-line mini-line-short" />
+          <span className="mini-annotation mini-annotation-a" />
+          <span className="mini-annotation-line" />
+          <span className="mini-content-block mini-content-block-a" />
+          <span className="mini-content-block mini-content-block-b" />
+        </div>
+      )}
+
+      {index === 1 && (
+        <div className="miniature-checklist">
+          {Array.from({ length: 4 }).map((_, itemIndex) => (
+            <span key={itemIndex} className="mini-check-row">
+              <i />
+              <b />
+            </span>
+          ))}
+          <span className="mini-review-mark" />
+          <span className="mini-section-rule" />
+        </div>
+      )}
+
+      {index === 2 && (
+        <div className="miniature-workflow">
+          <span className="mini-node mini-node-a" />
+          <span className="mini-node mini-node-b" />
+          <span className="mini-node mini-node-c" />
+          <span className="mini-flow-line mini-flow-line-a" />
+          <span className="mini-flow-line mini-flow-line-b" />
+          <span className="mini-status-bar mini-status-bar-a" />
+          <span className="mini-status-bar mini-status-bar-b" />
+          <span className="mini-status-bar mini-status-bar-c" />
+        </div>
+      )}
+    </div>
   );
 }
 
