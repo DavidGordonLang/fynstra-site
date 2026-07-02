@@ -762,15 +762,16 @@ select:focus-visible {
 .service-miniature {
   position: relative;
   display: grid;
-  min-height: 8.6rem;
+  min-height: 9.15rem;
   align-self: stretch;
   overflow: hidden;
-  border: 1px solid rgba(24, 32, 29, 0.11);
+  border: 1px solid rgba(24, 32, 29, 0.1);
   border-radius: 8px;
   background:
-    linear-gradient(135deg, rgba(124, 92, 240, 0.14), transparent 34%),
-    linear-gradient(220deg, rgba(79, 180, 198, 0.14), transparent 38%),
-    repeating-linear-gradient(180deg, rgba(24, 32, 29, 0.08) 0 1px, transparent 1px 1.35rem);
+    linear-gradient(135deg, rgba(255, 253, 248, 0.92), rgba(249, 250, 243, 0.72)),
+    linear-gradient(130deg, rgba(124, 92, 240, 0.16), transparent 40%),
+    linear-gradient(220deg, rgba(79, 180, 198, 0.14), transparent 42%),
+    repeating-linear-gradient(180deg, rgba(24, 32, 29, 0.055) 0 1px, transparent 1px 1.25rem);
   box-shadow: inset 0 1px 0 rgba(255, 253, 248, 0.58);
   transition:
     transform 240ms var(--ease),
@@ -789,7 +790,7 @@ select:focus-visible {
 .service-miniature::before {
   content: "";
   position: absolute;
-  inset: 1rem 12% auto 10%;
+  inset: 0.86rem 12% auto 10%;
   height: 2px;
   border-radius: 999px;
   background: var(--accent-gradient);
@@ -800,13 +801,13 @@ select:focus-visible {
 .service-miniature::after {
   content: "";
   position: absolute;
-  right: 15%;
-  bottom: 1.05rem;
-  width: 1.35rem;
-  height: 1.35rem;
-  border: 1px solid rgba(79, 180, 198, 0.48);
+  right: 10%;
+  bottom: 0.78rem;
+  width: 1rem;
+  height: 1rem;
+  border: 1px solid rgba(79, 180, 198, 0.52);
   border-radius: 50%;
-  background: rgba(255, 253, 248, 0.62);
+  background: rgba(255, 253, 248, 0.8);
   box-shadow: 0 0 0 8px rgba(124, 92, 240, 0.06);
   animation: miniatureDot 6.2s var(--ease) infinite;
 }
@@ -823,11 +824,13 @@ select:focus-visible {
 .miniature-checklist,
 .miniature-workflow {
   position: absolute;
-  inset: 1.7rem 1.35rem 1.25rem;
+  inset: 1.55rem 1.25rem 1.05rem;
 }
 
 .mini-line,
 .mini-content-block,
+.mini-copy-label,
+.mini-type-cursor,
 .mini-annotation,
 .mini-annotation-line,
 .mini-check-row,
@@ -840,6 +843,17 @@ select:focus-visible {
   display: block;
 }
 
+.mini-copy-label {
+  top: 0;
+  left: 0;
+  color: rgba(36, 48, 43, 0.82);
+  font-size: 0.72rem;
+  font-weight: 720;
+  letter-spacing: 0;
+  line-height: 1;
+  animation: contentReveal 6.6s var(--ease) infinite;
+}
+
 .mini-line {
   height: 2px;
   border-radius: 999px;
@@ -849,36 +863,46 @@ select:focus-visible {
 }
 
 .mini-line-title {
-  top: 0;
+  top: 1.18rem;
   left: 0;
-  width: 42%;
+  width: 48%;
   height: 3px;
   background: rgba(124, 92, 240, 0.58);
 }
 
 .mini-line-long {
-  top: 1.45rem;
+  top: 2.38rem;
   left: 0;
-  width: 72%;
+  width: 76%;
 }
 
 .mini-line-mid {
-  top: 2.32rem;
+  top: 3.18rem;
   left: 0;
-  width: 58%;
+  width: 64%;
   animation-delay: 220ms;
 }
 
 .mini-line-short {
-  top: 3.2rem;
+  top: 3.98rem;
   left: 0;
-  width: 36%;
+  width: 42%;
   animation-delay: 380ms;
 }
 
+.mini-type-cursor {
+  top: 1.03rem;
+  left: 51%;
+  width: 1px;
+  height: 0.82rem;
+  border-radius: 999px;
+  background: rgba(124, 92, 240, 0.74);
+  animation: cursorBlink 1.15s steps(2, end) infinite;
+}
+
 .mini-annotation {
-  top: 2.1rem;
-  right: 11%;
+  top: 2rem;
+  right: 8%;
   width: 1rem;
   height: 1rem;
   border: 1px solid rgba(124, 92, 240, 0.42);
@@ -889,9 +913,9 @@ select:focus-visible {
 }
 
 .mini-annotation-line {
-  top: 2.62rem;
-  right: 22%;
-  width: 22%;
+  top: 2.48rem;
+  right: 20%;
+  width: 20%;
   height: 1px;
   background: rgba(124, 92, 240, 0.34);
   rotate: -15deg;
@@ -901,8 +925,8 @@ select:focus-visible {
 
 .mini-content-block {
   bottom: 0.05rem;
-  width: 30%;
-  height: 1.8rem;
+  width: 31%;
+  height: 1.55rem;
   border: 1px solid rgba(24, 32, 29, 0.08);
   border-radius: 6px;
   background: rgba(255, 253, 248, 0.55);
@@ -919,8 +943,12 @@ select:focus-visible {
 
 .mini-check-row {
   left: 0;
-  width: 76%;
+  right: 13%;
   height: 1rem;
+  display: grid;
+  grid-template-columns: 1rem auto 1fr;
+  align-items: center;
+  gap: 0.44rem;
 }
 
 .mini-check-row:nth-child(1) {
@@ -939,10 +967,14 @@ select:focus-visible {
   top: 4.05rem;
 }
 
+.mini-check-row:nth-child(5) {
+  top: 5.4rem;
+}
+
 .mini-check-row i {
-  position: absolute;
-  left: 0;
-  top: 0.12rem;
+  position: relative;
+  left: auto;
+  top: auto;
   width: 0.75rem;
   height: 0.42rem;
   border-bottom: 2px solid rgba(65, 130, 204, 0.72);
@@ -952,10 +984,23 @@ select:focus-visible {
 }
 
 .mini-check-row b {
-  position: absolute;
-  right: 0;
-  left: 1.35rem;
-  top: 0.44rem;
+  position: relative;
+  right: auto;
+  left: auto;
+  top: auto;
+  height: auto;
+  color: rgba(36, 48, 43, 0.82);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0;
+  line-height: 1.05;
+  white-space: nowrap;
+  animation: contentReveal 6.4s var(--ease) infinite;
+}
+
+.mini-check-row em {
+  position: relative;
+  display: block;
   height: 2px;
   border-radius: 999px;
   background: rgba(24, 32, 29, 0.16);
@@ -964,25 +1009,34 @@ select:focus-visible {
 }
 
 .mini-check-row:nth-child(2) b,
+.mini-check-row:nth-child(2) em,
 .mini-check-row:nth-child(2) i {
   animation-delay: 180ms;
 }
 
 .mini-check-row:nth-child(3) b,
+.mini-check-row:nth-child(3) em,
 .mini-check-row:nth-child(3) i {
   animation-delay: 360ms;
 }
 
 .mini-check-row:nth-child(4) b,
+.mini-check-row:nth-child(4) em,
 .mini-check-row:nth-child(4) i {
   animation-delay: 540ms;
 }
 
+.mini-check-row:nth-child(5) b,
+.mini-check-row:nth-child(5) em,
+.mini-check-row:nth-child(5) i {
+  animation-delay: 720ms;
+}
+
 .mini-review-mark {
   right: 2%;
-  bottom: 0.2rem;
-  width: 2.15rem;
-  height: 2.15rem;
+  bottom: 0.38rem;
+  width: 1.75rem;
+  height: 1.75rem;
   border: 1px solid rgba(65, 130, 204, 0.42);
   border-radius: 50%;
   background: rgba(207, 228, 255, 0.22);
@@ -991,82 +1045,108 @@ select:focus-visible {
 
 .mini-section-rule {
   right: 18%;
-  bottom: 1.16rem;
-  width: 26%;
+  bottom: 1.23rem;
+  width: 18%;
   height: 1px;
   background: rgba(65, 130, 204, 0.34);
 }
 
 .mini-node {
-  width: 1rem;
-  height: 1rem;
-  border: 1px solid rgba(38, 123, 134, 0.52);
-  border-radius: 50%;
-  background: rgba(255, 253, 248, 0.72);
-  box-shadow: 0 0 0 7px rgba(79, 180, 198, 0.08);
+  z-index: 2;
+  display: grid;
+  min-width: 3.75rem;
+  height: 1.66rem;
+  place-items: center;
+  border: 1px solid rgba(38, 123, 134, 0.34);
+  border-radius: 8px;
+  background: rgba(255, 253, 248, 0.78);
+  box-shadow: 0 8px 16px rgba(42, 49, 42, 0.055);
+  color: rgba(36, 48, 43, 0.84);
+  font-size: 0.62rem;
+  font-weight: 720;
+  line-height: 1;
+  white-space: nowrap;
   animation: miniatureDot 6.2s var(--ease) infinite;
 }
 
 .mini-node-a {
-  left: 4%;
-  top: 1rem;
+  left: 2%;
+  top: 0.72rem;
 }
 
 .mini-node-b {
-  left: 42%;
-  top: 2.35rem;
+  left: 38%;
+  top: 1.52rem;
   animation-delay: 260ms;
 }
 
 .mini-node-c {
-  right: 8%;
-  top: 0.6rem;
+  right: 1%;
+  top: 0.72rem;
   animation-delay: 520ms;
 }
 
+.mini-node-d {
+  left: 30%;
+  bottom: 0.35rem;
+  min-width: 5.35rem;
+  animation-delay: 780ms;
+}
+
 .mini-flow-line {
-  height: 1px;
-  background: rgba(38, 123, 134, 0.44);
+  z-index: 1;
+  height: 2px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, rgba(38, 123, 134, 0.22), rgba(38, 123, 134, 0.58));
   transform-origin: left center;
   animation: miniatureDraw 6.3s var(--ease) infinite;
 }
 
 .mini-flow-line-a {
-  left: 12%;
-  top: 1.55rem;
-  width: 34%;
-  rotate: 18deg;
+  left: 24%;
+  top: 1.58rem;
+  width: 22%;
+  rotate: 13deg;
 }
 
 .mini-flow-line-b {
-  left: 49%;
-  top: 2.33rem;
-  width: 36%;
-  rotate: -23deg;
+  left: 58%;
+  top: 1.98rem;
+  width: 24%;
+  rotate: -14deg;
   animation-delay: 280ms;
 }
 
-.mini-status-bar {
-  bottom: 0.15rem;
+.mini-flow-line-c {
+  left: 45%;
+  top: 3.15rem;
   width: 18%;
+  rotate: 86deg;
+  animation-delay: 520ms;
+}
+
+.mini-status-bar {
+  right: 2%;
+  bottom: 0.28rem;
+  width: 0.48rem;
   border-radius: 5px 5px 0 0;
   background: linear-gradient(180deg, rgba(79, 180, 198, 0.46), rgba(124, 92, 240, 0.12));
   animation: statusGrow 6.8s var(--ease) infinite;
 }
 
 .mini-status-bar-a {
-  left: 5%;
+  right: 4.25rem;
   height: 1.3rem;
 }
 
 .mini-status-bar-b {
-  left: 29%;
+  right: 3.15rem;
   height: 2.2rem;
   animation-delay: 240ms;
 }
 
 .mini-status-bar-c {
-  left: 53%;
+  right: 2.05rem;
   height: 1.75rem;
   animation-delay: 480ms;
 }
@@ -1415,9 +1495,16 @@ select:focus-visible {
   position: relative;
   min-height: 520px;
   overflow: hidden;
-  border: 0;
-  background: transparent;
-  box-shadow: none;
+  border: 1px solid rgba(255, 253, 248, 0.28);
+  border-radius: 18px;
+  background:
+    radial-gradient(circle at 16% 18%, rgba(255, 253, 248, 0.24), transparent 26%),
+    radial-gradient(circle at 84% 24%, rgba(79, 180, 198, 0.36), transparent 28%),
+    radial-gradient(circle at 58% 78%, rgba(109, 169, 242, 0.28), transparent 34%),
+    linear-gradient(138deg, #533db4 0%, #7658dd 31%, #5e8de8 66%, #35a8b8 100%);
+  box-shadow:
+    0 30px 70px rgba(42, 49, 42, 0.16),
+    inset 0 1px 0 rgba(255, 253, 248, 0.3);
   isolation: isolate;
 }
 
@@ -1426,14 +1513,13 @@ select:focus-visible {
   position: absolute;
   inset: 0;
   background:
-    radial-gradient(circle at 23% 24%, rgba(200, 187, 255, 0.14), transparent 22%),
-    linear-gradient(145deg, rgba(255, 253, 248, 0.64), rgba(238, 244, 241, 0.18) 62%, transparent),
-    linear-gradient(112deg, transparent 0 34%, rgba(124, 92, 240, 0.055) 34% 38%, transparent 38% 100%),
-    linear-gradient(62deg, transparent 0 62%, rgba(79, 180, 198, 0.06) 62% 66%, transparent 66% 100%),
-    linear-gradient(rgba(24, 32, 29, 0.042) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(24, 32, 29, 0.036) 1px, transparent 1px);
-  background-size: auto, auto, auto, auto, 52px 52px, 52px 52px;
-  mask-image: radial-gradient(ellipse at 54% 50%, rgba(0, 0, 0, 0.94), rgba(0, 0, 0, 0.52) 64%, transparent 86%);
+    linear-gradient(145deg, rgba(255, 253, 248, 0.2), rgba(255, 253, 248, 0.04) 56%, transparent),
+    linear-gradient(112deg, transparent 0 34%, rgba(255, 253, 248, 0.12) 34% 35.3%, transparent 35.3% 100%),
+    linear-gradient(62deg, transparent 0 64%, rgba(191, 244, 240, 0.13) 64% 65.2%, transparent 65.2% 100%),
+    linear-gradient(rgba(255, 253, 248, 0.075) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 253, 248, 0.06) 1px, transparent 1px);
+  background-size: auto, auto, auto, 52px 52px, 52px 52px;
+  opacity: 0.78;
 }
 
 .map-energy,
@@ -1443,10 +1529,10 @@ select:focus-visible {
   z-index: 1;
   pointer-events: none;
   background:
-    linear-gradient(105deg, transparent 0 32%, rgba(124, 92, 240, 0.09) 32% 35.5%, transparent 35.5% 100%),
-    linear-gradient(128deg, transparent 0 54%, rgba(109, 169, 242, 0.095) 54% 57.5%, transparent 57.5% 100%),
-    linear-gradient(76deg, transparent 0 70%, rgba(79, 180, 198, 0.085) 70% 73.5%, transparent 73.5% 100%);
-  opacity: 0.68;
+    linear-gradient(105deg, transparent 0 32%, rgba(255, 253, 248, 0.12) 32% 33.2%, transparent 33.2% 100%),
+    linear-gradient(128deg, transparent 0 54%, rgba(201, 230, 255, 0.12) 54% 55.2%, transparent 55.2% 100%),
+    linear-gradient(76deg, transparent 0 70%, rgba(191, 244, 240, 0.11) 70% 71.2%, transparent 71.2% 100%);
+  opacity: 0.5;
   animation: energySweep 9s var(--ease) infinite;
 }
 
@@ -1480,12 +1566,14 @@ select:focus-visible {
   z-index: 2;
   width: 8.6rem;
   min-height: 5.5rem;
-  border: 1px solid rgba(124, 92, 240, 0.22);
+  border: 1px solid rgba(255, 253, 248, 0.24);
   border-radius: 6px;
   background:
-    linear-gradient(145deg, rgba(255, 253, 248, 0.94), rgba(248, 246, 255, 0.72));
-  box-shadow: 0 14px 28px rgba(42, 49, 42, 0.075);
-  opacity: 0.96;
+    linear-gradient(145deg, rgba(255, 253, 248, 0.2), rgba(255, 253, 248, 0.09));
+  box-shadow:
+    0 16px 34px rgba(42, 49, 42, 0.12),
+    inset 0 1px 0 rgba(255, 253, 248, 0.18);
+  opacity: 0.9;
   padding: 0.72rem;
   animation: documentSettle 9s var(--ease) infinite;
 }
@@ -1500,14 +1588,14 @@ select:focus-visible {
 .doc-fragment span {
   width: 42%;
   height: 2px;
-  background: rgba(124, 92, 240, 0.52);
+  background: rgba(255, 253, 248, 0.72);
 }
 
 .doc-fragment i {
   width: 82%;
   height: 1px;
   margin-top: 0.72rem;
-  background: rgba(24, 32, 29, 0.2);
+  background: rgba(255, 253, 248, 0.32);
 }
 
 .doc-fragment i:nth-child(3) {
@@ -1519,8 +1607,8 @@ select:focus-visible {
   width: 1.25rem;
   height: 1.25rem;
   margin-top: 0.78rem;
-  border: 1px solid rgba(79, 180, 198, 0.58);
-  background: rgba(79, 180, 198, 0.16);
+  border: 1px solid rgba(191, 244, 240, 0.52);
+  background: rgba(191, 244, 240, 0.18);
 }
 
 .doc-fragment-1 {
@@ -1550,7 +1638,7 @@ select:focus-visible {
   top: 17%;
   width: 5.8rem;
   min-height: 4.6rem;
-  opacity: 0.5;
+  opacity: 0.42;
   transform: rotate(4deg);
   animation-delay: 1120ms;
 }
@@ -1560,7 +1648,7 @@ select:focus-visible {
   top: 72%;
   width: 6.6rem;
   min-height: 4.7rem;
-  opacity: 0.62;
+  opacity: 0.5;
   transform: rotate(2deg);
   animation-delay: 1480ms;
 }
@@ -1570,7 +1658,7 @@ select:focus-visible {
   top: 79%;
   width: 5.8rem;
   min-height: 4.4rem;
-  opacity: 0.46;
+  opacity: 0.38;
   transform: rotate(-5deg);
   animation-delay: 1840ms;
 }
@@ -1580,7 +1668,7 @@ select:focus-visible {
   top: 37%;
   width: 5.5rem;
   min-height: 4rem;
-  opacity: 0.4;
+  opacity: 0.34;
   transform: rotate(-2deg);
   animation-delay: 2200ms;
 }
@@ -1596,13 +1684,13 @@ select:focus-visible {
 
 .line {
   fill: none;
-  stroke-width: 1.45;
+  stroke-width: 1.6;
   stroke-linecap: round;
   stroke-linejoin: round;
 }
 
 .line-intake {
-  stroke: rgba(24, 32, 29, 0.26);
+  stroke: rgba(255, 253, 248, 0.38);
   stroke-dasharray: 2 12;
 }
 
@@ -1630,24 +1718,24 @@ select:focus-visible {
 .map-point {
   transform-box: fill-box;
   transform-origin: center;
-  fill: var(--paper);
-  stroke: rgba(124, 92, 240, 0.58);
-  stroke-width: 1.3;
+  fill: rgba(255, 253, 248, 0.94);
+  stroke: rgba(222, 215, 255, 0.96);
+  stroke-width: 1.45;
   animation: pointPulse 5.8s var(--ease) infinite;
 }
 
 .point-b {
-  stroke: rgba(124, 92, 240, 0.52);
+  stroke: rgba(222, 215, 255, 0.92);
   animation-delay: 500ms;
 }
 
 .point-c {
-  stroke: rgba(65, 130, 204, 0.5);
+  stroke: rgba(201, 230, 255, 0.88);
   animation-delay: 850ms;
 }
 
 .point-d {
-  stroke: rgba(38, 123, 134, 0.52);
+  stroke: rgba(191, 244, 240, 0.88);
   animation-delay: 1200ms;
 }
 
@@ -1660,11 +1748,13 @@ select:focus-visible {
   width: 4.8rem;
   height: 4.8rem;
   place-items: center;
-  border: 1px solid rgba(124, 92, 240, 0.34);
+  border: 1px solid rgba(255, 253, 248, 0.72);
   border-radius: 50%;
   background:
-    linear-gradient(145deg, rgba(255, 253, 248, 0.9), rgba(248, 246, 255, 0.74));
-  box-shadow: 0 18px 40px rgba(42, 49, 42, 0.12), 0 0 0 9px rgba(124, 92, 240, 0.065);
+    linear-gradient(145deg, rgba(255, 253, 248, 0.96), rgba(237, 243, 255, 0.86));
+  box-shadow:
+    0 18px 42px rgba(42, 49, 42, 0.2),
+    0 0 0 9px rgba(255, 253, 248, 0.12);
   animation: anchorBreathe 7s var(--ease) infinite;
 }
 
@@ -1673,8 +1763,8 @@ select:focus-visible {
   position: absolute;
   inset: -0.55rem;
   border-radius: 18px;
-  background: var(--accent-gradient);
-  opacity: 0.16;
+  background: linear-gradient(135deg, rgba(255, 253, 248, 0.38), rgba(191, 244, 240, 0.2));
+  opacity: 0.42;
   rotate: 45deg;
   z-index: -1;
   animation: markPlane 8s var(--ease) infinite;
@@ -1693,11 +1783,14 @@ select:focus-visible {
   gap: 0.58rem;
   width: min(13.5rem, 31%);
   min-height: 4.7rem;
-  border: 1px solid rgba(24, 32, 29, 0.16);
+  border: 1px solid rgba(255, 253, 248, 0.38);
   border-radius: 6px;
-  background: rgba(255, 253, 248, 0.9);
-  box-shadow: 0 16px 34px rgba(42, 49, 42, 0.095);
+  background: rgba(255, 253, 248, 0.18);
+  box-shadow:
+    0 18px 36px rgba(42, 49, 42, 0.16),
+    inset 0 1px 0 rgba(255, 253, 248, 0.18);
   padding: 0.85rem 0.92rem;
+  backdrop-filter: blur(8px);
   animation: outcomeSettle 8s var(--ease) infinite;
 }
 
@@ -1709,22 +1802,23 @@ select:focus-visible {
 }
 
 .outcome-zone strong {
-  color: var(--ink-strong);
+  color: rgba(255, 253, 248, 0.96);
   font-size: 0.94rem;
   font-weight: 660;
   line-height: 1.24;
+  text-shadow: 0 1px 18px rgba(42, 49, 42, 0.22);
 }
 
 .outcome-lavender {
   right: 5.8%;
   top: 14%;
   background:
-    linear-gradient(145deg, rgba(255, 253, 248, 0.94), rgba(248, 246, 255, 0.82)),
-    linear-gradient(90deg, rgba(124, 92, 240, 0.18), transparent);
+    linear-gradient(145deg, rgba(255, 253, 248, 0.24), rgba(222, 215, 255, 0.13)),
+    linear-gradient(90deg, rgba(124, 92, 240, 0.24), transparent);
 }
 
 .outcome-lavender span {
-  background: rgba(124, 92, 240, 0.44);
+  background: rgba(222, 215, 255, 0.9);
 }
 
 .outcome-blue {
@@ -1732,12 +1826,12 @@ select:focus-visible {
   top: 40.6%;
   animation-delay: 560ms;
   background:
-    linear-gradient(145deg, rgba(255, 253, 248, 0.94), rgba(239, 247, 255, 0.84)),
-    linear-gradient(90deg, rgba(109, 169, 242, 0.18), transparent);
+    linear-gradient(145deg, rgba(255, 253, 248, 0.24), rgba(201, 230, 255, 0.13)),
+    linear-gradient(90deg, rgba(109, 169, 242, 0.24), transparent);
 }
 
 .outcome-blue span {
-  background: rgba(65, 130, 204, 0.4);
+  background: rgba(201, 230, 255, 0.88);
 }
 
 .outcome-teal {
@@ -1745,12 +1839,12 @@ select:focus-visible {
   top: 67%;
   animation-delay: 1120ms;
   background:
-    linear-gradient(145deg, rgba(255, 253, 248, 0.94), rgba(235, 247, 245, 0.84)),
-    linear-gradient(90deg, rgba(79, 180, 198, 0.18), transparent);
+    linear-gradient(145deg, rgba(255, 253, 248, 0.24), rgba(191, 244, 240, 0.13)),
+    linear-gradient(90deg, rgba(79, 180, 198, 0.24), transparent);
 }
 
 .outcome-teal span {
-  background: rgba(38, 123, 134, 0.44);
+  background: rgba(191, 244, 240, 0.88);
 }
 
 .work-map-mobile {
@@ -1808,10 +1902,14 @@ select:focus-visible {
 @keyframes anchorBreathe {
   0%,
   100% {
-    box-shadow: 0 16px 38px rgba(42, 49, 42, 0.08), 0 0 0 10px rgba(124, 92, 240, 0.05);
+    box-shadow:
+      0 18px 42px rgba(42, 49, 42, 0.2),
+      0 0 0 9px rgba(255, 253, 248, 0.12);
   }
   50% {
-    box-shadow: 0 20px 46px rgba(42, 49, 42, 0.11), 0 0 0 15px rgba(79, 180, 198, 0.06);
+    box-shadow:
+      0 22px 52px rgba(42, 49, 42, 0.24),
+      0 0 0 14px rgba(191, 244, 240, 0.14);
   }
 }
 
@@ -1831,11 +1929,11 @@ select:focus-visible {
   0%,
   100% {
     scale: 1;
-    opacity: 0.18;
+    opacity: 0.36;
   }
   50% {
     scale: 1.08;
-    opacity: 0.26;
+    opacity: 0.48;
   }
 }
 
@@ -1897,6 +1995,30 @@ select:focus-visible {
   100% {
     transform: scaleX(1);
     opacity: 1;
+  }
+}
+
+@keyframes contentReveal {
+  0%,
+  18% {
+    transform: translateY(2px);
+    opacity: 0.38;
+  }
+  48%,
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes cursorBlink {
+  0%,
+  48% {
+    opacity: 1;
+  }
+  49%,
+  100% {
+    opacity: 0;
   }
 }
 
@@ -2009,19 +2131,26 @@ select:focus-visible {
     position: relative;
     min-height: 28.5rem;
     overflow: hidden;
-    border: 0;
-    background: transparent;
-    box-shadow: none;
+    border: 1px solid rgba(255, 253, 248, 0.28);
+    border-radius: 16px;
+    background:
+      radial-gradient(circle at 18% 14%, rgba(255, 253, 248, 0.22), transparent 28%),
+      radial-gradient(circle at 86% 24%, rgba(79, 180, 198, 0.34), transparent 31%),
+      radial-gradient(circle at 50% 82%, rgba(109, 169, 242, 0.26), transparent 35%),
+      linear-gradient(145deg, #533db4 0%, #7658dd 34%, #5e8de8 67%, #35a8b8 100%);
+    box-shadow:
+      0 22px 54px rgba(42, 49, 42, 0.14),
+      inset 0 1px 0 rgba(255, 253, 248, 0.28);
   }
 
   .mobile-paper {
-    background-size: auto, auto, auto, auto, 42px 42px, 42px 42px;
-    mask-image: radial-gradient(ellipse at 50% 48%, rgba(0, 0, 0, 0.92), rgba(0, 0, 0, 0.58) 70%, transparent 92%);
+    background-size: auto, auto, auto, 42px 42px, 42px 42px;
+    opacity: 0.72;
   }
 
   .mobile-map-energy {
     inset: 2% -10%;
-    opacity: 0.92;
+    opacity: 0.48;
   }
 
   .mobile-doc-field {
@@ -2034,12 +2163,14 @@ select:focus-visible {
     position: absolute;
     width: 5.85rem;
     min-height: 4.25rem;
-    border: 1px solid rgba(124, 92, 240, 0.13);
+    border: 1px solid rgba(255, 253, 248, 0.22);
     border-radius: 6px;
     background:
-      linear-gradient(145deg, rgba(255, 253, 248, 0.82), rgba(248, 246, 255, 0.58));
+      linear-gradient(145deg, rgba(255, 253, 248, 0.2), rgba(255, 253, 248, 0.1));
     padding: 0.62rem;
-    box-shadow: 0 8px 20px rgba(42, 49, 42, 0.04);
+    box-shadow:
+      0 10px 24px rgba(42, 49, 42, 0.13),
+      inset 0 1px 0 rgba(255, 253, 248, 0.16);
     animation: mobileDrift 7s var(--ease) infinite;
   }
 
@@ -2052,13 +2183,13 @@ select:focus-visible {
 
   .mobile-doc span {
     width: 45%;
-    background: rgba(124, 92, 240, 0.54);
+    background: rgba(255, 253, 248, 0.7);
   }
 
   .mobile-doc i {
     width: 78%;
     margin-top: 0.68rem;
-    background: rgba(24, 32, 29, 0.15);
+    background: rgba(255, 253, 248, 0.3);
   }
 
   .mobile-doc i:last-child {
@@ -2105,13 +2236,13 @@ select:focus-visible {
     z-index: 3;
     width: 100%;
     height: 100%;
-    opacity: 0.92;
+    opacity: 1;
   }
 
   .mobile-line {
     fill: none;
-    stroke: rgba(24, 32, 29, 0.22);
-    stroke-width: 1.15;
+    stroke: rgba(255, 253, 248, 0.38);
+    stroke-width: 1.3;
     stroke-linecap: round;
     stroke-linejoin: round;
     stroke-dasharray: 360;
@@ -2120,26 +2251,26 @@ select:focus-visible {
   }
 
   .mobile-lavender {
-    stroke: rgba(124, 92, 240, 0.72);
+    stroke: rgba(222, 215, 255, 0.9);
     animation-delay: 380ms;
   }
 
   .mobile-blue {
-    stroke: rgba(65, 130, 204, 0.66);
+    stroke: rgba(201, 230, 255, 0.86);
     animation-delay: 720ms;
   }
 
   .mobile-teal {
-    stroke: rgba(38, 123, 134, 0.68);
+    stroke: rgba(191, 244, 240, 0.88);
     animation-delay: 1060ms;
   }
 
   .mobile-point {
     transform-box: fill-box;
     transform-origin: center;
-    fill: var(--paper);
-    stroke: rgba(24, 32, 29, 0.26);
-    stroke-width: 0.9;
+    fill: rgba(255, 253, 248, 0.94);
+    stroke: rgba(222, 215, 255, 0.9);
+    stroke-width: 1.1;
     animation: pointPulse 6s var(--ease) infinite;
   }
 
@@ -2153,11 +2284,13 @@ select:focus-visible {
     height: 3.9rem;
     translate: -50% -50%;
     place-items: center;
-    border: 1px solid rgba(124, 92, 240, 0.24);
+    border: 1px solid rgba(255, 253, 248, 0.72);
     border-radius: 50%;
     background:
-      linear-gradient(145deg, rgba(255, 253, 248, 0.9), rgba(248, 246, 255, 0.74));
-    box-shadow: 0 13px 30px rgba(42, 49, 42, 0.08), 0 0 0 9px rgba(124, 92, 240, 0.05);
+      linear-gradient(145deg, rgba(255, 253, 248, 0.96), rgba(237, 243, 255, 0.86));
+    box-shadow:
+      0 14px 34px rgba(42, 49, 42, 0.2),
+      0 0 0 9px rgba(255, 253, 248, 0.12);
     animation: anchorBreathe 7s var(--ease) infinite;
   }
 
@@ -2183,11 +2316,13 @@ select:focus-visible {
     gap: 0.68rem;
     align-items: center;
     min-height: 3rem;
-    border: 1px solid rgba(24, 32, 29, 0.09);
+    border: 1px solid rgba(255, 253, 248, 0.34);
     border-radius: 6px;
-    background: rgba(255, 253, 248, 0.82);
-    box-shadow: 0 12px 28px rgba(42, 49, 42, 0.075);
-    color: var(--ink-strong);
+    background: rgba(255, 253, 248, 0.18);
+    box-shadow:
+      0 12px 28px rgba(42, 49, 42, 0.15),
+      inset 0 1px 0 rgba(255, 253, 248, 0.16);
+    color: rgba(255, 253, 248, 0.96);
     font-size: 0.88rem;
     font-weight: 620;
     line-height: 1.25;
@@ -2199,7 +2334,7 @@ select:focus-visible {
     width: 2.15rem;
     height: 2px;
     border-radius: 999px;
-    background: rgba(124, 92, 240, 0.64);
+    background: rgba(222, 215, 255, 0.9);
   }
 
   .mobile-zone-blue {
@@ -2207,7 +2342,7 @@ select:focus-visible {
   }
 
   .mobile-zone-blue i {
-    background: rgba(65, 130, 204, 0.6);
+    background: rgba(201, 230, 255, 0.88);
   }
 
   .mobile-zone-teal {
@@ -2215,7 +2350,7 @@ select:focus-visible {
   }
 
   .mobile-zone-teal i {
-    background: rgba(38, 123, 134, 0.62);
+    background: rgba(191, 244, 240, 0.88);
   }
 
   .mobile-output-rule {
@@ -2225,7 +2360,7 @@ select:focus-visible {
     left: 24%;
     z-index: 4;
     height: 1px;
-    background: linear-gradient(90deg, transparent, rgba(38, 123, 134, 0.38), transparent);
+    background: linear-gradient(90deg, transparent, rgba(255, 253, 248, 0.44), transparent);
     animation: mobileDrift 7s var(--ease) infinite;
   }
 

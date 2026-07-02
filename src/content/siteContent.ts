@@ -144,14 +144,14 @@ export const howWeWork = [
 
 export const team: TeamMember[] = [
   {
-    name: "Jasmine",
-    detail:
-      "Jasmine brings specialist content strategy, commercial writing and experience helping B2B businesses communicate more clearly.",
-  },
-  {
     name: "Barbora",
     detail:
       "Barbora brings hands-on financial-crime, AML, KYC, QA and compliance operations experience, with the ability to support both delivery work and specialist content.",
+  },
+  {
+    name: "Jasmine",
+    detail:
+      "Jasmine brings specialist content strategy, commercial writing and experience helping B2B businesses communicate more clearly.",
   },
   {
     name: "David",

@@ -545,14 +545,18 @@ function StrengthDetail({ strength, index }: { strength: Strength; index: number
 }
 
 function ServiceMiniature({ index, accent }: { index: number; accent: Strength["accent"] }) {
+  const checklistItems = ["AML/KYC", "SOP", "QA review", "Checklist", "Training note"];
+
   return (
     <div className={`service-miniature service-miniature-${accent}`} aria-hidden="true">
       {index === 0 && (
         <div className="miniature-content">
+          <span className="mini-copy-label">Website messaging</span>
           <span className="mini-line mini-line-title" />
           <span className="mini-line mini-line-long" />
           <span className="mini-line mini-line-mid" />
           <span className="mini-line mini-line-short" />
+          <span className="mini-type-cursor" />
           <span className="mini-annotation mini-annotation-a" />
           <span className="mini-annotation-line" />
           <span className="mini-content-block mini-content-block-a" />
@@ -562,10 +566,11 @@ function ServiceMiniature({ index, accent }: { index: number; accent: Strength["
 
       {index === 1 && (
         <div className="miniature-checklist">
-          {Array.from({ length: 4 }).map((_, itemIndex) => (
-            <span key={itemIndex} className="mini-check-row">
+          {checklistItems.map((item) => (
+            <span key={item} className="mini-check-row">
               <i />
-              <b />
+              <b>{item}</b>
+              <em />
             </span>
           ))}
           <span className="mini-review-mark" />
@@ -575,11 +580,13 @@ function ServiceMiniature({ index, accent }: { index: number; accent: Strength["
 
       {index === 2 && (
         <div className="miniature-workflow">
-          <span className="mini-node mini-node-a" />
-          <span className="mini-node mini-node-b" />
-          <span className="mini-node mini-node-c" />
+          <span className="mini-node mini-node-a">Intake</span>
+          <span className="mini-node mini-node-b">Review</span>
+          <span className="mini-node mini-node-c">Handoff</span>
+          <span className="mini-node mini-node-d">MI / Backlog</span>
           <span className="mini-flow-line mini-flow-line-a" />
           <span className="mini-flow-line mini-flow-line-b" />
+          <span className="mini-flow-line mini-flow-line-c" />
           <span className="mini-status-bar mini-status-bar-a" />
           <span className="mini-status-bar mini-status-bar-b" />
           <span className="mini-status-bar mini-status-bar-c" />
@@ -806,16 +813,16 @@ function ConnectedWorkMap() {
         <svg className="map-lines" viewBox="0 0 760 520" role="presentation" aria-hidden="true">
           <defs>
             <linearGradient id="desktopPathLavender" x1="0" x2="1" y1="0" y2="0">
-              <stop offset="0%" stopColor="rgba(36,48,43,0.22)" />
-              <stop offset="100%" stopColor="rgba(124,92,240,0.78)" />
+              <stop offset="0%" stopColor="rgba(255,253,248,0.52)" />
+              <stop offset="100%" stopColor="rgba(222,215,255,0.96)" />
             </linearGradient>
             <linearGradient id="desktopPathBlue" x1="0" x2="1" y1="0" y2="0">
-              <stop offset="0%" stopColor="rgba(36,48,43,0.2)" />
-              <stop offset="100%" stopColor="rgba(65,130,204,0.7)" />
+              <stop offset="0%" stopColor="rgba(255,253,248,0.5)" />
+              <stop offset="100%" stopColor="rgba(201,230,255,0.92)" />
             </linearGradient>
             <linearGradient id="desktopPathTeal" x1="0" x2="1" y1="0" y2="0">
-              <stop offset="0%" stopColor="rgba(36,48,43,0.2)" />
-              <stop offset="100%" stopColor="rgba(38,123,134,0.72)" />
+              <stop offset="0%" stopColor="rgba(255,253,248,0.5)" />
+              <stop offset="100%" stopColor="rgba(191,244,240,0.92)" />
             </linearGradient>
           </defs>
           <path className="line line-intake" d="M70 116 C168 116 236 146 314 226" />
