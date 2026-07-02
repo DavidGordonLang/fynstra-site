@@ -11,7 +11,6 @@ import {
   team,
   whoWeHelp,
   whyUs,
-  workMapFragments,
   type NavItem,
   type RouteId,
   type Strength,
@@ -35,21 +34,21 @@ const routes: Route[] = [
   },
   {
     ...navItems[1],
-    eyebrow: "Three connected strengths",
-    title: "Communication, documentation and workflow support for complex work.",
-    description: "Three connected areas, scoped around the problem rather than a fixed service menu.",
+    eyebrow: "What We Do",
+    title: "What We Do",
+    description: "We help businesses in three connected areas.",
   },
   {
     ...navItems[2],
-    eyebrow: "Best-fit clients",
+    eyebrow: "Who We Help",
     title: whoWeHelp.title,
     description: whoWeHelp.paragraphs[0],
   },
   {
     ...navItems[3],
-    eyebrow: "About Fynstra",
-    title: "A small specialist team for complex work.",
-    description: "A focused 90-day collaboration between David, Barbora and Jasmine.",
+    eyebrow: "Why Us",
+    title: "Why Us",
+    description: whyUs[0],
   },
   {
     ...navItems[4],
@@ -291,7 +290,7 @@ function HomePage({ navigate }: { navigate: (path: string) => void }) {
   return (
     <>
       <section className="hero-section">
-        <div className="mx-auto grid max-w-7xl gap-12 px-4 pb-16 pt-12 sm:px-6 sm:pb-20 sm:pt-16 lg:grid-cols-[0.94fr_1.06fr] lg:items-center lg:px-8 lg:pb-24 lg:pt-20">
+        <div className="mx-auto grid max-w-7xl gap-8 px-4 pb-16 pt-12 sm:px-6 sm:pb-20 sm:pt-16 lg:grid-cols-[0.94fr_1.06fr] lg:items-center lg:gap-12 lg:px-8 lg:pb-24 lg:pt-20">
           <div className="max-w-2xl" data-reveal>
             <p className="eyebrow">{hero.eyebrow}</p>
             <h1 className="hero-title">{hero.title}</h1>
@@ -318,7 +317,7 @@ function HomePage({ navigate }: { navigate: (path: string) => void }) {
       <Section className="pt-4 sm:pt-8">
         <div className="grid gap-8 lg:grid-cols-[0.78fr_1.22fr] lg:gap-14">
           <div data-reveal>
-            <p className="eyebrow">Where Fynstra helps</p>
+            <p className="eyebrow">Problem</p>
             <h2 className="section-title mt-4">{problem.title}</h2>
           </div>
           <div className="problem-copy" data-reveal>
@@ -334,8 +333,8 @@ function HomePage({ navigate }: { navigate: (path: string) => void }) {
 
       <Section tinted>
         <SectionIntro
-          eyebrow="What we connect"
-          title="Three connected areas. One practical view of the work."
+          eyebrow="What We Do"
+          title="We help businesses in three connected areas."
         />
         <StrengthGrid />
       </Section>
@@ -343,8 +342,8 @@ function HomePage({ navigate }: { navigate: (path: string) => void }) {
       <Section>
         <div className="grid gap-10 lg:grid-cols-[0.85fr_1.15fr] lg:items-start">
           <div data-reveal>
-            <p className="eyebrow">Featured offers</p>
-            <h2 className="section-title mt-4">Focused pieces of work, scoped before they start.</h2>
+            <p className="eyebrow">Featured Offers</p>
+            <h2 className="section-title mt-4">Featured Offers</h2>
             <button type="button" className="button button-secondary mt-7" onClick={() => navigate("/what-we-do")}>
               See all offers
             </button>
@@ -376,8 +375,8 @@ function WhatWeDoPage({ route, navigate }: { route: Route; navigate: (path: stri
 
       <Section tinted>
         <SectionIntro
-          eyebrow="Featured offers"
-          title="Practical offers for clearer messages, stronger documentation and smoother work."
+          eyebrow="Featured Offers"
+          title="Featured Offers"
         />
         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3" data-reveal>
           {offers.map((offer) => (
@@ -399,11 +398,11 @@ function WhoWeHelpPage({ route, navigate }: { route: Route; navigate: (path: str
       <Section>
         <div className="grid gap-10 lg:grid-cols-[0.75fr_1.25fr]">
           <div data-reveal>
-            <p className="eyebrow">Fit</p>
-            <h2 className="section-title mt-4">Useful when the work needs subject knowledge and structure.</h2>
+            <p className="eyebrow">Who We Help</p>
+            <h2 className="section-title mt-4">Who We Help</h2>
           </div>
           <div className="space-y-5 text-lg leading-8 text-[var(--muted)]" data-reveal>
-            {whoWeHelp.paragraphs.map((paragraph) => (
+            {whoWeHelp.paragraphs.slice(1).map((paragraph) => (
               <p key={paragraph}>{paragraph}</p>
             ))}
           </div>
@@ -413,8 +412,8 @@ function WhoWeHelpPage({ route, navigate }: { route: Route; navigate: (path: str
       <Section tinted>
         <div className="grid gap-8 lg:grid-cols-[0.9fr_1.1fr]">
           <div data-reveal>
-            <p className="eyebrow">Sectors and teams</p>
-            <h2 className="section-title mt-4">A good fit for process-heavy B2B work.</h2>
+            <p className="eyebrow">Who We Help</p>
+            <h2 className="section-title mt-4">Includes</h2>
           </div>
           <div className="tag-grid" data-reveal>
             {whoWeHelp.sectors.map((sector) => (
@@ -432,50 +431,40 @@ function WhoWeHelpPage({ route, navigate }: { route: Route; navigate: (path: str
 }
 
 function AboutPage({ route, navigate }: { route: Route; navigate: (path: string) => void }) {
+  void navigate;
+
   return (
     <>
       <PageHero route={route} />
-      <Section>
-        <div className="grid gap-10 lg:grid-cols-[0.8fr_1.2fr]">
-          <div data-reveal>
-            <p className="eyebrow">90-day collaboration</p>
-            <h2 className="section-title mt-4">Three people testing one connected specialist offer.</h2>
-          </div>
-          <div className="space-y-5 text-lg leading-8 text-[var(--muted)]" data-reveal>
-            {whyUs.map((paragraph) => (
-              <p key={paragraph}>{paragraph}</p>
-            ))}
-          </div>
-        </div>
-      </Section>
 
       <Section tinted>
         <SectionIntro
-          eyebrow="The team"
-          title="Different strengths, deliberately connected."
+          eyebrow="Why Us"
+          title="David / Barbora / Jasmine"
         />
         <div className="grid gap-4 lg:grid-cols-3" data-reveal>
           {team.map((member) => (
             <article key={member.name} className="team-card">
               <div className="team-initial">{member.name.slice(0, 1)}</div>
               <h3>{member.name}</h3>
-              <p className="mt-3 text-[var(--ink)]">{member.lead}</p>
+              <p className="mt-3 text-[var(--ink)]">{member.detail}</p>
             </article>
           ))}
         </div>
+        <p className="mt-8 max-w-3xl text-lg leading-8 text-[var(--muted)]" data-reveal>
+          {whyUs[1]}
+        </p>
       </Section>
-
-      <HowWeWorkSection />
-      <ContactCta navigate={navigate} />
     </>
   );
 }
 
 function ContactPage({ route }: { route: Route }) {
+  void route;
+
   return (
     <>
-      <PageHero route={route} compact />
-      <Section className="pt-8">
+      <Section className="pt-8 sm:pt-12">
         <ContactBlock />
       </Section>
     </>
@@ -546,11 +535,7 @@ function StrengthDetail({ strength, index }: { strength: Strength; index: number
         <h2>{strength.title}</h2>
         <p>{strength.summary}</p>
       </div>
-      <ul>
-        {strength.items.map((item) => (
-          <li key={item}>{item}</li>
-        ))}
-      </ul>
+      <span className="detail-rule" aria-hidden="true" />
     </article>
   );
 }
@@ -558,7 +543,6 @@ function StrengthDetail({ strength, index }: { strength: Strength; index: number
 function OfferCard({ offer, compact = false }: { offer: (typeof offers)[number]; compact?: boolean }) {
   return (
     <article className={`offer-card ${compact ? "is-compact" : ""}`}>
-      <span>{offer.signal}</span>
       <h3>{offer.title}</h3>
       <p>{offer.summary}</p>
     </article>
@@ -569,8 +553,8 @@ function HowWeWorkSection() {
   return (
     <Section>
       <SectionIntro
-        eyebrow="How we work"
-        title="Simple scope, clear ownership and practical outputs."
+        eyebrow="How We Work"
+        title="How We Work"
       />
       <div className="workflow-list" data-reveal>
         {howWeWork.map((step, index) => (
@@ -589,10 +573,10 @@ function ContactCta({ navigate }: { navigate: (path: string) => void }) {
     <section className="cta-band">
       <div className="mx-auto grid max-w-7xl gap-8 px-4 py-14 sm:px-6 lg:grid-cols-[1fr_auto] lg:items-center lg:px-8">
         <div data-reveal>
-          <p className="eyebrow">Start small</p>
-          <h2 className="cta-title">
-            A short conversation is enough to see whether there is a useful fit.
-          </h2>
+          <p className="eyebrow">Contact</p>
+          <h2 className="cta-title">Contact</h2>
+          <p className="mt-4 max-w-2xl text-base leading-7 text-[var(--muted)]">{contact.body}</p>
+          <p className="mt-3 max-w-2xl text-base leading-7 text-[var(--muted)]">{contact.guidance}</p>
         </div>
         <div className="flex flex-col gap-3 sm:flex-row lg:justify-end" data-reveal>
           <button type="button" className="button button-primary" onClick={() => navigate("/contact")}>
@@ -665,6 +649,7 @@ function ContactBlock() {
         <p className="eyebrow">Contact</p>
         <h2>{contact.title}</h2>
         <p>{contact.body}</p>
+        <p>{contact.guidance}</p>
         <div className="contact-methods">
           <a href={`mailto:${company.email}`} className="contact-method">
             <span>Email</span>
@@ -755,72 +740,92 @@ function ConnectedWorkMap() {
         style={cssVars}
         aria-label="Connected Work Map showing messy inputs becoming communication, documentation and operations pathways"
       >
-        <div className="work-map-grid" />
-        <div className="map-caption map-caption-left">Messy inputs</div>
-        <div className="map-caption map-caption-right">Clearer work</div>
+        <div className="map-paper" />
 
-        <div className="fragment-layer depth-back">
-          {workMapFragments.slice(0, 4).map((fragment, index) => (
-            <span key={fragment} className={`work-fragment fragment-${index + 1}`}>
-              {fragment}
-            </span>
-          ))}
-        </div>
-
-        <svg className="map-lines" viewBox="0 0 760 520" role="presentation" aria-hidden="true">
-          <path className="line line-muted" d="M96 122 C230 98, 258 160, 340 178" />
-          <path className="line line-muted" d="M82 248 C196 244, 254 240, 340 252" />
-          <path className="line line-muted" d="M112 386 C225 384, 266 332, 348 326" />
-          <path className="line line-flow line-lavender" d="M340 178 C430 130, 456 128, 552 122" />
-          <path className="line line-flow line-blue" d="M340 252 C430 248, 462 248, 552 250" />
-          <path className="line line-flow line-teal" d="M348 326 C426 386, 474 382, 552 376" />
-          <path className="line line-muted" d="M585 122 C650 150, 660 205, 684 250" />
-          <path className="line line-muted" d="M585 376 C650 342, 660 294, 684 250" />
-        </svg>
-
-        <div className="node-cluster depth-front">
-          {strengths.map((strength) => (
-            <div key={strength.shortTitle} className={`map-node node-${strength.accent}`}>
+        <div className="document-field depth-back" aria-hidden="true">
+          {Array.from({ length: 7 }).map((_, index) => (
+            <div key={index} className={`doc-fragment doc-fragment-${index + 1}`}>
               <span />
-              <strong>{strength.shortTitle}</strong>
+              <i />
+              <i />
+              <em />
             </div>
           ))}
         </div>
 
-        <div className="structured-panel depth-mid">
-          <span>Organised outputs</span>
-          <ul>
-            <li>clearer messages</li>
-            <li>stronger guidance</li>
-            <li>smoother handoffs</li>
-          </ul>
+        <svg className="map-lines" viewBox="0 0 760 520" role="presentation" aria-hidden="true">
+          <defs>
+            <linearGradient id="desktopPathLavender" x1="0" x2="1" y1="0" y2="0">
+              <stop offset="0%" stopColor="rgba(36,48,43,0.18)" />
+              <stop offset="100%" stopColor="rgba(124,92,240,0.54)" />
+            </linearGradient>
+            <linearGradient id="desktopPathBlue" x1="0" x2="1" y1="0" y2="0">
+              <stop offset="0%" stopColor="rgba(36,48,43,0.16)" />
+              <stop offset="100%" stopColor="rgba(65,130,204,0.48)" />
+            </linearGradient>
+            <linearGradient id="desktopPathTeal" x1="0" x2="1" y1="0" y2="0">
+              <stop offset="0%" stopColor="rgba(36,48,43,0.16)" />
+              <stop offset="100%" stopColor="rgba(38,123,134,0.5)" />
+            </linearGradient>
+          </defs>
+          <path className="line line-intake" d="M70 116 C168 116 236 146 314 226" />
+          <path className="line line-intake" d="M84 266 C174 244 228 262 314 246" />
+          <path className="line line-intake" d="M118 405 C208 380 248 324 318 270" />
+          <path className="line line-draw line-lavender" d="M360 232 C436 152 514 116 650 116" />
+          <path className="line line-draw line-blue" d="M365 252 C462 252 535 252 654 252" />
+          <path className="line line-draw line-teal" d="M360 272 C436 352 518 398 652 398" />
+          <circle className="map-point point-a" cx="360" cy="252" r="3.4" />
+          <circle className="map-point point-b" cx="650" cy="116" r="3" />
+          <circle className="map-point point-c" cx="654" cy="252" r="3" />
+          <circle className="map-point point-d" cx="652" cy="398" r="3" />
+        </svg>
+
+        <div className="map-anchor depth-mid" aria-hidden="true">
+          <img src={company.logoSrc} alt="" />
         </div>
 
-        <div className="map-outcome-line">Clearer connected work</div>
+        <div className="outcome-field depth-front">
+          {strengths.map((strength) => (
+            <div key={strength.shortTitle} className={`outcome-zone outcome-${strength.accent}`}>
+              <span aria-hidden="true" />
+              <strong>{strength.shortTitle}</strong>
+            </div>
+          ))}
+        </div>
       </div>
 
       <div className="work-map-mobile" aria-label="Mobile Connected Work Map">
-        <div className="mobile-map-caption">Messy inputs</div>
-        <div className="mobile-inputs">
-          <span>duplicated requests</span>
-          <span>unclear guidance</span>
-          <span>handoff delays</span>
-        </div>
-        <svg className="mobile-lines" viewBox="0 0 320 150" aria-hidden="true">
-          <path className="mobile-line mobile-line-a" d="M76 12 C74 46, 124 54, 158 74" />
-          <path className="mobile-line mobile-line-b" d="M244 12 C240 42, 202 56, 164 76" />
-          <path className="mobile-line mobile-line-c" d="M150 24 C132 48, 143 62, 160 80" />
-          <path className="mobile-line mobile-line-d" d="M160 82 C160 104, 160 124, 160 146" />
-        </svg>
-        <div className="mobile-nodes">
-          {strengths.map((strength) => (
-            <span key={strength.shortTitle} className={`mobile-node mobile-node-${strength.accent}`}>
+        <div className="mobile-paper" />
+        <div className="mobile-doc-field" aria-hidden="true">
+          {Array.from({ length: 4 }).map((_, index) => (
+            <div key={index} className={`mobile-doc mobile-doc-${index + 1}`}>
+              <span />
               <i />
+              <i />
+            </div>
+          ))}
+        </div>
+        <svg className="mobile-lines" viewBox="0 0 320 380" aria-hidden="true">
+          <path className="mobile-line mobile-intake-a" d="M70 38 C96 96 130 118 160 148" />
+          <path className="mobile-line mobile-intake-b" d="M250 52 C222 98 194 120 160 148" />
+          <path className="mobile-line mobile-intake-c" d="M118 94 C134 120 146 134 160 148" />
+          <path className="mobile-line mobile-lavender" d="M160 170 C126 206 108 226 98 264" />
+          <path className="mobile-line mobile-blue" d="M160 170 C160 212 160 232 160 282" />
+          <path className="mobile-line mobile-teal" d="M160 170 C194 206 214 230 224 300" />
+          <circle className="mobile-point mobile-point-main" cx="160" cy="164" r="3.4" />
+        </svg>
+        <div className="mobile-anchor" aria-hidden="true">
+          <img src={company.logoSrc} alt="" />
+        </div>
+        <div className="mobile-zone-stack">
+          {strengths.map((strength) => (
+            <span key={strength.shortTitle} className={`mobile-zone mobile-zone-${strength.accent}`}>
+              <i aria-hidden="true" />
               {strength.shortTitle}
             </span>
           ))}
         </div>
-        <div className="mobile-outcome">Organised outputs</div>
+        <span className="mobile-output-rule" aria-hidden="true" />
       </div>
     </div>
   );
