@@ -2678,11 +2678,11 @@ select:focus-visible {
       inset 0 1px 0 rgba(255, 253, 248, 0.16);
     opacity: 0.46;
     transition:
-      left 820ms var(--ease),
-      right 820ms var(--ease),
-      top 820ms var(--ease),
-      opacity 820ms var(--ease),
-      transform 820ms var(--ease);
+      left 960ms var(--ease),
+      right 960ms var(--ease),
+      top 960ms var(--ease),
+      opacity 960ms var(--ease),
+      transform 960ms var(--ease);
   }
 
   .mobile-doc b,
@@ -2796,8 +2796,8 @@ select:focus-visible {
     stroke-dashoffset: 360;
     opacity: 0;
     transition:
-      stroke-dashoffset 860ms var(--ease),
-      opacity 760ms var(--ease);
+      stroke-dashoffset 980ms var(--ease),
+      opacity 900ms var(--ease);
   }
 
   .mobile-intake-a,
@@ -2808,7 +2808,7 @@ select:focus-visible {
     stroke-width: 1.15;
     stroke-dasharray: 3 8;
     stroke-dashoffset: 88;
-    transition-delay: 160ms;
+    transition-delay: 280ms;
   }
 
   .work-map-mobile.is-settled .mobile-line {
@@ -2826,17 +2826,17 @@ select:focus-visible {
 
   .mobile-lavender {
     stroke: rgba(222, 215, 255, 0.9);
-    transition-delay: 560ms;
+    transition-delay: 760ms;
   }
 
   .mobile-blue {
     stroke: rgba(201, 230, 255, 0.86);
-    transition-delay: 700ms;
+    transition-delay: 930ms;
   }
 
   .mobile-teal {
     stroke: rgba(191, 244, 240, 0.88);
-    transition-delay: 840ms;
+    transition-delay: 1100ms;
   }
 
   .mobile-point {
@@ -2849,7 +2849,7 @@ select:focus-visible {
     transition:
       opacity 760ms var(--ease),
       transform 760ms var(--ease);
-    transition-delay: 360ms;
+    transition-delay: 560ms;
   }
 
   .work-map-mobile.is-settled .mobile-point {
@@ -2878,7 +2878,7 @@ select:focus-visible {
     transition:
       scale 760ms var(--ease),
       box-shadow 760ms var(--ease);
-    transition-delay: 360ms;
+    transition-delay: 560ms;
   }
 
   .work-map-mobile.is-settled .mobile-anchor {
@@ -2907,8 +2907,8 @@ select:focus-visible {
   .mobile-zone {
     position: relative;
     display: grid;
-    grid-template-columns: auto 1fr;
-    gap: 0.68rem;
+    grid-template-columns: 1fr;
+    gap: 0;
     align-items: center;
     min-height: 2.9rem;
     border: 1px solid rgba(255, 253, 248, 0.34);
@@ -2953,18 +2953,15 @@ select:focus-visible {
   }
 
   .mobile-zone i {
-    width: 1.35rem;
-    height: 2px;
-    border-radius: 999px;
-    background: rgba(222, 215, 255, 0.9);
+    display: none;
   }
 
   .mobile-zone-blue {
-    transition-delay: 880ms;
+    transition-delay: 1300ms;
   }
 
   .mobile-zone-lavender {
-    transition-delay: 740ms;
+    transition-delay: 1160ms;
   }
 
   .mobile-zone-blue i {
@@ -2972,7 +2969,7 @@ select:focus-visible {
   }
 
   .mobile-zone-teal {
-    transition-delay: 1020ms;
+    transition-delay: 1440ms;
   }
 
   .mobile-zone-teal i {
@@ -3022,29 +3019,22 @@ select:focus-visible {
   .service-miniature-teal .mini-work-cluster {
     left: calc(50% - 4.75rem);
     top: 0;
+    display: grid;
     width: 9.5rem;
     height: 3rem;
+    place-items: center;
     transform: translateY(5px) rotate(-0.8deg);
   }
 
   .service-miniature-teal .mini-work-cluster b {
+    position: static;
     font-size: 0.68rem;
     line-height: 1.08;
+    text-align: center;
   }
 
-  .service-miniature-teal .mini-work-cluster i:nth-child(2) {
-    top: 1.82rem;
-    width: 5.8rem;
-  }
-
-  .service-miniature-teal .mini-work-cluster i:nth-child(3) {
-    top: 2.28rem;
-    width: 4.85rem;
-  }
-
-  .service-miniature-teal .mini-work-cluster i:nth-child(4) {
-    top: 2.7rem;
-    width: 6.25rem;
+  .service-miniature-teal .mini-work-cluster i {
+    display: none;
   }
 
   .service-miniature-teal .mini-process-node {
