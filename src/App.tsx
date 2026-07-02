@@ -293,7 +293,11 @@ function HomePage({ navigate }: { navigate: (path: string) => void }) {
         <div className="mx-auto grid max-w-7xl gap-8 px-4 pb-16 pt-12 sm:px-6 sm:pb-20 sm:pt-16 lg:grid-cols-[0.94fr_1.06fr] lg:items-center lg:gap-12 lg:px-8 lg:pb-24 lg:pt-20">
           <div className="max-w-2xl" data-reveal>
             <p className="eyebrow">{hero.eyebrow}</p>
-            <h1 className="hero-title">{hero.title}</h1>
+            <h1 className="hero-title" aria-label={hero.title}>
+              <span>Clearer communication.</span>
+              <span className="hero-title-accent">Better operations.</span>
+              <span>Practical tools.</span>
+            </h1>
             <p className="hero-copy">{hero.body}</p>
             <p className="mt-5 max-w-xl text-base leading-7 text-[var(--muted-2)]">
               {hero.context}
@@ -314,7 +318,7 @@ function HomePage({ navigate }: { navigate: (path: string) => void }) {
         </div>
       </section>
 
-      <Section className="pt-4 sm:pt-8">
+      <Section className="section-problem pt-4 sm:pt-8">
         <div className="grid gap-8 lg:grid-cols-[0.78fr_1.22fr] lg:gap-14">
           <div data-reveal>
             <p className="eyebrow">Problem</p>
@@ -331,7 +335,7 @@ function HomePage({ navigate }: { navigate: (path: string) => void }) {
         </div>
       </Section>
 
-      <Section tinted>
+      <Section tinted className="section-work">
         <SectionIntro
           eyebrow="What We Do"
           title="We help businesses in three connected areas."
@@ -339,7 +343,7 @@ function HomePage({ navigate }: { navigate: (path: string) => void }) {
         <StrengthGrid />
       </Section>
 
-      <Section>
+      <Section className="section-offers">
         <div className="grid gap-10 lg:grid-cols-[0.85fr_1.15fr] lg:items-start">
           <div data-reveal>
             <p className="eyebrow">Featured Offers</p>
@@ -365,7 +369,7 @@ function WhatWeDoPage({ route, navigate }: { route: Route; navigate: (path: stri
   return (
     <>
       <PageHero route={route} />
-      <Section>
+      <Section className="section-work-detail">
         <div className="space-y-6">
           {strengths.map((strength, index) => (
             <StrengthDetail key={strength.title} strength={strength} index={index} />
@@ -373,7 +377,7 @@ function WhatWeDoPage({ route, navigate }: { route: Route; navigate: (path: stri
         </div>
       </Section>
 
-      <Section tinted>
+      <Section tinted className="section-offers">
         <SectionIntro
           eyebrow="Featured Offers"
           title="Featured Offers"
@@ -395,7 +399,7 @@ function WhoWeHelpPage({ route, navigate }: { route: Route; navigate: (path: str
   return (
     <>
       <PageHero route={route} />
-      <Section>
+      <Section className="section-fit">
         <div className="grid gap-10 lg:grid-cols-[0.75fr_1.25fr]">
           <div data-reveal>
             <p className="eyebrow">Who We Help</p>
@@ -409,7 +413,7 @@ function WhoWeHelpPage({ route, navigate }: { route: Route; navigate: (path: str
         </div>
       </Section>
 
-      <Section tinted>
+      <Section tinted className="section-tags">
         <div className="grid gap-8 lg:grid-cols-[0.9fr_1.1fr]">
           <div data-reveal>
             <p className="eyebrow">Who We Help</p>
@@ -437,14 +441,14 @@ function AboutPage({ route, navigate }: { route: Route; navigate: (path: string)
     <>
       <PageHero route={route} />
 
-      <Section tinted>
+      <Section tinted className="section-team">
         <SectionIntro
           eyebrow="Why Us"
           title="David / Barbora / Jasmine"
         />
         <div className="grid gap-4 lg:grid-cols-3" data-reveal>
           {team.map((member) => (
-            <article key={member.name} className="team-card">
+            <article key={member.name} className={`team-card team-card-${member.name.toLowerCase()}`}>
               <div className="team-initial">{member.name.slice(0, 1)}</div>
               <h3>{member.name}</h3>
               <p className="mt-3 text-[var(--ink)]">{member.detail}</p>
@@ -464,7 +468,7 @@ function ContactPage({ route }: { route: Route }) {
 
   return (
     <>
-      <Section className="pt-8 sm:pt-12">
+      <Section className="section-contact pt-8 sm:pt-12">
         <ContactBlock />
       </Section>
     </>
@@ -551,7 +555,7 @@ function OfferCard({ offer, compact = false }: { offer: (typeof offers)[number];
 
 function HowWeWorkSection() {
   return (
-    <Section>
+    <Section className="section-process">
       <SectionIntro
         eyebrow="How We Work"
         title="How We Work"
@@ -741,6 +745,7 @@ function ConnectedWorkMap() {
         aria-label="Connected Work Map showing messy inputs becoming communication, documentation and operations pathways"
       >
         <div className="map-paper" />
+        <div className="map-energy" aria-hidden="true" />
 
         <div className="document-field depth-back" aria-hidden="true">
           {Array.from({ length: 7 }).map((_, index) => (
@@ -756,16 +761,16 @@ function ConnectedWorkMap() {
         <svg className="map-lines" viewBox="0 0 760 520" role="presentation" aria-hidden="true">
           <defs>
             <linearGradient id="desktopPathLavender" x1="0" x2="1" y1="0" y2="0">
-              <stop offset="0%" stopColor="rgba(36,48,43,0.18)" />
-              <stop offset="100%" stopColor="rgba(124,92,240,0.54)" />
+              <stop offset="0%" stopColor="rgba(36,48,43,0.22)" />
+              <stop offset="100%" stopColor="rgba(124,92,240,0.78)" />
             </linearGradient>
             <linearGradient id="desktopPathBlue" x1="0" x2="1" y1="0" y2="0">
-              <stop offset="0%" stopColor="rgba(36,48,43,0.16)" />
-              <stop offset="100%" stopColor="rgba(65,130,204,0.48)" />
+              <stop offset="0%" stopColor="rgba(36,48,43,0.2)" />
+              <stop offset="100%" stopColor="rgba(65,130,204,0.7)" />
             </linearGradient>
             <linearGradient id="desktopPathTeal" x1="0" x2="1" y1="0" y2="0">
-              <stop offset="0%" stopColor="rgba(36,48,43,0.16)" />
-              <stop offset="100%" stopColor="rgba(38,123,134,0.5)" />
+              <stop offset="0%" stopColor="rgba(36,48,43,0.2)" />
+              <stop offset="100%" stopColor="rgba(38,123,134,0.72)" />
             </linearGradient>
           </defs>
           <path className="line line-intake" d="M70 116 C168 116 236 146 314 226" />
@@ -781,6 +786,7 @@ function ConnectedWorkMap() {
         </svg>
 
         <div className="map-anchor depth-mid" aria-hidden="true">
+          <span />
           <img src={company.logoSrc} alt="" />
         </div>
 
@@ -796,6 +802,7 @@ function ConnectedWorkMap() {
 
       <div className="work-map-mobile" aria-label="Mobile Connected Work Map">
         <div className="mobile-paper" />
+        <div className="mobile-map-energy" aria-hidden="true" />
         <div className="mobile-doc-field" aria-hidden="true">
           {Array.from({ length: 4 }).map((_, index) => (
             <div key={index} className={`mobile-doc mobile-doc-${index + 1}`}>
@@ -815,6 +822,7 @@ function ConnectedWorkMap() {
           <circle className="mobile-point mobile-point-main" cx="160" cy="164" r="3.4" />
         </svg>
         <div className="mobile-anchor" aria-hidden="true">
+          <span />
           <img src={company.logoSrc} alt="" />
         </div>
         <div className="mobile-zone-stack">
