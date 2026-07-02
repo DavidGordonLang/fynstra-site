@@ -875,13 +875,13 @@ function ConnectedWorkMap() {
           <path className="line line-intake line-intake-top" d="M206 105 C258 112 300 164 340 224" />
           <path className="line line-intake line-intake-mid" d="M206 258 C252 250 298 250 340 250" />
           <path className="line line-intake line-intake-low" d="M206 408 C258 382 302 326 340 278" />
-          <path className="line line-draw line-lavender" d="M374 232 C438 154 520 116 650 116" />
-          <path className="line line-draw line-blue" d="M374 252 C464 252 536 252 654 252" />
-          <path className="line line-draw line-teal" d="M374 272 C438 350 520 398 652 398" />
+          <path className="line line-draw line-lavender" d="M374 232 C408 152 438 78 484 78" />
+          <path className="line line-draw line-blue" d="M374 252 C410 252 444 248 484 248" />
+          <path className="line line-draw line-teal" d="M374 272 C408 348 438 416 484 416" />
           <circle className="map-point point-a" cx="360" cy="252" r="3.4" />
-          <circle className="map-point point-b" cx="650" cy="116" r="3" />
-          <circle className="map-point point-c" cx="654" cy="252" r="3" />
-          <circle className="map-point point-d" cx="652" cy="398" r="3" />
+          <circle className="map-point point-b" cx="484" cy="78" r="3" />
+          <circle className="map-point point-c" cx="484" cy="248" r="3" />
+          <circle className="map-point point-d" cx="484" cy="416" r="3" />
         </svg>
 
         <div className="map-anchor depth-mid" aria-hidden="true">
