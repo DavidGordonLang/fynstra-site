@@ -1222,17 +1222,17 @@ select:focus-visible {
 
 .mini-work-cluster {
   left: 0;
-  top: 0.65rem;
-  width: 4.95rem;
-  height: 4.4rem;
+  top: 0.7rem;
+  width: 4.85rem;
+  height: 2.9rem;
   border: 1px solid rgba(38, 123, 134, 0.22);
   border-radius: 8px;
   background:
     linear-gradient(145deg, rgba(255, 253, 248, 0.68), rgba(235, 247, 245, 0.38));
   box-shadow: inset 0 1px 0 rgba(255, 253, 248, 0.62);
-  transform: rotate(-4deg) translateY(2px);
+  transform: translateY(5px) rotate(-3deg);
   opacity: 0;
-  animation: processNodeBuild 4.8s var(--ease) forwards;
+  animation: processNodeBuild 620ms var(--ease) forwards;
 }
 
 .mini-work-cluster b {
@@ -1240,7 +1240,7 @@ select:focus-visible {
   left: 0.55rem;
   top: 0.55rem;
   color: rgba(36, 48, 43, 0.76);
-  font-size: 0.58rem;
+  font-size: 0.56rem;
   font-weight: 740;
   line-height: 1.05;
 }
@@ -1255,19 +1255,19 @@ select:focus-visible {
 }
 
 .mini-work-cluster i:nth-child(2) {
-  top: 1.92rem;
+  top: 1.72rem;
   width: 2.8rem;
   rotate: -8deg;
 }
 
 .mini-work-cluster i:nth-child(3) {
-  top: 2.62rem;
+  top: 2.18rem;
   width: 2.35rem;
   rotate: 11deg;
 }
 
 .mini-work-cluster i:nth-child(4) {
-  top: 3.32rem;
+  top: 2.62rem;
   width: 3rem;
   rotate: -3deg;
 }
@@ -1275,53 +1275,53 @@ select:focus-visible {
 .mini-process-node {
   z-index: 2;
   display: grid;
-  min-width: 3.25rem;
-  height: 1.5rem;
+  min-width: 3.2rem;
+  height: 1.48rem;
   place-items: center;
   border: 1px solid rgba(38, 123, 134, 0.32);
   border-radius: 8px;
   background: rgba(255, 253, 248, 0.82);
   box-shadow: 0 8px 16px rgba(42, 49, 42, 0.055);
   color: rgba(36, 48, 43, 0.84);
-  font-size: 0.6rem;
+  font-size: 0.58rem;
   font-weight: 740;
   line-height: 1;
   white-space: nowrap;
   transform: translateY(5px);
   opacity: 0;
-  animation: processNodeBuild 4.8s var(--ease) forwards;
+  animation: processNodeBuild 620ms var(--ease) forwards;
   animation-delay: var(--node-delay, 0ms);
 }
 
 .mini-process-intake {
   --node-delay: 480ms;
-  left: 28%;
-  top: 0.75rem;
+  left: 24%;
+  top: 1.12rem;
 }
 
 .mini-process-review {
   --node-delay: 980ms;
-  left: 47%;
-  top: 2.3rem;
+  left: 43%;
+  top: 1.12rem;
 }
 
 .mini-process-handoff {
   --node-delay: 1420ms;
-  right: 1%;
-  top: 0.75rem;
+  left: 62%;
+  top: 1.12rem;
 }
 
 .mini-process-mi {
   --node-delay: 1860ms;
-  left: 28%;
-  bottom: 0.42rem;
+  left: 43%;
+  bottom: 0.52rem;
   min-width: 5.05rem;
 }
 
 .mini-process-result {
   --node-delay: 2260ms;
-  right: 1%;
-  bottom: 0.42rem;
+  right: 1.5%;
+  top: 1.12rem;
   min-width: 4.75rem;
   border-color: rgba(79, 180, 198, 0.42);
   background:
@@ -1335,47 +1335,60 @@ select:focus-visible {
   background: linear-gradient(90deg, rgba(38, 123, 134, 0.24), rgba(38, 123, 134, 0.62));
   transform: scaleX(0);
   transform-origin: left center;
-  animation: processLineDraw 4.8s var(--ease) forwards;
+  animation: processLineDraw 620ms var(--ease) forwards;
   animation-delay: var(--line-delay, 0ms);
+}
+
+.mini-process-line::after {
+  content: "";
+  position: absolute;
+  right: -0.12rem;
+  top: 50%;
+  width: 0.34rem;
+  height: 0.34rem;
+  border-top: 1.5px solid rgba(38, 123, 134, 0.62);
+  border-right: 1.5px solid rgba(38, 123, 134, 0.62);
+  transform: translateY(-50%) rotate(45deg);
 }
 
 .mini-process-line-a {
   --line-delay: 360ms;
-  left: 18%;
-  top: 1.52rem;
-  width: 11%;
-  rotate: -4deg;
+  left: 17%;
+  top: 1.86rem;
+  width: 7.4%;
+  rotate: -3deg;
 }
 
 .mini-process-line-b {
   --line-delay: 820ms;
-  left: 41%;
-  top: 1.72rem;
-  width: 13%;
-  rotate: 32deg;
+  left: 35%;
+  top: 1.86rem;
+  width: 8.6%;
+  rotate: 0deg;
 }
 
 .mini-process-line-c {
   --line-delay: 1240ms;
-  left: 58%;
-  top: 3rem;
-  width: 28%;
-  rotate: -10deg;
+  left: 54%;
+  top: 1.86rem;
+  width: 8.6%;
+  rotate: 0deg;
 }
 
 .mini-process-line-d {
   --line-delay: 1660ms;
-  left: 54%;
-  top: 3.35rem;
-  width: 15%;
-  rotate: 88deg;
+  left: 73%;
+  top: 1.86rem;
+  width: 9.2%;
+  rotate: 0deg;
 }
 
 .mini-process-line-e {
   --line-delay: 2060ms;
-  left: 52%;
-  bottom: 1.14rem;
-  width: 24%;
+  left: 48.2%;
+  top: 2.74rem;
+  width: 4.75rem;
+  rotate: 90deg;
 }
 
 .detail-panel ul {
@@ -1810,6 +1823,11 @@ select:focus-visible {
   opacity: 0.9;
   padding: 0.72rem;
   transition:
+    left 820ms var(--ease),
+    top 820ms var(--ease),
+    width 820ms var(--ease),
+    min-height 820ms var(--ease),
+    padding 820ms var(--ease),
     transform 820ms var(--ease),
     opacity 820ms var(--ease),
     border-color 820ms var(--ease),
@@ -1845,6 +1863,9 @@ select:focus-visible {
   height: 1px;
   margin-top: 0.72rem;
   background: rgba(255, 253, 248, 0.32);
+  transition:
+    margin-top 760ms var(--ease),
+    opacity 760ms var(--ease);
 }
 
 .doc-fragment i:nth-child(3) {
@@ -1858,6 +1879,9 @@ select:focus-visible {
   margin-top: 0.78rem;
   border: 1px solid rgba(191, 244, 240, 0.52);
   background: rgba(191, 244, 240, 0.18);
+  transition:
+    opacity 760ms var(--ease),
+    margin-top 760ms var(--ease);
 }
 
 .doc-fragment-1 {
@@ -1918,6 +1942,10 @@ select:focus-visible {
 
 .work-map-desktop:is(:hover, :focus-visible) .doc-fragment {
   opacity: 0.88;
+  left: 7%;
+  width: 8.2rem;
+  min-height: 3.65rem;
+  padding: 0.58rem 0.64rem;
   border-color: rgba(255, 253, 248, 0.32);
   background:
     linear-gradient(145deg, rgba(255, 253, 248, 0.25), rgba(255, 253, 248, 0.12));
@@ -1926,36 +1954,61 @@ select:focus-visible {
     inset 0 1px 0 rgba(255, 253, 248, 0.22);
 }
 
+.work-map-desktop:is(:hover, :focus-visible) .doc-fragment b {
+  margin-bottom: 0.38rem;
+}
+
+.work-map-desktop:is(:hover, :focus-visible) .doc-fragment i {
+  margin-top: 0.42rem;
+  opacity: 0.72;
+}
+
+.work-map-desktop:is(:hover, :focus-visible) .doc-fragment i:nth-child(3) {
+  margin-top: 0.26rem;
+}
+
+.work-map-desktop:is(:hover, :focus-visible) .doc-fragment em {
+  margin-top: 0.18rem;
+  opacity: 0;
+}
+
 .work-map-desktop:is(:hover, :focus-visible) .doc-fragment-1 {
-  transform: translate3d(52px, 10px, 0) rotate(-1deg);
+  top: 8.5%;
+  transform: translate3d(0, 0, 0) rotate(-0.5deg);
 }
 
 .work-map-desktop:is(:hover, :focus-visible) .doc-fragment-2 {
-  transform: translate3d(72px, -8px, 0) rotate(0.5deg);
+  top: 19.7%;
+  transform: translate3d(0, 0, 0) rotate(0.5deg);
 }
 
 .work-map-desktop:is(:hover, :focus-visible) .doc-fragment-3 {
-  transform: translate3d(58px, -44px, 0) rotate(-0.5deg);
+  top: 30.9%;
+  transform: translate3d(0, 0, 0) rotate(-0.4deg);
 }
 
 .work-map-desktop:is(:hover, :focus-visible) .doc-fragment-4 {
   opacity: 0.68;
-  transform: translate3d(22px, 30px, 0) rotate(0.5deg);
+  top: 42.1%;
+  transform: translate3d(0, 0, 0) rotate(0.4deg);
 }
 
 .work-map-desktop:is(:hover, :focus-visible) .doc-fragment-5 {
   opacity: 0.7;
-  transform: translate3d(28px, -76px, 0) rotate(0deg);
+  top: 53.3%;
+  transform: translate3d(0, 0, 0) rotate(-0.3deg);
 }
 
 .work-map-desktop:is(:hover, :focus-visible) .doc-fragment-6 {
   opacity: 0.62;
-  transform: translate3d(84px, -92px, 0) rotate(-1deg);
+  top: 64.5%;
+  transform: translate3d(0, 0, 0) rotate(0.3deg);
 }
 
 .work-map-desktop:is(:hover, :focus-visible) .doc-fragment-7 {
   opacity: 0.7;
-  transform: translate3d(8px, 18px, 0) rotate(0deg);
+  top: 75.7%;
+  transform: translate3d(0, 0, 0) rotate(-0.3deg);
 }
 
 .map-lines {
@@ -1973,36 +2026,37 @@ select:focus-visible {
   stroke-linecap: round;
   stroke-linejoin: round;
   transition:
-    opacity 760ms var(--ease),
-    stroke-dashoffset 860ms var(--ease),
+    opacity 260ms var(--ease),
+    stroke-dashoffset 560ms var(--ease),
     stroke-width 760ms var(--ease);
 }
 
 .line-intake {
-  stroke: rgba(255, 253, 248, 0.52);
-  stroke-dasharray: 2 12;
-  opacity: 0.46;
+  stroke: rgba(255, 253, 248, 0.62);
+  stroke-width: 1.55;
+  stroke-dasharray: 3 11;
+  stroke-dashoffset: 90;
+  opacity: 0;
+  transition-delay: 0ms;
 }
 
 .line-draw {
   stroke-dasharray: 520;
-  stroke-dashoffset: 320;
-  opacity: 0.5;
+  stroke-dashoffset: 520;
+  opacity: 0;
+  transition-delay: 0ms;
 }
 
 .line-lavender {
   stroke: url("#desktopPathLavender");
-  animation-delay: 240ms;
 }
 
 .line-blue {
   stroke: url("#desktopPathBlue");
-  animation-delay: 560ms;
 }
 
 .line-teal {
   stroke: url("#desktopPathTeal");
-  animation-delay: 880ms;
 }
 
 .map-point {
@@ -2011,7 +2065,7 @@ select:focus-visible {
   fill: rgba(255, 253, 248, 0.94);
   stroke: rgba(222, 215, 255, 0.96);
   stroke-width: 1.45;
-  opacity: 0.72;
+  opacity: 0;
   transition:
     opacity 760ms var(--ease),
     transform 760ms var(--ease);
@@ -2019,31 +2073,48 @@ select:focus-visible {
 
 .point-b {
   stroke: rgba(222, 215, 255, 0.92);
-  animation-delay: 500ms;
 }
 
 .point-c {
   stroke: rgba(201, 230, 255, 0.88);
-  animation-delay: 850ms;
 }
 
 .point-d {
   stroke: rgba(191, 244, 240, 0.88);
-  animation-delay: 1200ms;
 }
 
 .work-map-desktop:is(:hover, :focus-visible) .line-intake {
-  opacity: 0.82;
+  stroke-dashoffset: 0;
+  opacity: 0.9;
+  transition-delay: 220ms;
+}
+
+.work-map-desktop:is(:hover, :focus-visible) .line-intake-mid {
+  transition-delay: 280ms;
+}
+
+.work-map-desktop:is(:hover, :focus-visible) .line-intake-low {
+  transition-delay: 340ms;
 }
 
 .work-map-desktop:is(:hover, :focus-visible) .line-draw {
   stroke-dashoffset: 0;
   opacity: 1;
+  transition-delay: 420ms;
+}
+
+.work-map-desktop:is(:hover, :focus-visible) .line-blue {
+  transition-delay: 490ms;
+}
+
+.work-map-desktop:is(:hover, :focus-visible) .line-teal {
+  transition-delay: 560ms;
 }
 
 .work-map-desktop:is(:hover, :focus-visible) .map-point {
   opacity: 1;
   transform: scale(1.18);
+  transition-delay: 700ms;
 }
 
 .map-anchor {
@@ -2607,6 +2678,9 @@ select:focus-visible {
       inset 0 1px 0 rgba(255, 253, 248, 0.16);
     opacity: 0.46;
     transition:
+      left 820ms var(--ease),
+      right 820ms var(--ease),
+      top 820ms var(--ease),
       opacity 820ms var(--ease),
       transform 820ms var(--ease);
   }
@@ -2676,23 +2750,31 @@ select:focus-visible {
   }
 
   .work-map-mobile.is-settled .mobile-doc-1 {
+    left: 7%;
+    top: 1.1rem;
     opacity: 0.86;
-    transform: translate3d(18px, 8px, 0) rotate(-1deg);
+    transform: translate3d(0, 0, 0) rotate(-0.5deg);
   }
 
   .work-map-mobile.is-settled .mobile-doc-2 {
+    right: 7%;
+    top: 1.1rem;
     opacity: 0.82;
-    transform: translate3d(-18px, 8px, 0) rotate(1deg);
+    transform: translate3d(0, 0, 0) rotate(0.5deg);
   }
 
   .work-map-mobile.is-settled .mobile-doc-3 {
-    opacity: 0.58;
-    transform: translate3d(22px, -2px, 0) rotate(0deg);
+    left: 7%;
+    top: 5.55rem;
+    opacity: 0.62;
+    transform: translate3d(0, 0, 0) rotate(0.4deg);
   }
 
   .work-map-mobile.is-settled .mobile-doc-4 {
-    opacity: 0.52;
-    transform: translate3d(-18px, -5px, 0) rotate(0deg);
+    right: 7%;
+    top: 5.55rem;
+    opacity: 0.58;
+    transform: translate3d(0, 0, 0) rotate(-0.4deg);
   }
 
   .mobile-lines {
@@ -2712,7 +2794,7 @@ select:focus-visible {
     stroke-linejoin: round;
     stroke-dasharray: 360;
     stroke-dashoffset: 360;
-    opacity: 0.36;
+    opacity: 0;
     transition:
       stroke-dashoffset 860ms var(--ease),
       opacity 760ms var(--ease);

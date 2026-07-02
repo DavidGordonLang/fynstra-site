@@ -872,12 +872,12 @@ function ConnectedWorkMap() {
               <stop offset="100%" stopColor="rgba(191,244,240,0.92)" />
             </linearGradient>
           </defs>
-          <path className="line line-intake" d="M70 116 C168 116 236 146 314 226" />
-          <path className="line line-intake" d="M84 266 C174 244 228 262 314 246" />
-          <path className="line line-intake" d="M118 405 C208 380 248 324 318 270" />
-          <path className="line line-draw line-lavender" d="M360 232 C436 152 514 116 650 116" />
-          <path className="line line-draw line-blue" d="M365 252 C462 252 535 252 654 252" />
-          <path className="line line-draw line-teal" d="M360 272 C436 352 518 398 652 398" />
+          <path className="line line-intake line-intake-top" d="M206 105 C258 112 300 164 340 224" />
+          <path className="line line-intake line-intake-mid" d="M206 258 C252 250 298 250 340 250" />
+          <path className="line line-intake line-intake-low" d="M206 408 C258 382 302 326 340 278" />
+          <path className="line line-draw line-lavender" d="M374 232 C438 154 520 116 650 116" />
+          <path className="line line-draw line-blue" d="M374 252 C464 252 536 252 654 252" />
+          <path className="line line-draw line-teal" d="M374 272 C438 350 520 398 652 398" />
           <circle className="map-point point-a" cx="360" cy="252" r="3.4" />
           <circle className="map-point point-b" cx="650" cy="116" r="3" />
           <circle className="map-point point-c" cx="654" cy="252" r="3" />
