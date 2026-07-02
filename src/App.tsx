@@ -444,7 +444,7 @@ function AboutPage({ route, navigate }: { route: Route; navigate: (path: string)
       <Section tinted className="section-team">
         <SectionIntro
           eyebrow="Why Us"
-          title="David / Barbora / Jasmine"
+          title="Barbora / Jasmine / David"
         />
         <div className="grid gap-4 lg:grid-cols-3" data-reveal>
           {team.map((member) => (
@@ -545,13 +545,19 @@ function StrengthDetail({ strength, index }: { strength: Strength; index: number
 }
 
 function ServiceMiniature({ index, accent }: { index: number; accent: Strength["accent"] }) {
+  const contentDraftItems = ["Website messaging", "Technical explainer", "Case study draft", "Campaign note"];
   const checklistItems = ["AML/KYC", "SOP", "QA review", "Checklist", "Training note"];
 
   return (
     <div className={`service-miniature service-miniature-${accent}`} aria-hidden="true">
       {index === 0 && (
         <div className="miniature-content">
-          <span className="mini-copy-label">Website messaging</span>
+          {contentDraftItems.map((item, itemIndex) => (
+            <span key={item} className={`mini-draft-row mini-draft-row-${itemIndex + 1}`}>
+              <b>{item}</b>
+              <i />
+            </span>
+          ))}
           <span className="mini-line mini-line-title" />
           <span className="mini-line mini-line-long" />
           <span className="mini-line mini-line-mid" />
@@ -580,16 +586,22 @@ function ServiceMiniature({ index, accent }: { index: number; accent: Strength["
 
       {index === 2 && (
         <div className="miniature-workflow">
-          <span className="mini-node mini-node-a">Intake</span>
-          <span className="mini-node mini-node-b">Review</span>
-          <span className="mini-node mini-node-c">Handoff</span>
-          <span className="mini-node mini-node-d">MI / Backlog</span>
-          <span className="mini-flow-line mini-flow-line-a" />
-          <span className="mini-flow-line mini-flow-line-b" />
-          <span className="mini-flow-line mini-flow-line-c" />
-          <span className="mini-status-bar mini-status-bar-a" />
-          <span className="mini-status-bar mini-status-bar-b" />
-          <span className="mini-status-bar mini-status-bar-c" />
+          <span className="mini-work-cluster">
+            <b>Messy workflow</b>
+            <i />
+            <i />
+            <i />
+          </span>
+          <span className="mini-process-node mini-process-intake">Intake</span>
+          <span className="mini-process-node mini-process-review">Review</span>
+          <span className="mini-process-node mini-process-handoff">Handoff</span>
+          <span className="mini-process-node mini-process-mi">MI / Backlog</span>
+          <span className="mini-process-node mini-process-result">Clean result</span>
+          <span className="mini-process-line mini-process-line-a" />
+          <span className="mini-process-line mini-process-line-b" />
+          <span className="mini-process-line mini-process-line-c" />
+          <span className="mini-process-line mini-process-line-d" />
+          <span className="mini-process-line mini-process-line-e" />
         </div>
       )}
     </div>
@@ -774,6 +786,39 @@ function ContactBlock() {
 
 function ConnectedWorkMap() {
   const [movement, setMovement] = useState({ x: 0, y: 0 });
+  const [mobileSettled, setMobileSettled] = useState(false);
+  const mobileMapRef = useRef<HTMLDivElement>(null);
+  const desktopInputLabels = ["Draft", "Intake", "Notes", "Guidance", "Rework", "Handoff", "Backlog"];
+  const mobileInputLabels = ["Draft", "Intake", "Notes", "Handoff"];
+
+  useEffect(() => {
+    const element = mobileMapRef.current;
+    if (!element) return;
+
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      setMobileSettled(true);
+      return;
+    }
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setMobileSettled(true);
+          observer.disconnect();
+        }
+      },
+      { threshold: 0.35 },
+    );
+
+    observer.observe(element);
+    return () => observer.disconnect();
+  }, []);
+
+  const replayMobileMap = () => {
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    setMobileSettled(false);
+    window.setTimeout(() => setMobileSettled(true), 70);
+  };
 
   const onPointerMove: React.PointerEventHandler<HTMLDivElement> = (event) => {
     const rect = event.currentTarget.getBoundingClientRect();
@@ -794,14 +839,16 @@ function ConnectedWorkMap() {
         onPointerMove={onPointerMove}
         onPointerLeave={() => setMovement({ x: 0, y: 0 })}
         style={cssVars}
+        tabIndex={0}
         aria-label="Connected Work Map showing messy inputs becoming communication, documentation and operations pathways"
       >
         <div className="map-paper" />
         <div className="map-energy" aria-hidden="true" />
 
         <div className="document-field depth-back" aria-hidden="true">
-          {Array.from({ length: 7 }).map((_, index) => (
-            <div key={index} className={`doc-fragment doc-fragment-${index + 1}`}>
+          {desktopInputLabels.map((label, index) => (
+            <div key={label} className={`doc-fragment doc-fragment-${index + 1}`}>
+              <b>{label}</b>
               <span />
               <i />
               <i />
@@ -852,12 +899,26 @@ function ConnectedWorkMap() {
         </div>
       </div>
 
-      <div className="work-map-mobile" aria-label="Mobile Connected Work Map">
+      <div
+        ref={mobileMapRef}
+        className={`work-map-mobile ${mobileSettled ? "is-settled" : ""}`}
+        aria-label="Replay Connected Work Map animation"
+        role="button"
+        tabIndex={0}
+        onClick={replayMobileMap}
+        onKeyDown={(event) => {
+          if (event.key === "Enter" || event.key === " ") {
+            event.preventDefault();
+            replayMobileMap();
+          }
+        }}
+      >
         <div className="mobile-paper" />
         <div className="mobile-map-energy" aria-hidden="true" />
         <div className="mobile-doc-field" aria-hidden="true">
-          {Array.from({ length: 4 }).map((_, index) => (
-            <div key={index} className={`mobile-doc mobile-doc-${index + 1}`}>
+          {mobileInputLabels.map((label, index) => (
+            <div key={label} className={`mobile-doc mobile-doc-${index + 1}`}>
+              <b>{label}</b>
               <span />
               <i />
               <i />
