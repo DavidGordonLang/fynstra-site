@@ -926,12 +926,12 @@ function ConnectedWorkMap() {
           ))}
         </div>
         <svg className="mobile-lines" viewBox="0 0 320 380" aria-hidden="true">
-          <path className="mobile-line mobile-intake-a" d="M70 38 C96 96 130 118 160 148" />
-          <path className="mobile-line mobile-intake-b" d="M250 52 C222 98 194 120 160 148" />
-          <path className="mobile-line mobile-intake-c" d="M118 94 C134 120 146 134 160 148" />
-          <path className="mobile-line mobile-lavender" d="M160 170 C126 206 108 226 98 264" />
-          <path className="mobile-line mobile-blue" d="M160 170 C160 212 160 232 160 282" />
-          <path className="mobile-line mobile-teal" d="M160 170 C194 206 214 230 224 300" />
+          <path className="mobile-line mobile-intake-a" d="M68 50 C96 92 130 122 160 146" />
+          <path className="mobile-line mobile-intake-b" d="M252 50 C224 92 194 122 160 146" />
+          <path className="mobile-line mobile-intake-c" d="M72 100 C104 122 132 136 160 146" />
+          <path className="mobile-line mobile-lavender" d="M160 176 C126 188 92 204 64 222 L64 236 L80 236" />
+          <path className="mobile-line mobile-blue" d="M64 236 L64 282 L80 282" />
+          <path className="mobile-line mobile-teal" d="M64 282 L64 328 L80 328" />
           <circle className="mobile-point mobile-point-main" cx="160" cy="164" r="3.4" />
         </svg>
         <div className="mobile-anchor" aria-hidden="true">
