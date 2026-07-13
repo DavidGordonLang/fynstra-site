@@ -6,6 +6,7 @@ import {
   howWeWork,
   navItems,
   offers,
+  pageCta,
   problem,
   strengths,
   team,
@@ -20,7 +21,7 @@ import {
 const FORMSPREE_ENDPOINT = "https://formspree.io/f/xblzwzpk";
 
 type Route = NavItem & {
-  eyebrow: string;
+  eyebrow?: string;
   title: string;
   description: string;
 };
@@ -34,25 +35,21 @@ const routes: Route[] = [
   },
   {
     ...navItems[1],
-    eyebrow: "What We Do",
     title: "What We Do",
     description: "We help businesses in three connected areas.",
   },
   {
     ...navItems[2],
-    eyebrow: "Who We Help",
     title: whoWeHelp.title,
     description: whoWeHelp.paragraphs[0],
   },
   {
     ...navItems[3],
-    eyebrow: "Why Us",
     title: "Why Us",
     description: whyUs[0],
   },
   {
     ...navItems[4],
-    eyebrow: "Contact",
     title: contact.title,
     description: contact.body,
   },
@@ -303,12 +300,14 @@ function HomePage({ navigate }: { navigate: (path: string) => void }) {
               {hero.context}
             </p>
             <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-              <button type="button" className="button button-primary" onClick={() => navigate("/contact")}>
+              <button type="button" className="button button-primary" onClick={() => navigate("/what-we-do")}>
                 {hero.cta}
               </button>
-              <button type="button" className="button button-secondary" onClick={() => navigate("/what-we-do")}>
-                {hero.secondaryCta}
-              </button>
+              {hero.secondaryCta && (
+                <button type="button" className="button button-secondary" onClick={() => navigate("/about")}>
+                  {hero.secondaryCta}
+                </button>
+              )}
             </div>
           </div>
 
@@ -331,33 +330,22 @@ function HomePage({ navigate }: { navigate: (path: string) => void }) {
                 <li key={paragraph}>{paragraph}</li>
               ))}
             </ul>
+            <button type="button" className="button button-secondary mt-7" onClick={() => navigate("/about")}>
+              {problem.cta}
+            </button>
           </div>
         </div>
       </Section>
 
       <Section tinted className="section-work">
         <SectionIntro
-          eyebrow="What We Do"
-          title="We help businesses in three connected areas."
+          title="What We Do"
+          body="We help businesses in three connected areas."
         />
         <StrengthGrid />
-      </Section>
-
-      <Section className="section-offers">
-        <div className="grid gap-10 lg:grid-cols-[0.85fr_1.15fr] lg:items-start">
-          <div data-reveal>
-            <p className="eyebrow">Featured Offers</p>
-            <h2 className="section-title mt-4">Featured Offers</h2>
-            <button type="button" className="button button-secondary mt-7" onClick={() => navigate("/what-we-do")}>
-              See all offers
-            </button>
-          </div>
-          <div className="grid gap-4 sm:grid-cols-2" data-reveal>
-            {offers.slice(0, 4).map((offer) => (
-              <OfferCard key={offer.title} offer={offer} compact />
-            ))}
-          </div>
-        </div>
+        <button type="button" className="button button-secondary mt-8" onClick={() => navigate("/what-we-do")}>
+          See our services
+        </button>
       </Section>
 
       <ContactCta navigate={navigate} />
@@ -379,8 +367,7 @@ function WhatWeDoPage({ route, navigate }: { route: Route; navigate: (path: stri
 
       <Section tinted className="section-offers">
         <SectionIntro
-          eyebrow="Featured Offers"
-          title="Featured Offers"
+          title="Our Services"
         />
         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3" data-reveal>
           {offers.map((offer) => (
@@ -400,16 +387,10 @@ function WhoWeHelpPage({ route, navigate }: { route: Route; navigate: (path: str
     <>
       <PageHero route={route} />
       <Section className="section-fit">
-        <div className="grid gap-10 lg:grid-cols-[0.75fr_1.25fr]">
-          <div data-reveal>
-            <p className="eyebrow">Who We Help</p>
-            <h2 className="section-title mt-4">Who We Help</h2>
-          </div>
-          <div className="space-y-5 text-lg leading-8 text-[var(--muted)]" data-reveal>
-            {whoWeHelp.paragraphs.slice(1).map((paragraph) => (
-              <p key={paragraph}>{paragraph}</p>
-            ))}
-          </div>
+        <div className="max-w-4xl space-y-5 text-lg leading-8 text-[var(--muted)]" data-reveal>
+          {whoWeHelp.paragraphs.slice(1).map((paragraph) => (
+            <p key={paragraph}>{paragraph}</p>
+          ))}
         </div>
       </Section>
 
@@ -435,16 +416,13 @@ function WhoWeHelpPage({ route, navigate }: { route: Route; navigate: (path: str
 }
 
 function AboutPage({ route, navigate }: { route: Route; navigate: (path: string) => void }) {
-  void navigate;
-
   return (
     <>
       <PageHero route={route} />
 
       <Section tinted className="section-team">
         <SectionIntro
-          eyebrow="Why Us"
-          title="Barbora / Jasmine / David"
+          title="The team"
         />
         <div className="grid gap-4 lg:grid-cols-3" data-reveal>
           {team.map((member) => (
@@ -459,6 +437,7 @@ function AboutPage({ route, navigate }: { route: Route; navigate: (path: string)
           {whyUs[1]}
         </p>
       </Section>
+      <ContactCta navigate={navigate} />
     </>
   );
 }
@@ -480,7 +459,7 @@ function PageHero({ route, compact = false }: { route: Route; compact?: boolean 
     <section className={`page-hero ${compact ? "is-compact" : ""}`}>
       <div className="mx-auto max-w-7xl px-4 py-14 sm:px-6 sm:py-20 lg:px-8">
         <div className="max-w-4xl" data-reveal>
-          <p className="eyebrow">{route.eyebrow}</p>
+          {route.eyebrow && <p className="eyebrow">{route.eyebrow}</p>}
           <h1 className="page-title">{route.title}</h1>
           <p className="mt-6 max-w-3xl text-lg leading-8 text-[var(--muted)] sm:text-xl">
             {route.description}
@@ -507,11 +486,11 @@ function Section({
   );
 }
 
-function SectionIntro({ eyebrow, title, body }: { eyebrow: string; title: string; body?: string }) {
+function SectionIntro({ eyebrow, title, body }: { eyebrow?: string; title: string; body?: string }) {
   return (
     <div className="mb-10 max-w-3xl" data-reveal>
-      <p className="eyebrow">{eyebrow}</p>
-      <h2 className="section-title mt-4">{title}</h2>
+      {eyebrow && <p className="eyebrow">{eyebrow}</p>}
+      <h2 className={`section-title ${eyebrow ? "mt-4" : ""}`}>{title}</h2>
       {body && <p className="section-intro-copy">{body}</p>}
     </div>
   );
@@ -621,7 +600,6 @@ function HowWeWorkSection() {
   return (
     <Section className="section-process">
       <SectionIntro
-        eyebrow="How We Work"
         title="How We Work"
       />
       <div className="workflow-list" data-reveal>
@@ -641,17 +619,15 @@ function ContactCta({ navigate }: { navigate: (path: string) => void }) {
     <section className="cta-band">
       <div className="mx-auto grid max-w-7xl gap-8 px-4 py-14 sm:px-6 lg:grid-cols-[1fr_auto] lg:items-center lg:px-8">
         <div data-reveal>
-          <p className="eyebrow">Contact</p>
-          <h2 className="cta-title">Contact</h2>
-          <p className="mt-4 max-w-2xl text-base leading-7 text-[var(--muted)]">{contact.body}</p>
-          <p className="mt-3 max-w-2xl text-base leading-7 text-[var(--muted)]">{contact.guidance}</p>
+          <h2 className="cta-title">{pageCta.title}</h2>
+          <p className="mt-4 max-w-2xl text-base leading-7 text-[var(--muted)]">{pageCta.body}</p>
         </div>
         <div className="flex flex-col gap-3 sm:flex-row lg:justify-end" data-reveal>
           <button type="button" className="button button-primary" onClick={() => navigate("/contact")}>
-            {company.callLabel}
+            {pageCta.primaryLabel}
           </button>
           <a href={`mailto:${company.email}`} className="button button-secondary">
-            Email Fynstra
+            {pageCta.secondaryLabel}
           </a>
         </div>
       </div>
@@ -714,8 +690,7 @@ function ContactBlock() {
   return (
     <div className="grid gap-8 lg:grid-cols-[0.82fr_1.18fr] lg:items-start">
       <aside className="contact-aside" data-reveal>
-        <p className="eyebrow">Contact</p>
-        <h2>{contact.title}</h2>
+        <h1>{contact.title}</h1>
         <p>{contact.body}</p>
         <p>{contact.guidance}</p>
         <div className="contact-methods">

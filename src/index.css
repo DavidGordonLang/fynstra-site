@@ -1628,7 +1628,7 @@ select:focus-visible {
   background: var(--accent-gradient);
 }
 
-.contact-aside h2 {
+.contact-aside h1 {
   margin-top: 1rem;
   font-size: clamp(1.9rem, 3.3vw, 2.7rem);
   font-weight: 540;

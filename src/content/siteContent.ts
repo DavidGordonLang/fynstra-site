@@ -43,20 +43,21 @@ export const hero = {
   eyebrow: "Fynstra",
   title: "Clearer communication. Better operations. Practical tools.",
   body:
-    "Fynstra helps businesses dealing with complex work explain what they do, improve how work moves through their teams and introduce practical tools where they add real value.",
+    "We help businesses dealing with complex work explain what they do, improve how work moves through their teams and introduce practical tools where they add real value.",
   context:
-    "We work with organisations in fintech, regtech, compliance, HR tech and process-heavy services where clear communication, strong subject knowledge and practical delivery all matter.",
-  cta: "Book a 20-minute introductory call",
-  secondaryCta: "Explore what we do",
+    "That is the gap we close for organisations in fintech, regtech, compliance, HR tech and process-heavy services where clear communication, strong subject knowledge and practical delivery all matter.",
+  cta: "Explore what we do",
+  secondaryCta: "",
 };
 
 export const problem = {
-  title: "Problem",
+  title: "Expertise isn't the problem. Translation is.",
   paragraphs: [
-    "Complex businesses often have good products, strong people and useful expertise, but the way that expertise is explained or delivered can become unclear.",
+    "You know your stuff. Your team knows your stuff. But somewhere between \"we understand this\" and \"everyone else does too,\" some of that clarity doesn't quite make the journey.",
     "Messaging becomes too technical. Internal guidance becomes inconsistent. Customers are asked for information more than once. Teams lose time to rework, handoffs and unclear ownership.",
     "The answer is not always more content, more software or more AI. The first step is understanding where the work, message or process is breaking down.",
   ],
+  cta: "Why work with us",
 };
 
 export const strengths: Strength[] = [
@@ -64,7 +65,7 @@ export const strengths: Strength[] = [
     title: "Specialist content and communication",
     shortTitle: "Communication",
     summary:
-      "website messaging, thought leadership, technical explainers, case studies, founder-led content, newsletters and campaign content.",
+      "Website messaging, thought leadership, technical explainers, case studies, founder-led content, newsletters and campaign content.",
     accent: "lavender",
   },
   {
@@ -78,7 +79,7 @@ export const strengths: Strength[] = [
     title: "Operations, workflow and practical tools",
     shortTitle: "Operations & Tools",
     summary:
-      "process mapping, workflow reviews, document-intake reviews, MI, backlog visibility, handoff improvement and practical AI review where the problem is clear.",
+      "Process mapping, workflow reviews, document-intake reviews, MI, backlog visibility, handoff improvement and practical AI review where the problem is clear.",
     accent: "teal",
   },
 ];
@@ -86,9 +87,9 @@ export const strengths: Strength[] = [
 export const whoWeHelp = {
   title: "Who We Help",
   paragraphs: [
-    "We are best suited to businesses where the work is complex, regulated, technical or process-heavy.",
-    "This includes fintech, regtech, compliance consultancies, HR tech, recruitment technology, B2B SaaS, document-heavy professional services and teams dealing with quality, rework or operational pressure.",
-    "We are not trying to be a general marketing agency or a broad AI consultancy. The strongest fit is with organisations that need clearer communication, better internal structure or more practical ways of managing work.",
+    "If your work is complex, regulated, technical or process-heavy, you're exactly who we built Fynstra for.",
+    "This includes fintech, regtech, compliance consultancies, HR tech, B2B SaaS, document-heavy professional services and teams dealing with quality, rework or operational pressure.",
+    "We are not trying to be a general marketing agency or a broad AI consultancy. We're the strongest fit for organisations that need clearer communication, better internal structure or more practical ways of managing work.",
   ],
   sectors: [
     "Fintech",
@@ -104,14 +105,14 @@ export const whoWeHelp = {
 
 export const offers: Offer[] = [
   {
-    title: "Specialist content package",
+    title: "Specialist B2B content package",
     summary:
-      "a practical content package for businesses that need clearer positioning, thought leadership, technical explainers and LinkedIn or campaign support.",
+      "A practical content package for businesses that need clearer positioning, thought leadership, technical explainers and LinkedIn or campaign support.",
   },
   {
     title: "Fintech and compliance content support",
     summary:
-      "articles, explainers, guidance and review support for businesses writing about AML, KYC, onboarding, fraud, compliance or financial-crime topics.",
+      "Articles, explainers, guidance and review support for businesses writing about AML, KYC, onboarding, fraud, compliance or financial-crime topics.",
   },
   {
     title: "Financial-crime quality support",
@@ -121,23 +122,23 @@ export const offers: Offer[] = [
   {
     title: "Workflow friction review",
     summary:
-      "a focused review of one workflow to identify delays, handoff issues, rework, visibility gaps and practical improvement options.",
+      "A focused review of one workflow to identify delays, handoff issues, rework, visibility gaps and practical improvement options.",
   },
   {
     title: "Website messaging refresh",
     summary:
-      "clearer homepage, service-page and about-page messaging for businesses that know what they do but struggle to explain it clearly.",
+      "Clearer homepage, service-page and about-page messaging for businesses that know exactly what they do and just need it said as clearly.",
   },
   {
     title: "Practical AI workflow review",
     summary:
-      "a contained review of where AI, automation or simpler process changes could reduce manual work safely.",
+      "A contained review of where AI, automation or simpler process changes could reduce manual work safely.",
   },
 ];
 
 export const howWeWork = [
   "We start with a short introductory call to understand the issue and confirm whether there is a sensible fit.",
-  "If there is, we agree the scope, the lead person, the deliverables and the price before work begins.",
+  "We agree the scope, the lead person, the deliverables and the price before work begins.",
   "Each project has one clear owner, with the right support added where needed. That might mean content led by Jasmine, compliance input from Barbora or workflow and systems input from David.",
   "The aim is always to produce practical outputs: clearer copy, better guidance, stronger documentation, a more useful workflow or a contained tool recommendation.",
 ];
@@ -146,31 +147,31 @@ export const team: TeamMember[] = [
   {
     name: "Barbora",
     detail:
-      "Barbora brings hands-on financial-crime, AML, KYC, QA and compliance operations experience, with the ability to support both delivery work and specialist content.",
+      "Barbora brings hands-on experience in financial-crime, AML, KYC, QA and compliance operations. She works across both delivery and specialist content.",
   },
   {
     name: "Jasmine",
     detail:
-      "Jasmine brings specialist content strategy, commercial writing and experience helping B2B businesses communicate more clearly.",
+      "Jasmine brings the words: the specialist content strategy, commercial writing and experience helping B2B businesses communicate their message more clearly.",
   },
   {
     name: "David",
     detail:
-      "David brings operations, workflow, MI, systems thinking and practical AI implementation.",
+      "David brings the systems: operations, workflow, MI, systems thinking and practical AI implementation. If something's clogged, he finds out where.",
   },
 ];
 
 export const whyUs = [
-  "Fynstra brings together three different but connected strengths.",
+  "Three people. Three strengths. One team.",
   "The value is not three separate services under one name. The value is being able to combine communication, subject expertise and operational thinking when the client problem needs it.",
 ];
 
 export const contact = {
   title: "Contact",
   body:
-    "If your business needs clearer communication, stronger compliance content, better internal guidance or a practical review of how work moves through your team, we can start with a short conversation.",
+    "Need clearer communication, stronger compliance content, better internal guidance, or a straight look at how work moves through your team? Let's start with a conversation.",
   guidance:
-    "Use the form below or email us to book a 20-minute introductory call.",
+    "Use the form below, or email us directly to book a 20-minute introductory call.",
   enquiryOptions: [
     "content and communication",
     "fintech or compliance content",
@@ -179,4 +180,12 @@ export const contact = {
     "practical AI or tools",
     "not sure yet",
   ],
+};
+
+export const pageCta = {
+  title: "Let's talk",
+  body:
+    "Need clearer communication, stronger compliance content, or a straight look at how work moves through your team? Start with a conversation.",
+  primaryLabel: "Book a 20-minute introductory call",
+  secondaryLabel: "Email Fynstra",
 };
